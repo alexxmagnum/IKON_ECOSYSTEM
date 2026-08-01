@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir la estrategia de seguridad del ecosistema IKON.
+Definir la estrategia de seguridad de MotanOS.
 
 Este documento establece las normas, principios y mecanismos que protegerán a los usuarios, los datos y la infraestructura del sistema.
 
@@ -223,7 +223,7 @@ Siempre utilizando mecanismos estándar y bien mantenidos.
 
 Toda la información de tarjetas será gestionada por Stripe.
 
-IKON nunca almacenará números completos de tarjeta.
+MotanOS nunca almacenará números completos de tarjeta.
 
 ---
 

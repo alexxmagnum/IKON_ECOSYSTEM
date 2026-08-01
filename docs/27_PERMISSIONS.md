@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir el modelo oficial de permisos del ecosistema IKON.
+Definir el modelo oficial de permisos de MotanOS.
 
 Este documento establece qué puede ver, crear, modificar o administrar cada tipo de usuario.
 

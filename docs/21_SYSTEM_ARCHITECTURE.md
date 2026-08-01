@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir la arquitectura general del ecosistema IKON.
+Definir la arquitectura general de MotanOS.
 
 Este documento establece cómo se organizan todos los sistemas, módulos, servicios y comunicaciones del producto.
 
@@ -314,7 +314,7 @@ Una buena arquitectura debe permitir:
 
 # Regla final
 
-La arquitectura de IKON debe ser capaz de crecer durante años sin perder claridad.
+La arquitectura de MotanOS debe ser capaz de crecer durante años sin perder claridad.
 
 Cada decisión técnica deberá preguntarse:
 
