@@ -1,7 +1,10 @@
 %% ============================================================
-%% IKON Community OS — High-Level Data Model (ER)
+%% IKON_ECOSYSTEM — High-Level Data Model (ER)
 %% Source of truth: docs/00 → docs/53
 %% Scope: entities · relationships · cardinalities
+%% BOOKING.status availability-blocking:
+%%   Draft|Pending|PaymentPending|Confirmed|CheckedIn|InProgress
+%% Non-blocking: Waitlisted|Completed|Cancelled|NoShow|Expired
 %% Not SQL · not migrations · not RLS · not full columns
 %% ============================================================
 
@@ -233,6 +236,7 @@ erDiagram
         string status
         datetime starts_at
         datetime ends_at
+        datetime hold_expires_at
         datetime created_at
     }
 
@@ -248,6 +252,7 @@ erDiagram
         uuid resource_id FK
         uuid user_id FK
         string status
+        datetime offer_expires_at
         datetime created_at
     }
 

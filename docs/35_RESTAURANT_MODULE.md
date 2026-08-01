@@ -231,11 +231,11 @@ Las promociones gastronómicas podrán tener restricciones de fechas, horarios o
 Este módulo se integra con:
 
 * 36_DIGITAL_MENU.md
-* 41_EVENTS_MODULE.md
-* 42_TOURNAMENTS_MODULE.md
-* 43_MEMBERS_MODULE.md
-* 45_PAYMENTS_MODULE.md
-* 46_BOOKING_MODULE.md
+* 42_EVENTS_MODULE.md
+* 43_TOURNAMENTS_MODULE.md
+* 44_MEMBERS_MODULE.md
+* 46_PAYMENTS_MODULE.md
+* 47_BOOKING_MODULE.md
 * Recommendation Engine
 * Notification Engine
 * Analytics

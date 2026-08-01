@@ -140,11 +140,15 @@ stateDiagram-v2
 
 ## Reglas especiales
 
-* Si el recurso requiere pago anticipado, `Confirmed` solo tras cobro validado.
+* **Availability-blocking** (ocupan el RESOURCE; no pueden solaparse): `Draft` (con hold), `Pending`, `PaymentPending`, `Confirmed`, `CheckedIn`, `InProgress`.
+* **Non-blocking:** `Waitlisted`, `Completed`, `Cancelled`, `NoShow`, `Expired`.
+* Hold temporal TTL default **15 minutos** (configurable); ver BR-0037.
+* Waitlist offer TTL default **15 minutos**; ver BR-0035.
+* Si el recurso requiere pago anticipado, `Confirmed` solo tras `PAYMENT.Captured`.
 * Cancelación libera disponibilidad del `RESOURCE` inmediatamente.
 * Check-in actualiza reserva y, cuando aplique, recurso/mesa.
 * No Show aplica política del club (penalización/analytics).
-* `Draft` con bloqueo temporal debe expirar (`Expired`) o liberarse al cancelar.
+* Ownership: BR-0016 / `permission-matrix.md`.
 
 ## Casos límite
 
@@ -155,7 +159,7 @@ stateDiagram-v2
 
 ## Relacionado con
 
-`BR-0030`, `BR-0031`, `BR-0032`, `BR-0034`, `BR-0035`, `BR-0037`, `BR-0038`, `BR-0040`, `BR-0041`, `BR-0042`, `BR-0045`, `BR-0110`, `BR-0115`, `BR-0151`, `BR-0158`, `BR-0159`
+`BR-0016`, `BR-0030`, `BR-0031`, `BR-0032`, `BR-0034`, `BR-0035`, `BR-0037`, `BR-0038`, `BR-0040`, `BR-0041`, `BR-0042`, `BR-0045`, `BR-0110`, `BR-0115`, `BR-0151`, `BR-0158`, `BR-0159`
 
 ---
 

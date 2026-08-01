@@ -234,14 +234,38 @@ el sistema podrá aplicar automáticamente las políticas definidas por el club.
 
 ## Reserva
 
-* Pendiente.
-* Confirmada.
-* Lista de espera.
-* Check-in realizado.
-* En curso.
-* Finalizada.
-* Cancelada.
-* No Show.
+Estados canónicos (ingleses; ver `docs/rules/state-machines.md`):
+
+* Draft
+* Pending
+* Waitlisted
+* PaymentPending
+* Confirmed
+* CheckedIn
+* InProgress
+* Completed
+* Cancelled
+* NoShow
+* Expired
+
+### Availability-blocking
+
+Bloquean el slot del recurso (no pueden solaparse entre sí sobre el mismo RESOURCE):
+
+* Draft (con hold temporal)
+* Pending
+* PaymentPending
+* Confirmed
+* CheckedIn
+* InProgress
+
+No bloquean disponibilidad:
+
+* Waitlisted
+* Completed
+* Cancelled
+* NoShow
+* Expired
 
 ---
 
@@ -256,11 +280,29 @@ el sistema podrá aplicar automáticamente las políticas definidas por el club.
 
 ---
 
+# Ownership de reservas
+
+Toda reserva tiene un owner (`user_id`).
+
+| Acción | Guest | Member / Socio / Organizer | Staff | Manager | Club Admin | Platform Admin |
+|---|---|---|---|---|---|---|
+| Consultar propia | No | Sí | Sí | Sí | Sí | Sí |
+| Consultar ajena | No | No | Sí | Sí | Sí | Sí |
+| Crear | No | Sí | Sí | Sí | Sí | Sí |
+| Modificar propia | No | Sí | Sí | Sí | Sí | Sí |
+| Modificar ajena | No | No | Sí | Sí | Sí | Sí |
+| Cancelar propia | No | Sí | Sí | Sí | Sí | Sí |
+| Cancelar ajena | No | No | Sí | Sí | Sí | Sí |
+
+Regla canónica: BR-0016.
+
+---
+
 # Reglas de negocio
 
 ## RB-001
 
-Nunca podrán existir reservas solapadas para el mismo recurso.
+Nunca podrán existir reservas availability-blocking solapadas para el mismo recurso.
 
 ---
 
@@ -339,7 +381,7 @@ IKON notificará automáticamente al siguiente usuario.
 
 Cuando una reserva requiera pago,
 
-el estado solo cambiará a **Confirmada** tras la validación del cobro.
+el estado solo cambiará a **Confirmed** tras `PAYMENT` en estado **Captured**.
 
 ---
 

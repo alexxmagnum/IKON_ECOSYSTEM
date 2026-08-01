@@ -1,26 +1,29 @@
 %% ============================================================
-%% IKON Community OS — Conceptual Authorization Model (RBAC)
-%% Source of truth: docs/27_PERMISSIONS.md (+ 00 → 53)
+%% IKON_ECOSYSTEM — Conceptual Authorization Model (RBAC)
+%% Source of truth: docs/27_PERMISSIONS.md · DEC-002 · permission-matrix.md
 %% Scope: roles · permissions · actions · resources
-%% Not SQL · not RLS · not ownership · not dynamic rules
+%% Ownership: BR-0016 · permission-matrix.md
 %% ============================================================
 
 flowchart TB
 
     %% ------------------------------------------------------------
-    %% Privilege ladder — actor levels (conceptual)
-    %% Authorization always flows through ROLE → PERMISSION
+    %% Official roles (DEC-002) — no synonyms
     %% ------------------------------------------------------------
     subgraph ACTORS["Actors"]
         direction TB
         GUEST["Guest"]
         MEMBER["Member"]
+        SOCIO["Socio"]
+        ORGANIZER["Organizer"]
         STAFF["Staff"]
         MANAGER["Manager"]
         CLUB_ADMIN["Club Admin"]
         PLATFORM_ADMIN["Platform Admin"]
 
         GUEST --> MEMBER
+        MEMBER --> SOCIO
+        MEMBER --> ORGANIZER
         MEMBER --> STAFF
         STAFF --> MANAGER
         MANAGER --> CLUB_ADMIN
@@ -100,10 +103,11 @@ flowchart TB
     PERMISSION -->|"allows"| ACTIONS
     ACTIONS -->|"on"| RESOURCES
 
-    %% Scope (conceptual notes — not direct grants):
+    %% Scope (DEC-001 single-tenant v1):
     %% Guest          → public content only
-    %% Member         → own data + authorized features
+    %% Member/Socio   → own data + authorized features
+    %% Organizer      → own experiences/matches
     %% Staff          → operational tasks
     %% Manager        → daily operations
-    %% Club Admin     → own club only
-    %% Platform Admin → full platform access
+    %% Club Admin     → club of this deployment
+    %% Platform Admin → platform operations

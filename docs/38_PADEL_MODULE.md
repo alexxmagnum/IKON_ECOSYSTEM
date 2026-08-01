@@ -251,11 +251,11 @@ El objetivo es reducir el número de partidos que no llegan a jugarse por falta 
 
 El módulo se integra con:
 
-* 41_EVENTS_MODULE.md
-* 42_TOURNAMENTS_MODULE.md
-* 43_MEMBERS_MODULE.md
-* 45_PAYMENTS_MODULE.md
-* 46_BOOKING_MODULE.md
+* 42_EVENTS_MODULE.md
+* 43_TOURNAMENTS_MODULE.md
+* 44_MEMBERS_MODULE.md
+* 46_PAYMENTS_MODULE.md
+* 47_BOOKING_MODULE.md
 * Restaurante
 * Comunidad
 * Recommendation Engine

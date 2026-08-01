@@ -212,22 +212,31 @@ El usuario podrá consultar:
 
 ## Pago
 
-* Pendiente.
-* Procesando.
-* Completado.
-* Fallido.
-* Reembolsado.
-* Cancelado.
+Estados canónicos (únicos; ver `docs/rules/state-machines.md` y DEC-003):
+
+* Pending
+* Authorized
+* Captured
+* Failed
+* Cancelled
+* Refunded
+* PartiallyRefunded
+
+No se utilizarán otros nombres ni sinónimos para estos estados.
 
 ---
 
 ## Reembolso
 
-* Pendiente.
-* Aprobado.
-* Procesando.
-* Completado.
-* Rechazado.
+Transiciones de reembolso se reflejan en `PAYMENT` como `PartiallyRefunded` o `Refunded`.
+
+Estados operativos de un reembolso individual (subproceso):
+
+* Pending
+* Approved
+* Processing
+* Completed
+* Rejected
 
 ---
 
@@ -235,7 +244,7 @@ El usuario podrá consultar:
 
 ## RB-001
 
-Una reserva que requiera pago no quedará confirmada hasta recibir la confirmación del proveedor de pagos.
+Una reserva que requiera pago no quedará `Confirmed` hasta que el pago alcance `Captured`.
 
 ---
 

@@ -53,9 +53,9 @@ Reduce fricción de entrada y permite descubrir el club antes de comprometerse.
 
 ## BR-0003
 
-Visitante no puede reservar
+Guest no puede reservar
 
-Un visitante no autenticado no puede crear reservas, pagar ni crear experiencias.
+Un Guest no autenticado no puede crear reservas, pagar ni crear experiencias.
 
 Impacto
 
@@ -276,7 +276,7 @@ Reduce superficie de abuso y error operativo.
 
 Guest solo contenido público
 
-El actor Guest únicamente accede a contenido e información pública autorizada.
+El rol Guest únicamente accede a contenido e información pública autorizada.
 
 Impacto
 
@@ -287,15 +287,29 @@ Impacto
 
 Justificación
 
-Definido en el modelo conceptual de permisos.
+Modelo RBAC canónico (DEC-002).
 
 ---
 
 ## BR-0016
 
-Member solo datos propios y funciones autorizadas
+Ownership de reservas (BOOKING)
 
-Member accede a su información y a funcionalidades explícitamente autorizadas por su rol.
+Toda reserva tiene un **owner** (`user_id` del creador / titular).
+
+Permisos sobre BOOKING:
+
+| Acción | Guest | Member / Socio / Organizer | Staff | Manager | Club Admin | Platform Admin |
+|---|---|---|---|---|---|---|
+| Consultar propia | No | Sí | Sí | Sí | Sí | Sí |
+| Consultar ajena | No | No | Sí (ámbito operativo) | Sí | Sí | Sí |
+| Crear | No | Sí (si no Suspended) | Sí | Sí | Sí | Sí |
+| Modificar propia | No | Sí (según reglas del recurso) | Sí | Sí | Sí | Sí |
+| Modificar ajena | No | No | Sí | Sí | Sí | Sí |
+| Cancelar propia | No | Sí (según política) | Sí | Sí | Sí | Sí |
+| Cancelar ajena | No | No | Sí | Sí | Sí | Sí |
+
+Organizer no obtiene ownership de reservas ajenas; solo gestiona experiencias/partidos propios según `27_PERMISSIONS.md`.
 
 Impacto
 
@@ -306,7 +320,7 @@ Impacto
 
 Justificación
 
-Protege datos de otros miembros y del club.
+Resuelve ownership enforceable; alineado con RBAC y DEC-002.
 
 ---
 
@@ -350,19 +364,18 @@ Rol documentado en permisos y módulos operativos.
 
 ## BR-0019
 
-Club Admin acotado a su club
+Club Admin acotado al club del despliegue
 
-Club Admin gestiona únicamente su club; nunca otros clubes.
+Club Admin administra únicamente el club del despliegue actual (single-tenant v1).
 
 Impacto
 
 - Permissions
 - Platform Admin
-- Multi-tenant
 
 Justificación
 
-Aislamiento multi-tenant a nivel de autorización.
+DEC-001 en `docs/project/DECISIONS.md`: IKON_ECOSYSTEM v1 es single-tenant.
 
 ---
 
@@ -584,7 +597,24 @@ Visión del Booking Module: un proceso, múltiples recursos.
 
 Prohibición de solapes activos
 
-Nunca pueden existir dos reservas activas solapadas sobre el mismo recurso.
+Nunca pueden existir dos reservas **availability-blocking** solapadas sobre el mismo recurso.
+
+Estados que **bloquean disponibilidad** (ocupan el slot del recurso):
+
+* `Draft` (mientras exista hold temporal)
+* `Pending`
+* `PaymentPending`
+* `Confirmed`
+* `CheckedIn`
+* `InProgress`
+
+Estados que **no bloquean** disponibilidad:
+
+* `Waitlisted`
+* `Completed`
+* `Cancelled`
+* `NoShow`
+* `Expired`
 
 Impacto
 
@@ -593,7 +623,7 @@ Impacto
 
 Justificación
 
-RB-001 del Booking Module.
+RB-001 del Booking Module; alineado con `state-machines.md` (BOOKING) y DEC de disponibilidad.
 
 ---
 
@@ -654,6 +684,10 @@ Lista de espera automática
 
 Cuando un recurso está completo, el usuario puede entrar en lista de espera; una plaza libre notifica al siguiente automáticamente.
 
+La oferta de plaza desde lista de espera caduca tras un TTL configurable por club (**default: 15 minutos**). Si expira, se ofrece al siguiente en cola.
+
+`Waitlisted` **no** bloquea disponibilidad del recurso.
+
 Impacto
 
 - Booking Engine
@@ -688,7 +722,11 @@ RB-005 del Booking Module.
 
 Bloqueo temporal durante el proceso
 
-Durante la creación de una reserva (especialmente con pago) el sistema puede aplicar un bloqueo temporal; si el proceso falla, el bloqueo se libera.
+Durante la creación de una reserva (especialmente con pago) el sistema aplica un bloqueo temporal sobre el recurso.
+
+* TTL configurable por club (**default: 15 minutos**).
+* Al expirar el TTL: la reserva en `Draft` / `PaymentPending` pasa a `Expired` o `Cancelled` según política, y el recurso se libera.
+* Si el proceso falla (pago, validación, cancelación): el bloqueo se libera de inmediato.
 
 Impacto
 
@@ -705,7 +743,7 @@ Flujos de booking/restaurant y casos límite de pago.
 
 Confirmación condicionada al pago
 
-Si la reserva requiere pago, el estado Confirmada solo se alcanza tras validación del cobro.
+Si la reserva requiere pago, el estado `Confirmed` solo se alcanza tras `PAYMENT` en estado `Captured`.
 
 Impacto
 
@@ -714,7 +752,7 @@ Impacto
 
 Justificación
 
-Integración Pagos–Reservas y RB-001 de Payments.
+Integración Pagos–Reservas; máquina `PAYMENT` canónica.
 
 ---
 
@@ -2018,7 +2056,7 @@ RB-004 Payments y modelo de datos.
 
 Confirmación de reserva tras cobro
 
-Una reserva que requiere pago no queda confirmada hasta confirmación del proveedor de pagos.
+Una reserva que requiere pago no queda `Confirmed` hasta que `PAYMENT` alcanza `Captured`.
 
 Impacto
 
@@ -2027,7 +2065,7 @@ Impacto
 
 Justificación
 
-RB-001 Payments.
+RB-001 Payments; vocabulario canónico DEC-003.
 
 ---
 
@@ -2092,9 +2130,11 @@ RB-005 Payments.
 
 ## BR-0114
 
-Sin cobros duplicados
+Sin cobros duplicados (idempotencia)
 
-Los reintentos, timeouts y cancelaciones durante el pago no deben generar cobros duplicados.
+Los reintentos, timeouts, cancelaciones y **webhooks duplicados** del proveedor de pagos no deben generar cobros duplicados.
+
+Toda confirmación de pago debe ser **idempotente** respecto a `payment_intent_id` / identificador del proveedor.
 
 Impacto
 
@@ -2923,7 +2963,11 @@ Casos límite de Booking y Payments.
 
 Estados de reserva finitos y explícitos
 
-Una reserva solo puede estar en estados definidos (pendiente, confirmada, lista de espera, check-in, en curso, finalizada, cancelada, No Show).
+Una reserva solo puede estar en los estados canónicos de `state-machines.md` (BOOKING):
+
+`Draft`, `Pending`, `Waitlisted`, `PaymentPending`, `Confirmed`, `CheckedIn`, `InProgress`, `Completed`, `Cancelled`, `NoShow`, `Expired`.
+
+La exclusión de solapes usa el conjunto **availability-blocking** definido en BR-0031.
 
 Impacto
 
@@ -2933,7 +2977,7 @@ Impacto
 
 Justificación
 
-Estados documentados del Booking Module.
+Estados oficiales BOOKING; alineación con 47_BOOKING_MODULE.
 
 ---
 

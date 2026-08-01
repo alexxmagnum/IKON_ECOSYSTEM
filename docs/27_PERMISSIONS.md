@@ -60,7 +60,7 @@ Las acciones importantes deberán poder asociarse a un usuario concreto.
 
 # Modelo RBAC
 
-IKON utilizará un modelo basado en roles (Role Based Access Control).
+IKON_ECOSYSTEM utilizará un modelo basado en roles (Role Based Access Control).
 
 Cada usuario podrá tener uno o varios roles.
 
@@ -68,9 +68,28 @@ Cada rol concederá un conjunto de permisos.
 
 ---
 
+# Nombres oficiales de roles (DEC-002)
+
+Únicos nombres permitidos:
+
+* Guest
+* Member
+* Socio
+* Organizer
+* Staff
+* Manager
+* Club Admin
+* Platform Admin
+
+Sinónimos prohibidos: Visitante, Usuario registrado, Organizador, Administrador, Miembro.
+
+Fuente: `docs/project/DECISIONS.md` DEC-002.
+
+---
+
 # Roles principales
 
-## Visitante
+## Guest
 
 Usuario no autenticado.
 
@@ -92,7 +111,7 @@ No puede:
 
 ---
 
-## Usuario registrado
+## Member
 
 Puede:
 
@@ -110,7 +129,7 @@ No puede administrar contenido del club.
 
 ## Socio
 
-Dispone de todos los permisos del usuario registrado.
+Dispone de todos los permisos del Member.
 
 Además puede:
 
@@ -121,7 +140,7 @@ Además puede:
 
 ---
 
-## Organizador
+## Organizer
 
 Puede:
 
@@ -167,18 +186,26 @@ No podrá modificar configuración crítica del sistema.
 
 ---
 
-## Administrador
+## Club Admin
 
-Control total del ecosistema.
+Control total del club del despliegue (single-tenant v1).
 
 Puede:
 
 * gestionar usuarios,
 * asignar roles,
-* configurar el sistema,
+* configurar el sistema del club,
 * administrar módulos,
 * consultar auditorías,
 * gestionar integraciones.
+
+---
+
+## Platform Admin
+
+Operaciones de plataforma (infraestructura y configuración transversal).
+
+En v1 (DEC-001) no implica acceso multi-club; el despliegue es single-tenant.
 
 ---
 
@@ -298,7 +325,7 @@ Existen acciones que dependen del propietario.
 
 Ejemplo.
 
-Un organizador puede modificar únicamente las experiencias que ha creado.
+Un Organizer puede modificar únicamente las experiencias que ha creado.
 
 No todas las experiencias del club.
 
@@ -399,11 +426,11 @@ Nunca utilizaremos:
 
 El sistema de permisos será correcto cuando:
 
-* un visitante solo vea contenido público,
-* un usuario solo pueda modificar sus propios datos,
-* un organizador solo gestione sus experiencias,
-* un miembro del staff solo acceda a la información necesaria para su trabajo,
-* un manager no pueda realizar tareas reservadas al administrador,
+* un Guest solo vea contenido público,
+* un Member solo pueda modificar sus propios datos y reservas,
+* un Organizer solo gestione sus experiencias,
+* un miembro del Staff solo acceda a la información necesaria para su trabajo,
+* un Manager no pueda realizar tareas reservadas a Club Admin,
 * todas las operaciones sensibles estén protegidas por RLS y validación en servidor.
 
 ---

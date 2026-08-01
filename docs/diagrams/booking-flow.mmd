@@ -1,6 +1,10 @@
 %% ============================================================
-%% IKON Community OS — Unified Booking Flow
+%% IKON_ECOSYSTEM — Unified Booking Flow
 %% Source of truth: docs/47_BOOKING_MODULE.md (+ related modules)
+%% Availability-blocking statuses (BR-0031):
+%%   Draft|Pending|PaymentPending|Confirmed|CheckedIn|InProgress
+%% Non-blocking: Waitlisted|Completed|Cancelled|NoShow|Expired
+%% Hold TTL default 15m (BR-0037) · Waitlist offer TTL default 15m (BR-0035)
 %% Scope: business process only (not API · not SQL · not architecture)
 %% ============================================================
 
