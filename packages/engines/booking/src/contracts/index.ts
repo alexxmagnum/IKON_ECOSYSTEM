@@ -1,0 +1,81 @@
+import type {
+  Booking,
+  BookingId,
+  BookingParticipant,
+  TimeInterval,
+  UserId,
+  WaitlistEntry,
+} from "../domain/booking";
+import type { Availability, AvailabilitySlot } from "../domain/availability";
+import type { Resource, ResourceId } from "../domain/resource";
+import type { BookingStatus } from "../types/states";
+
+/**
+ * API-oriented TypeScript contracts for a future Booking HTTP surface.
+ * No route handlers or transport concerns live here.
+ */
+
+export interface CreateBookingInput {
+  resourceId: ResourceId;
+  ownerUserId: UserId;
+  startsAt: string;
+  endsAt: string;
+  experienceId?: string;
+  eventId?: string;
+  participantUserIds?: UserId[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface UpdateBookingInput {
+  bookingId: BookingId;
+  startsAt?: string;
+  endsAt?: string;
+  status?: BookingStatus;
+  participantUserIds?: UserId[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface CancelBookingInput {
+  bookingId: BookingId;
+  reason?: string;
+}
+
+export interface BookingResult {
+  booking: Booking;
+  participants?: BookingParticipant[];
+}
+
+export interface AvailabilityQuery {
+  resourceId: ResourceId;
+  startsAt: string;
+  endsAt: string;
+  /** Optional slot granularity hint in minutes for future engines. */
+  slotMinutes?: number;
+}
+
+export interface AvailabilityResult {
+  availability: Availability;
+}
+
+export interface ListBookingsQuery {
+  resourceId?: ResourceId;
+  ownerUserId?: UserId;
+  status?: BookingStatus | BookingStatus[];
+  range?: TimeInterval;
+}
+
+export interface JoinWaitlistInput {
+  resourceId: ResourceId;
+  userId: UserId;
+  metadata?: Record<string, unknown>;
+}
+
+export interface WaitlistResult {
+  entry: WaitlistEntry;
+}
+
+export interface ResourceResult {
+  resource: Resource;
+}
+
+export type { AvailabilitySlot };
