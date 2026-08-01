@@ -9,6 +9,9 @@ out/
 build/
 coverage/
 
+# Drizzle generated artifacts (not applied in Phase 2 flows)
+packages/database/drizzle/
+
 # Turbo
 .turbo/
 

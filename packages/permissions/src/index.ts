@@ -1,16 +1,25 @@
 /**
- * @motanos/permissions — RBAC types aligned to DEC-002.
- * No authorization engine yet (bootstrap only).
+ * @motanos/permissions — MotanOS RBAC foundation (DEC-002).
  */
-export const OFFICIAL_ROLES = [
-  "Guest",
-  "Member",
-  "Socio",
-  "Organizer",
-  "Staff",
-  "Manager",
-  "Club Admin",
-  "Platform Admin",
-] as const;
-
-export type OfficialRole = (typeof OFFICIAL_ROLES)[number];
+export {
+  PLATFORM_PERMISSION_KEYS,
+  type Permission,
+  type PermissionKey,
+  type PlatformPermissionKey,
+} from "./permissions";
+export {
+  filterOfficialRoles,
+  hasAllRoles,
+  hasAnyRole,
+  hasRole,
+  isClubAdmin,
+  isPlatformAdmin,
+  isStaffOrAbove,
+} from "./rbac";
+export {
+  OFFICIAL_ROLES,
+  PHASE2_FOCUS_ROLES,
+  isOfficialRole,
+  type OfficialRole,
+  type Phase2FocusRole,
+} from "./roles";

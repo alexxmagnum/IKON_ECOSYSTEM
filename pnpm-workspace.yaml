@@ -5,7 +5,8 @@ packages:
   - "packages/domains/*"
   - "implementations/*"
 
-# Phase 1: native optional builds not required for bootstrap validation.
+# Optional native builds not required for Phase 2 Core Foundation validation.
 allowBuilds:
   sharp: false
   unrs-resolver: false
+  esbuild: false

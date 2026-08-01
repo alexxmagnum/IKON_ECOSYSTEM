@@ -1,9 +1,13 @@
 /**
- * @motanos/auth — identity contracts and helpers (scaffold).
- * No functional authentication in Phase 1.
+ * @motanos/auth — MotanOS identity foundation.
+ * Client-safe exports. Import service-role helpers from `@motanos/auth/server`.
  */
-export type AuthSubject = {
-  userId: string;
-};
-
-export const AUTH_PACKAGE = "@motanos/auth" as const;
+export { createBrowserSupabaseClient } from "./supabase/browser";
+export {
+  getCurrentUser,
+  getSession,
+  requireSession,
+  toMotanSession,
+  toMotanUser,
+} from "./session";
+export type { MotanSession, MotanUser } from "./types";

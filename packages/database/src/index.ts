@@ -1,11 +1,7 @@
 /**
- * @motanos/database — Drizzle preparation (scaffold).
- * No business schema, tables, or migrations in Phase 1.
+ * @motanos/database — MotanOS data foundation (Drizzle).
+ * Phase 2: identity tables only. No booking/payment/domain schemas.
  * DEC-001: no club_id / tenant_id.
  */
-export const DATABASE_PACKAGE = "@motanos/database" as const;
-
-/** Placeholder marker confirming Drizzle is available for future schema work. */
-export type DrizzleReady = {
-  orm: "drizzle-orm";
-};
+export { createDatabase, type Database } from "./client";
+export * from "./schema";

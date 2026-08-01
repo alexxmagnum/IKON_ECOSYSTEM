@@ -7,6 +7,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./server": {
+      "types": "./src/server.ts",
+      "default": "./src/server.ts"
     }
   },
   "scripts": {
@@ -14,7 +18,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@motanos/config": "workspace:*",
     "@motanos/contracts": "workspace:*",
-    "@motanos/core": "workspace:*"
+    "@motanos/core": "workspace:*",
+    "@supabase/supabase-js": "^2.49.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.11"
   }
 }

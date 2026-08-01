@@ -7,6 +7,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./schema": {
+      "types": "./src/schema/index.ts",
+      "default": "./src/schema/index.ts"
     }
   },
   "scripts": {
@@ -14,8 +18,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@motanos/config": "workspace:*",
     "@motanos/contracts": "workspace:*",
     "@motanos/core": "workspace:*",
-    "drizzle-orm": "^0.40.1"
+    "drizzle-orm": "^0.40.1",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.11",
+    "drizzle-kit": "^0.30.5"
   }
 }
