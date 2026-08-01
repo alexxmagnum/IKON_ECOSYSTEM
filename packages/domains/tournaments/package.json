@@ -1,0 +1,24 @@
+{
+  "name": "@motanos/domain-tournaments",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@motanos/booking": "workspace:*",
+    "@motanos/contracts": "workspace:*",
+    "@motanos/domain-events": "workspace:*",
+    "@motanos/domain-golf": "workspace:*",
+    "@motanos/domain-members": "workspace:*",
+    "@motanos/payments": "workspace:*"
+  }
+}
