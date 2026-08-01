@@ -516,7 +516,7 @@ El módulo se considerará completo cuando:
 
 # Visión a largo plazo
 
-El Booking Engine deberá convertirse en una de las piezas más sólidas del ecosistema IKON.
+El Booking Engine deberá convertirse en una de las piezas más sólidas de MotanOS.
 
 No será únicamente un calendario.
 
