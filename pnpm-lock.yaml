@@ -201,6 +201,12 @@ importers:
         specifier: workspace:*
         version: link:../../engines/payments
 
+  packages/domains/members:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+
   packages/domains/restaurant:
     dependencies:
       '@motanos/booking':
