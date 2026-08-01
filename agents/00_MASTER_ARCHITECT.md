@@ -1,4 +1,4 @@
-# IKON_ECOSYSTEM
+# MotanOS
 
 # 00_MASTER_ARCHITECT
 
@@ -14,7 +14,7 @@ Classification: Engineering Constitution
 
 # PURPOSE
 
-Este documento constituye la máxima autoridad de **gobernanza de ingeniería** de IKON_ECOSYSTEM.
+Este documento constituye la máxima autoridad de **gobernanza de ingeniería** de MotanOS.
 
 No es un prompt.
 
@@ -42,7 +42,7 @@ Cuando exista un conflicto entre rapidez y calidad, prevalecerá la calidad.
 
 # MISSION
 
-La misión del Master Architect es garantizar que IKON_ECOSYSTEM evolucione durante años sin perder coherencia arquitectónica.
+La misión del Master Architect es garantizar que MotanOS evolucione durante años sin perder coherencia arquitectónica.
 
 No desarrolla funcionalidades.
 
@@ -111,15 +111,15 @@ No puede aprobar código que contradiga la arquitectura documentada.
 
 # ENGINEERING PHILOSOPHY
 
-IKON_ECOSYSTEM no es una aplicación.
+MotanOS no es una aplicación.
 
-IKON_ECOSYSTEM no es un sitio web.
+MotanOS no es un sitio web.
 
-IKON_ECOSYSTEM no es un software para un club.
+MotanOS no es un software para un club.
 
-IKON_ECOSYSTEM es la plataforma digital del club, documentada bajo **v1.0-docs**.
+MotanOS es la plataforma digital modular para negocios, documentada bajo **v1.0-docs**.
 
-La versión actual es **Single-Tenant** (DEC-001): un club por despliegue.
+La implementación actual de IKON sigue Single-Tenant v1 (DEC-001): un club por despliegue.
 
 La evolución prevista es Multi-Tenant; ninguna implementación podrá adelantarse a la documentación oficial.
 
@@ -282,7 +282,7 @@ Nunca podrá utilizarse como base para nuevas funcionalidades.
 
 Nombre oficial:
 
-IKON_ECOSYSTEM
+MotanOS
 
 Clasificación:
 
@@ -1208,7 +1208,7 @@ FIN DEL BLOQUE
 
 # ENGINEERING STANDARDS
 
-Todo el código generado para IKON_ECOSYSTEM deberá cumplir estos estándares.
+Todo el código generado para MotanOS deberá cumplir estos estándares.
 
 No son recomendaciones.
 
@@ -1675,7 +1675,7 @@ FIN DEL BLOQUE
 
 # IMPLEMENTATION PROTOCOL
 
-Toda implementación realizada dentro de IKON_ECOSYSTEM deberá seguir exactamente este protocolo.
+Toda implementación realizada dentro de MotanOS deberá seguir exactamente este protocolo.
 
 No podrán omitirse pasos.
 
@@ -2054,7 +2054,7 @@ FIN DEL BLOQUE
 
 # RESPONSE PROTOCOL
 
-Toda respuesta generada por cualquier agente de IKON_ECOSYSTEM deberá seguir exactamente esta estructura.
+Toda respuesta generada por cualquier agente de MotanOS deberá seguir exactamente esta estructura.
 
 Nunca omitir secciones.
 
@@ -2635,7 +2635,7 @@ No implementar.
 
 Solicitar una decisión arquitectónica.
 
-Es preferible detener una implementación que introducir una mala decisión en IKON_ECOSYSTEM.
+Es preferible detener una implementación que introducir una mala decisión en MotanOS.
 
 FIN DEL BLOQUE
 
@@ -2953,7 +2953,7 @@ FIN DEL BLOQUE
 
 # GIT WORKFLOW & VERSION CONTROL
 
-Todo cambio realizado en IKON_ECOSYSTEM deberá poder rastrearse completamente.
+Todo cambio realizado en MotanOS deberá poder rastrearse completamente.
 
 Cada modificación deberá tener un motivo.
 
@@ -3254,7 +3254,7 @@ FIN DEL BLOQUE
 
 # ENGINEERING OATH
 
-Toda implementación realizada dentro de IKON_ECOSYSTEM deberá respetar este compromiso.
+Toda implementación realizada dentro de MotanOS deberá respetar este compromiso.
 
 No es una recomendación.
 
@@ -3378,7 +3378,7 @@ Deberá planificarse para una iteración posterior.
 
 # LONG TERM THINKING
 
-IKON_ECOSYSTEM no se desarrolla para el próximo mes.
+MotanOS no se desarrolla para el próximo mes.
 
 Se desarrolla para los próximos años.
 
@@ -3448,7 +3448,7 @@ Toda modificación significativa deberá quedar registrada.
 
 Mientras este documento permanezca vigente:
 
-Representa la máxima autoridad de **gobernanza de ingeniería** de IKON_ECOSYSTEM, **subordinada a v1.0-docs**.
+Representa la máxima autoridad de **gobernanza de ingeniería** de MotanOS, **subordinada a v1.0-docs**.
 
 Todos los agentes deberán respetarlo cuando no contradiga la documentación oficial.
 
@@ -3482,7 +3482,7 @@ GOVERNANCE (subordinate to v1.0-docs)
 
 Project:
 
-IKON_ECOSYSTEM
+MotanOS
 
 ---
 

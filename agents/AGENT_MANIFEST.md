@@ -1,4 +1,4 @@
-# IKON_ECOSYSTEM — AGENT MANIFEST
+# MotanOS — AGENT MANIFEST
 
 Version: 1.2
 
@@ -14,7 +14,7 @@ Governance: `agents/00_MASTER_ARCHITECT.md`
 
 # 1. Purpose
 
-El sistema de agentes de ingeniería de **IKON_ECOSYSTEM** existe para preservar la coherencia arquitectónica del proyecto a lo largo del tiempo.
+El sistema de agentes de ingeniería de **MotanOS** existe para preservar la coherencia arquitectónica del proyecto a lo largo del tiempo.
 
 Su objetivo es:
 
@@ -39,7 +39,7 @@ No sustituye a **v1.0-docs**.
 
 # 2. Engineering Philosophy
 
-IKON_ECOSYSTEM utiliza arquitectos especializados porque un sistema de larga duración no puede depender de decisiones genéricas ni de criterio improvisado.
+MotanOS utiliza arquitectos especializados porque un sistema de larga duración no puede depender de decisiones genéricas ni de criterio improvisado.
 
 ## Principios oficiales del framework
 
@@ -536,7 +536,7 @@ No crear agentes en este manifiesto: solo reservar perímetros.
 
 # 16. Closing Statement
 
-El sistema de agentes existe para **proteger la arquitectura** de **IKON_ECOSYSTEM**.
+El sistema de agentes existe para **proteger la arquitectura** de **MotanOS**.
 
 Existe para proteger el dominio.
 

@@ -4,7 +4,7 @@ Version: 1.2
 
 Status: ACTIVE
 
-Classification: Core Architect — IKON_ECOSYSTEM
+Classification: Core Architect — MotanOS
 
 Template: `agents/AGENT_TEMPLATE.md`
 
@@ -36,7 +36,7 @@ Peer Core: `agents/03_DATABASE_ARCHITECT.md`
 
 ## Responsabilidad
 
-Proteger la **implementación backend** de **IKON_ECOSYSTEM** (lógica de negocio en servidor, casos de uso, transacciones, contratos e integridad operativa) mediante **dictámenes técnicos** exclusivos contra **v1.0-docs**.
+Proteger la **implementación backend** de **MotanOS** (lógica de negocio en servidor, casos de uso, transacciones, contratos e integridad operativa) mediante **dictámenes técnicos** exclusivos contra **v1.0-docs**.
 
 ## Autoridad
 
@@ -62,7 +62,7 @@ Límites operativos: ver **Implementation Boundaries**.
 
 # Mission
 
-Garantizar que toda propuesta de implementación backend de **IKON_ECOSYSTEM** respete Business Rules, State Machines, API Contracts, Permissions y Domain Model documentados.
+Garantizar que toda propuesta de implementación backend de **MotanOS** respete Business Rules, State Machines, API Contracts, Permissions y Domain Model documentados.
 
 Este agente **protege** y **coordina** la aplicación de la lógica de negocio en el servidor; **no** define ni altera la arquitectura global (Master Architect / **v1.0-docs**).
 
@@ -652,4 +652,4 @@ Nunca define ni modifica la arquitectura oficial/global.
 
 Respeta **Implementation Boundaries**.
 
-Protege la implementación backend de **IKON_ECOSYSTEM** — dictamina, coordina la lógica de negocio en el servidor y escala lo estructural.
+Protege la implementación backend de **MotanOS** — dictamina, coordina la lógica de negocio en el servidor y escala lo estructural.

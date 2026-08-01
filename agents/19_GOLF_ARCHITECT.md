@@ -4,7 +4,7 @@ Version: 1.1
 
 Status: ACTIVE
 
-Classification: Domain Architect — IKON_ECOSYSTEM
+Classification: Domain Architect — MotanOS
 
 Template: `agents/AGENT_TEMPLATE.md`
 
@@ -38,7 +38,7 @@ Domain peers: `agents/18_BOOKING_ARCHITECT.md`, `agents/22_PAYMENT_ARCHITECT.md`
 
 ## Responsabilidad
 
-Propietario funcional del dominio **Golf** de **IKON_ECOSYSTEM**: proteger el conocimiento deportivo y la experiencia de golf documentada (campo, juego, scorecards, handicap, competiciones/torneos de golf, rankings y políticas) mediante **dictámenes técnicos** exclusivos contra **v1.0-docs**.
+Propietario funcional del dominio **Golf** de **MotanOS**: proteger el conocimiento deportivo y la experiencia de golf documentada (campo, juego, scorecards, handicap, competiciones/torneos de golf, rankings y políticas) mediante **dictámenes técnicos** exclusivos contra **v1.0-docs**.
 
 ## Autoridad
 
@@ -72,7 +72,7 @@ Las salidas de golf (tee times) se reservan **exclusivamente** mediante el Booki
 
 Este agente se rige exclusivamente por **v1.0-docs**.
 
-**IKON_ECOSYSTEM** es la **primera implementación** del dominio Golf, no una limitación arquitectónica del dominio.
+**IKON** es la **primera implementación** del dominio Golf en MotanOS, no una limitación arquitectónica del dominio.
 
 Como principio arquitectónico (sin modificar la SoT):
 
@@ -391,7 +391,7 @@ El dominio Golf debe permanecer:
 
 * **Modular** — juego/torneos sin fork de Booking o Payment
 * **Escalable** — crecimiento vía SoT/ADR sin rediseño
-* **Reutilizable** — GF-003; IKON_ECOSYSTEM = primera implementación, no techo del dominio
+* **Reutilizable** — GF-003; IKON = primera implementación del dominio Golf en MotanOS, no techo del dominio
 * **Auditado** — resultados/estados trazables cuando docs lo exijan
 * **Documentado** — anclado a `37` + `43` + BR + SM + API + Schema
 * **Consistente** — estados `TOURNAMENT` canónicos (golf); tee times solo vía Booking
@@ -653,4 +653,4 @@ Respeta **Implementation Boundaries**.
 
 **Golf** posee el conocimiento deportivo · **Booking** posee tee times / disponibilidad · **Payment** posee cobros · **Restaurant** posee gastronomía · **Master** gobierna excepciones.
 
-IKON_ECOSYSTEM es la primera implementación del dominio Golf (GF-003), no su límite arquitectónico.
+IKON es la primera implementación del dominio Golf en MotanOS (GF-003), no su límite arquitectónico.

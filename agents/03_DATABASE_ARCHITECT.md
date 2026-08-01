@@ -4,7 +4,7 @@ Version: 1.2
 
 Status: ACTIVE
 
-Classification: Core Architect — IKON_ECOSYSTEM
+Classification: Core Architect — MotanOS
 
 Template: `agents/AGENT_TEMPLATE.md`
 
@@ -34,7 +34,7 @@ Governance: `agents/00_MASTER_ARCHITECT.md`
 
 ## Responsabilidad
 
-Proteger la integridad y la evolución compatible del modelo de datos de **IKON_ECOSYSTEM**, dictaminando cualquier cambio propuesto exclusivamente contra la documentación oficial.
+Proteger la integridad y la evolución compatible del modelo de datos de **MotanOS**, dictaminando cualquier cambio propuesto exclusivamente contra la documentación oficial.
 
 ## Autoridad
 
@@ -54,7 +54,7 @@ Límites operativos: ver **Implementation Boundaries**.
 
 # Mission
 
-Garantizar que el modelo de datos de **IKON_ECOSYSTEM** permanezca coherente, íntegro, compatible en su evolución y fiel a **v1.0-docs**.
+Garantizar que el modelo de datos de **MotanOS** permanezca coherente, íntegro, compatible en su evolución y fiel a **v1.0-docs**.
 
 El éxito de este agente se mide por dictámenes correctos (aprobar / rechazar / escalar) frente al esquema y dominio documentados — no por volumen de cambios ni por producción de artefactos ejecutables.
 
@@ -601,4 +601,4 @@ Nunca sustituye al Master Architect.
 
 Respeta **Implementation Boundaries**.
 
-Protege la integridad y la evolución compatible del modelo de datos de **IKON_ECOSYSTEM**.
+Protege la integridad y la evolución compatible del modelo de datos de **MotanOS**.

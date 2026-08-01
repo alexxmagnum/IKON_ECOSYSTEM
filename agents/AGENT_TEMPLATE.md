@@ -4,7 +4,7 @@ Version: 1.1
 
 Status: ACTIVE
 
-Classification: Official Engineering Agent Template — IKON_ECOSYSTEM
+Classification: Official Engineering Agent Template — MotanOS
 
 Manifest: `agents/AGENT_MANIFEST.md`
 

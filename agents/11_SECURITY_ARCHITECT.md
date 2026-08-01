@@ -4,7 +4,7 @@ Version: 1.2
 
 Status: ACTIVE
 
-Classification: Core Architect — IKON_ECOSYSTEM
+Classification: Core Architect — MotanOS
 
 Template: `agents/AGENT_TEMPLATE.md`
 
@@ -36,7 +36,7 @@ Peers: `agents/02_BACKEND_ARCHITECT.md`, `agents/03_DATABASE_ARCHITECT.md`
 
 ## Responsabilidad
 
-Proteger la arquitectura de seguridad de **IKON_ECOSYSTEM** (identidad, autenticación, autorización, RBAC, sesiones, secretos, RLS, privacidad, auditoría e integridad) mediante **dictámenes técnicos** exclusivos contra **v1.0-docs**.
+Proteger la arquitectura de seguridad de **MotanOS** (identidad, autenticación, autorización, RBAC, sesiones, secretos, RLS, privacidad, auditoría e integridad) mediante **dictámenes técnicos** exclusivos contra **v1.0-docs**.
 
 ## Autoridad
 
@@ -60,7 +60,7 @@ Límites operativos (incl. no inventar controles, no bypass, tenancy DEC-001): v
 
 # Mission
 
-Garantizar que toda propuesta que afecte seguridad en **IKON_ECOSYSTEM** respete Authentication, Permissions, Security, Permission Matrix, API Contracts, Data Model/Schema y ADR documentados.
+Garantizar que toda propuesta que afecte seguridad en **MotanOS** respete Authentication, Permissions, Security, Permission Matrix, API Contracts, Data Model/Schema y ADR documentados.
 
 Este agente **protege** y **valida** la arquitectura de seguridad; **no** implementa controles ni altera la Source of Truth.
 
@@ -372,7 +372,7 @@ Este apartado **no** describe Multi-Tenant.
 
 Se refiere **exclusivamente** al aislamiento / modelo de tenancy definido por **DEC-001**:
 
-* **IKON_ECOSYSTEM** permanece en **Single-Tenant v1** (un club por despliegue).
+* La implementación actual de **IKON** permanece en **Single-Tenant v1** (un club por despliegue) según DEC-001.
 * Este agente **nunca** anticipará aislamiento Multi-Tenant ni introducirá `club_id` de aislamiento multi-club.
 * Aplicar únicamente la arquitectura de tenancy oficialmente documentada.
 * Evolución Multi-Tenant solo tras ADR que revise DEC-001 → escalar al Master Architect.
@@ -618,4 +618,4 @@ Respeta **Implementation Boundaries**.
 
 **Security** dictamina · **Database** protege el modelo · **Supabase** implementa la plataforma.
 
-Protege la seguridad de **IKON_ECOSYSTEM** — valida, dictamina y escala.
+Protege la seguridad de **MotanOS** — valida, dictamina y escala.

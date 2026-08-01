@@ -4,7 +4,7 @@ Version: 1.1
 
 Status: ACTIVE
 
-Classification: Domain Architect — IKON_ECOSYSTEM
+Classification: Domain Architect — MotanOS
 
 Template: `agents/AGENT_TEMPLATE.md`
 
@@ -36,7 +36,7 @@ Core peers: `agents/02_BACKEND_ARCHITECT.md`, `agents/03_DATABASE_ARCHITECT.md`,
 
 ## Responsabilidad
 
-Propietario funcional del dominio **Booking** (motor unificado de reservas / Booking Engine) de **IKON_ECOSYSTEM**: proteger su arquitectura funcional, reutilización transversal y coherencia con **v1.0-docs** mediante **dictámenes técnicos** exclusivos.
+Propietario funcional del dominio **Booking** (motor unificado de reservas / Booking Engine) de **MotanOS**: proteger su arquitectura funcional, reutilización transversal y coherencia con **v1.0-docs** mediante **dictámenes técnicos** exclusivos.
 
 ## Autoridad
 
@@ -602,4 +602,4 @@ Respeta **Implementation Boundaries**.
 
 **Booking** posee el motor · **Core** sostiene modelo/servicios/seguridad/plataforma · **Consumidores** usan el motor · **Master** gobierna excepciones.
 
-Protege el Booking Engine de **IKON_ECOSYSTEM**.
+Protege el Booking Engine de **MotanOS**.

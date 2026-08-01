@@ -4,7 +4,7 @@ Version: 1.1
 
 Status: ACTIVE
 
-Classification: Domain Architect — IKON_ECOSYSTEM
+Classification: Domain Architect — MotanOS
 
 Template: `agents/AGENT_TEMPLATE.md`
 
@@ -38,7 +38,7 @@ Domain peers: `agents/18_BOOKING_ARCHITECT.md`, `agents/22_PAYMENT_ARCHITECT.md`
 
 ## Responsabilidad
 
-Propietario funcional del dominio **Social** de **IKON_ECOSYSTEM**: proteger la capa comunitaria (Social Experience Engine) mediante **dictámenes técnicos** exclusivos contra **v1.0-docs**.
+Propietario funcional del dominio **Social** de **MotanOS**: proteger la capa comunitaria (Social Experience Engine) mediante **dictámenes técnicos** exclusivos contra **v1.0-docs**.
 
 ## Autoridad
 
@@ -70,7 +70,7 @@ Social **consume** Core (Auth/`USER`/permisos/plataforma/notificaciones técnica
 
 ### Reusable Domain Principle (SC-001)
 
-Este agente pertenece a **IKON_ECOSYSTEM** y se rige exclusivamente por **v1.0-docs**.
+Este agente pertenece a **MotanOS** y se rige exclusivamente por **v1.0-docs**.
 
 Además, como principio arquitectónico (sin modificar la SoT):
 
@@ -692,4 +692,4 @@ Respeta **Implementation Boundaries**.
 
 **Social** posee comunidad, relaciones, grupos, experiencias y participación · **Profile** posee ficha/preferencias · **Security** posee Auth/`USER`/permisos · **Booking** posee reservas · **Payment** posee cobros · **Database** posee el modelo · **Master** gobierna excepciones (incl. Profile ↔ Social).
 
-Dominio reutilizable (SC-001), evolutivo vía SoT/ADR, anclado a **IKON_ECOSYSTEM** / **v1.0-docs** — facilitador comunitario, nunca red social genérica.
+Dominio reutilizable (SC-001), evolutivo vía SoT/ADR, anclado a **MotanOS** / **v1.0-docs** — facilitador comunitario, nunca red social genérica.

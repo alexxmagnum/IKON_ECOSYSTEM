@@ -4,7 +4,7 @@ Version: 1.1
 
 Status: ACTIVE
 
-Classification: Domain Architect — IKON_ECOSYSTEM
+Classification: Domain Architect — MotanOS
 
 Template: `agents/AGENT_TEMPLATE.md`
 
@@ -38,7 +38,7 @@ Domain peers: `agents/18_BOOKING_ARCHITECT.md`, `agents/22_PAYMENT_ARCHITECT.md`
 
 ## Responsabilidad
 
-Propietario funcional del dominio **Restaurant** de **IKON_ECOSYSTEM**: proteger la operación gastronómica (carta digital, productos, servicio de mesa, cocina/comandas y flujo operativo documentado) mediante **dictámenes técnicos** exclusivos contra **v1.0-docs**.
+Propietario funcional del dominio **Restaurant** de **MotanOS**: proteger la operación gastronómica (carta digital, productos, servicio de mesa, cocina/comandas y flujo operativo documentado) mediante **dictámenes técnicos** exclusivos contra **v1.0-docs**.
 
 ## Autoridad
 
@@ -70,7 +70,7 @@ Delivery, Take Away, Inventory y Escandallos: **solo** si existen en la document
 
 ### Reusable Domain Principle (RS-001)
 
-Este agente pertenece a **IKON_ECOSYSTEM** y se rige exclusivamente por **v1.0-docs**.
+Este agente pertenece a **MotanOS** y se rige exclusivamente por **v1.0-docs**.
 
 Además, como principio arquitectónico (sin modificar la SoT):
 
@@ -664,4 +664,4 @@ Respeta **Implementation Boundaries**.
 
 **Restaurant** posee carta, cocina y servicio operativo de mesa · **Booking** posee disponibilidad/reserva · **Payment** posee cobros · **Database** posee el modelo · **Master** gobierna excepciones.
 
-Dominio reutilizable (RS-001), evolutivo vía SoT (RS-003), anclado a **IKON_ECOSYSTEM** / **v1.0-docs**.
+Dominio reutilizable (RS-001), evolutivo vía SoT (RS-003), anclado a **MotanOS** / **v1.0-docs**.

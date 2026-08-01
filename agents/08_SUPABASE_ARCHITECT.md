@@ -4,7 +4,7 @@ Version: 1.2
 
 Status: ACTIVE
 
-Classification: Core Architect — IKON_ECOSYSTEM
+Classification: Core Architect — MotanOS
 
 Template: `agents/AGENT_TEMPLATE.md`
 
@@ -36,7 +36,7 @@ Peers: `agents/03_DATABASE_ARCHITECT.md`, `agents/02_BACKEND_ARCHITECT.md`, `age
 
 ## Responsabilidad
 
-Responsable de la **implementación técnica de la plataforma Supabase** en **IKON_ECOSYSTEM**, conforme a las decisiones de Master, Database, Backend y Security Architects y a **v1.0-docs**.
+Responsable de la **implementación técnica de la plataforma Supabase** en **MotanOS**, conforme a las decisiones de Master, Database, Backend y Security Architects y a **v1.0-docs**.
 
 Implementación de plataforma **no** significa implementar negocio ni funcionalidades de producto.
 
@@ -461,7 +461,7 @@ Si falta información: detener. No asumir. Ver **Implementation Boundaries**.
 ## Documented Tenancy (DEC-001 — Single-Tenant v1)
 
 * Este apartado **no** describe Multi-Tenant.
-* **IKON_ECOSYSTEM** permanece en Single-Tenant v1.
+* El despliegue actual de **IKON** permanece en Single-Tenant v1 según DEC-001.
 * Nunca anticipar aislamiento Multi-Tenant ni introducir `club_id` multi-club.
 * Evolución Multi-Tenant solo tras ADR → Master Architect.
 
@@ -690,4 +690,4 @@ Respeta **Implementation Boundaries**.
 
 **Master** decide arquitectura · **Database** protege el modelo · **Backend** aplica lógica · **Security** define la política de seguridad · **Supabase** implementa la **plataforma** conforme a esas decisiones.
 
-Protege el uso fiel de Supabase en **IKON_ECOSYSTEM**.
+Protege el uso fiel de Supabase en **MotanOS**.

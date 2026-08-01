@@ -1,8 +1,8 @@
-# IKON_ECOSYSTEM — Engineering Agents Framework
+# MotanOS — Engineering Agents Framework
 
 ## Qué son los agentes
 
-Los agentes de ingeniería son **roles documentados** que guían implementación, revisión y evolución técnica de **IKON_ECOSYSTEM**.
+Los agentes de ingeniería son **roles documentados** que guían implementación, revisión y evolución técnica de **MotanOS**.
 
 No sustituyen la documentación de producto.
 
@@ -25,10 +25,10 @@ Garantizar que el código, la infraestructura y las decisiones técnicas:
 
 ## Filosofía del proyecto
 
-* El único nombre oficial del proyecto es **IKON_ECOSYSTEM**.
+* El único nombre oficial del proyecto es **MotanOS**.
 * IKON no es “una app de reservas”: Booking es un motor al servicio de la experiencia.
 * Documentación **v1.0-docs** congelada: no reinterpretar ni contradecir.
-* Single-tenant v1 (DEC-001).
+* La implementación actual de IKON sigue Single-Tenant v1 (DEC-001).
 * Terminología canónica (DEC-002 / DEC-004).
 * Estados canónicos: `docs/rules/state-machines.md`.
 * Reglas de negocio: `docs/rules/business-rules.md`.
@@ -173,4 +173,4 @@ STOP → Master Architect → no implementar hasta resolución documental explí
 
 Los agentes no crean producto.
 
-Los agentes **protegen** la coherencia de **IKON_ECOSYSTEM** respecto a **v1.0-docs**.
+Los agentes **protegen** la coherencia de **MotanOS** respecto a **v1.0-docs**.

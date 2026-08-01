@@ -4,7 +4,7 @@ Version: 1.1
 
 Status: ACTIVE
 
-Classification: Domain Architect — IKON_ECOSYSTEM
+Classification: Domain Architect — MotanOS
 
 Template: `agents/AGENT_TEMPLATE.md`
 
@@ -38,7 +38,7 @@ Domain peers: `agents/18_BOOKING_ARCHITECT.md`
 
 ## Responsabilidad
 
-Propietario funcional del dominio **Payment** de **IKON_ECOSYSTEM**: proteger cómo se realizan los cobros, reembolsos y el ciclo de vida de `PAYMENT` de forma transversal y coherente con **v1.0-docs**, mediante **dictámenes técnicos** exclusivos.
+Propietario funcional del dominio **Payment** de **MotanOS**: proteger cómo se realizan los cobros, reembolsos y el ciclo de vida de `PAYMENT` de forma transversal y coherente con **v1.0-docs**, mediante **dictámenes técnicos** exclusivos.
 
 ## Autoridad
 
@@ -639,4 +639,4 @@ Respeta **Implementation Boundaries**.
 
 **Payment** posee el dominio de cobros · **Backend/Supabase** integran proveedores · **Tech Stack** no redefine el dominio · **Master** resuelve conflictos dominio↔proveedor · **Consumidores** usan Payment.
 
-Protege el dominio Payment de **IKON_ECOSYSTEM**.
+Protege el dominio Payment de **MotanOS**.
