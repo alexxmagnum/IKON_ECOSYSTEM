@@ -1,0 +1,11 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "packages/engines/*"
+  - "packages/domains/*"
+  - "implementations/*"
+
+# Phase 1: native optional builds not required for bootstrap validation.
+allowBuilds:
+  sharp: false
+  unrs-resolver: false

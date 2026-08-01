@@ -1,0 +1,31 @@
+{
+  "name": "@motanos/ikon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./brand": {
+      "types": "./brand/index.ts",
+      "default": "./brand/index.ts"
+    },
+    "./theme": {
+      "types": "./theme/index.ts",
+      "default": "./theme/index.ts"
+    },
+    "./config": {
+      "types": "./config/index.ts",
+      "default": "./config/index.ts"
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@motanos/ui": "workspace:*"
+  }
+}

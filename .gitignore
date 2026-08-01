@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Builds
+.next/
+dist/
+out/
+build/
+coverage/
+
+# Turbo
+.turbo/
+
+# Env / secrets (ADR-002) — never commit real secrets
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Logs / cache
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.eslintcache
+*.tsbuildinfo
+
+# Supabase local
+infra/supabase/.branches
+infra/supabase/.temp

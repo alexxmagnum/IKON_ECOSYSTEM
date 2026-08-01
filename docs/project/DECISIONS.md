@@ -102,3 +102,27 @@
 Spanish narrative may appear in prose, but **canonical identifiers** in rules, states, APIs and schemas use the official names above.
 
 **State / role / module nomenclature (AUD-017):** use exclusively `state-machines.md` state tokens, DEC-002 roles, and the SoT module numbers above. Do not invent parallel Spanish state enums.
+
+---
+
+## DEC-005 — Secrets Governance (ADR-002)
+
+**Status:** Accepted
+
+**Date:** 2026-08-02
+
+**Decision:** MotanOS follows a centralized secrets governance policy. Secrets are owned by Core Security / Infrastructure. There is no independent Secrets Architect.
+
+**Ownership:**
+
+* **Security** — security policy, secret classification, access rules, audit.
+* **Backend / Infrastructure** (Supabase/platform as applicable) — secure storage, runtime loading, provider integration.
+* **Domain** — never stores or manages its own secrets.
+
+**Classification:** platform secrets (DB credentials, encryption keys, auth secrets, internal service keys) and integration credentials (Stripe, WhatsApp, email, external APIs). Future integration credentials may bind to a concrete implementation without coupling the core.
+
+**Rules:** never store secrets in Git, source code, documentation, or expose them to the frontend. Secrets are separated by environment (Development, Staging, Production).
+
+**Rejected alternative:** a dedicated Secrets Architect or domain-owned secret stores.
+
+**Full record:** `docs/project/ADR-002_SECRETS_GOVERNANCE.md`
