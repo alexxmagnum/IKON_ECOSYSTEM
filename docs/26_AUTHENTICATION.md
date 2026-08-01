@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir cómo se identifican y acceden las personas al ecosistema IKON.
+Definir cómo se identifican y acceden las personas a MotanOS.
 
 Este documento establece los métodos de autenticación, los ciclos de sesión, la recuperación de acceso y las reglas fundamentales de seguridad relacionadas con la identidad.
 
@@ -42,7 +42,7 @@ La seguridad no se añadirá al final.
 
 ## Identidad única
 
-Cada persona deberá disponer de una única identidad dentro de IKON.
+Cada persona deberá disponer de una única identidad dentro de MotanOS.
 
 Se evitarán cuentas duplicadas asociadas al mismo usuario.
 
@@ -62,7 +62,7 @@ La información utilizada para autenticar nunca se mostrará públicamente.
 
 # Proveedor de autenticación
 
-IKON utilizará Supabase Auth como proveedor principal de identidad.
+MotanOS utilizará Supabase Auth como proveedor principal de identidad.
 
 Supabase Auth gestionará:
 
@@ -418,7 +418,7 @@ Los registros de auditoría no deberán contener contraseñas ni tokens secretos
 
 Supabase Auth gestionará la identidad autenticada.
 
-La información de negocio se almacenará en las entidades propias de IKON.
+La información de negocio se almacenará en las entidades propias de la implementación correspondiente.
 
 La cuenta de autenticación no deberá convertirse en el perfil completo del usuario.
 
