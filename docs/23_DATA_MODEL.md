@@ -293,7 +293,7 @@ Puede ser:
 
 # Entidad: Recomendación
 
-Propuesta personalizada generada por IKON.
+Propuesta personalizada generada por MotanOS.
 
 Siempre estará asociada a un usuario.
 
