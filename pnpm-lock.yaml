@@ -179,9 +179,15 @@ importers:
 
   packages/domains/events:
     dependencies:
+      '@motanos/booking':
+        specifier: workspace:*
+        version: link:../../engines/booking
       '@motanos/contracts':
         specifier: workspace:*
         version: link:../../contracts
+      '@motanos/payments':
+        specifier: workspace:*
+        version: link:../../engines/payments
 
   packages/domains/golf:
     dependencies:
