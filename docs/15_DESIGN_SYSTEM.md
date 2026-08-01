@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir el sistema de diseño que garantizará una experiencia visual coherente, premium y escalable en todo el ecosistema IKON.
+Definir el sistema de diseño que garantizará una experiencia visual coherente, premium y escalable en MotanOS.
 
 El Design System no define únicamente componentes.
 

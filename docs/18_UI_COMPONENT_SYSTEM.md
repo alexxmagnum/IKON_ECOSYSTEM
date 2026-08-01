@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir todos los componentes reutilizables del ecosistema IKON y las reglas para su construcción.
+Definir todos los componentes reutilizables de MotanOS y las reglas para su construcción.
 
 El objetivo es garantizar una interfaz consistente, escalable y mantenible.
 

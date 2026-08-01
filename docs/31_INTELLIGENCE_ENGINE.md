@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir el sistema de inteligencia del ecosistema IKON.
+Definir el sistema de inteligencia de MotanOS.
 
 El Intelligence Engine será el encargado de ayudar al producto a tomar mejores decisiones utilizando reglas de negocio, contexto, datos históricos y, únicamente cuando aporte valor real, modelos de inteligencia artificial.
 

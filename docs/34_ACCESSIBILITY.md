@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir la estrategia oficial de accesibilidad del ecosistema IKON.
+Definir la estrategia oficial de accesibilidad de MotanOS.
 
 La accesibilidad será un requisito transversal del producto y afectará a todas las funcionalidades, componentes y experiencias.
 

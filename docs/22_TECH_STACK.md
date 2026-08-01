@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir la pila tecnológica oficial de IKON.
+Definir la pila tecnológica oficial de MotanOS.
 
 Este documento establece las tecnologías permitidas para el desarrollo del ecosistema.
 

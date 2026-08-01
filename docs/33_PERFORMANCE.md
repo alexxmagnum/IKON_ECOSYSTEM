@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir la estrategia oficial de rendimiento del ecosistema IKON.
+Definir la estrategia oficial de rendimiento de MotanOS.
 
 El rendimiento deberá considerarse un requisito funcional del producto.
 
