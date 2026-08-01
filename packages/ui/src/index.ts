@@ -1,11 +1,11 @@
-import type { ReactNode } from "react";
-
 /**
- * @motanos/ui — MotanOS shared design-system package (scaffold).
- * No business logic.
+ * @motanos/ui — MotanOS Design System Runtime.
+ * No IKON/domain/business knowledge.
  */
-export type UiShellProps = {
-  children?: ReactNode;
-};
+export * from "./components";
+export * from "./primitives";
+export * from "./theme";
+export * from "./tokens";
+export { cn } from "./lib/cn";
 
 export const UI_PACKAGE = "@motanos/ui" as const;

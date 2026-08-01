@@ -1,20 +1,76 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f1419;
-  --foreground: #f4f1ea;
-  --accent: #c4a35a;
+  /* Fallback MotanOS tokens before ThemeProvider hydrates */
+  --motan-color-background: #0f1419;
+  --motan-color-foreground: #f4f1ea;
+  --motan-color-muted: #1c2430;
+  --motan-color-muted-foreground: rgba(244, 241, 234, 0.65);
+  --motan-color-primary: #c4a35a;
+  --motan-color-primary-foreground: #11151a;
+  --motan-color-secondary: #243041;
+  --motan-color-secondary-foreground: #f4f1ea;
+  --motan-color-accent: #c4a35a;
+  --motan-color-accent-foreground: #11151a;
+  --motan-color-destructive: #d45d5d;
+  --motan-color-destructive-foreground: #fff7f7;
+  --motan-color-border: rgba(244, 241, 234, 0.14);
+  --motan-color-ring: rgba(196, 163, 90, 0.55);
+  --motan-color-surface: #161d26;
+  --motan-font-family:
+    "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --motan-space-xs: 0.25rem;
+  --motan-space-sm: 0.5rem;
+  --motan-space-md: 1rem;
+  --motan-space-lg: 1.5rem;
+  --motan-space-xl: 2.5rem;
+  --motan-radius-sm: 0.375rem;
+  --motan-radius-md: 0.75rem;
+  --motan-radius-lg: 1rem;
+  --motan-radius-full: 9999px;
+  --motan-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.18);
+  --motan-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.22);
+  --motan-motion-fast: 120ms;
+  --motan-motion-normal: 220ms;
+  --motan-motion-slow: 360ms;
+  --motan-easing-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motan-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
 }
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  background: radial-gradient(circle at top, #1c2430 0%, var(--background) 55%);
-  color: var(--foreground);
-  font-family:
-    "Segoe UI",
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    sans-serif;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--motan-color-muted) 80%, transparent) 0%, transparent 45%),
+    var(--motan-color-background);
+  color: var(--motan-color-foreground);
+  font-family: var(--motan-font-family);
+}
+
+:focus-visible {
+  outline: 2px solid var(--motan-color-ring);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 1rem;
+  z-index: 50;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  border-radius: var(--motan-radius-md);
+  background: var(--motan-color-primary);
+  color: var(--motan-color-primary-foreground);
+  padding: 0.5rem 0.75rem;
 }
