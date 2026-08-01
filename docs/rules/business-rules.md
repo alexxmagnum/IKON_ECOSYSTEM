@@ -1,4 +1,4 @@
-# IKON_ECOSYSTEM — Business Rules
+# MotanOS — Business Rules
 
 Fuente de verdad: documentación funcional `docs/00`–`docs/53` y diagramas en `docs/diagrams/`.
 
@@ -375,7 +375,7 @@ Impacto
 
 Justificación
 
-DEC-001 en `docs/project/DECISIONS.md`: IKON_ECOSYSTEM v1 es single-tenant.
+DEC-001 en `docs/project/DECISIONS.md`: MotanOS v1 es single-tenant.
 
 ---
 

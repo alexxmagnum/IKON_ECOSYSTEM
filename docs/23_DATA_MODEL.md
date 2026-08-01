@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir el modelo de dominio de IKON_ECOSYSTEM.
+Definir el modelo de dominio de MotanOS.
 
 Este documento identifica todas las entidades principales del ecosistema y las relaciones entre ellas.
 
@@ -50,13 +50,13 @@ La base de datos debe adaptarse al negocio.
 
 Nunca el negocio a la base de datos.
 
-Cada entidad representa un concepto real del ecosistema IKON_ECOSYSTEM.
+Cada entidad representa un concepto real del ecosistema MotanOS.
 
 ---
 
 # Entidad: User
 
-Representa cualquier persona con identidad en IKON_ECOSYSTEM (`USER`).
+Representa cualquier persona con identidad en MotanOS (`USER`).
 
 Roles oficiales posibles (DEC-002):
 

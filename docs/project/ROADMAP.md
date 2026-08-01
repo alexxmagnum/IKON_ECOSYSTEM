@@ -1,4 +1,4 @@
-# IKON_ECOSYSTEM — Roadmap
+# MotanOS — Roadmap
 
 > **Status: Intentionally deferred**  
 > Placeholder estructural. No es fuente de verdad de producto.  

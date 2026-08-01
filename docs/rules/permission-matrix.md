@@ -1,4 +1,4 @@
-# IKON_ECOSYSTEM — Permission Matrix
+# MotanOS — Permission Matrix
 
 Fuente: `27_PERMISSIONS.md`, `permissions.mmd`, DEC-002, BR-0016.
 

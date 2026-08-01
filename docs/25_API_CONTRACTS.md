@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir el contrato de comunicación entre frontend, backend y servicios internos de **IKON_ECOSYSTEM**.
+Definir el contrato de comunicación entre frontend, backend y servicios internos de **MotanOS**.
 
 Alineado con:
 

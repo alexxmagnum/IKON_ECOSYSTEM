@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir el esquema lógico de persistencia de IKON_ECOSYSTEM alineado con:
+Definir el esquema lógico de persistencia de MotanOS alineado con:
 
 * `docs/diagrams/database.mmd`
 * `docs/rules/state-machines.md`

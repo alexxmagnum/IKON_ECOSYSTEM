@@ -1,4 +1,4 @@
-# IKON_ECOSYSTEM — State Machines
+# MotanOS — State Machines
 
 Fuente de verdad: documentación funcional `docs/00`–`docs/53`, diagramas de flujo y `docs/rules/business-rules.md`.
 
@@ -884,7 +884,7 @@ stateDiagram-v2
 
 ## Descripción
 
-Ciclo de vida de la cuenta de usuario dentro de IKON_ECOSYSTEM.
+Ciclo de vida de la cuenta de usuario dentro de MotanOS.
 
 ## Estado inicial
 

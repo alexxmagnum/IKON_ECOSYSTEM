@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir el funcionamiento completo del **Digital Menu** de IKON_ECOSYSTEM.
+Definir el funcionamiento completo del **Digital Menu** de MotanOS.
 
 El Digital Menu será una experiencia interactiva integrada con el ecosistema del club.
 

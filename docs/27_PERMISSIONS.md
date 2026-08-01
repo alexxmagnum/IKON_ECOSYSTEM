@@ -60,7 +60,7 @@ Las acciones importantes deberán poder asociarse a un usuario concreto.
 
 # Modelo RBAC
 
-IKON_ECOSYSTEM utilizará un modelo basado en roles (Role Based Access Control).
+MotanOS utilizará un modelo basado en roles (Role Based Access Control).
 
 Cada usuario podrá tener uno o varios roles.
 

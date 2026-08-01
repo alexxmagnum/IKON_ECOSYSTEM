@@ -1,4 +1,4 @@
-# IKON_ECOSYSTEM — Architectural Decisions
+# MotanOS — Architectural Decisions
 
 ---
 
@@ -6,7 +6,7 @@
 
 **Status:** Accepted
 
-**Decision:** IKON_ECOSYSTEM v1 is **single-tenant** (one club per deployment).
+**Decision:** The current IKON implementation follows Single-Tenant v1 (one club per deployment).
 
 **Consequences:**
 
@@ -52,7 +52,7 @@
 
 **Status:** Accepted
 
-**Decision:** Official concept names for IKON_ECOSYSTEM documentation and implementation:
+**Decision:** Official concept names for MotanOS documentation and implementation:
 
 | Official name | Domain |
 |---|---|
