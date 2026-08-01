@@ -1547,19 +1547,19 @@ Flujo restaurant: ¿Reserva necesaria?
 
 ## BR-0082
 
-Carta consultable sin registro
+Digital Menu consultable sin registro
 
-Un visitante puede consultar la carta digital sin registrarse.
+Un Guest puede consultar el Digital Menu completo sin autenticarse.
 
 Impacto
 
-- Restaurant
 - Digital Menu
+- Restaurant
 - Authentication
 
 Justificación
 
-Caso de uso Consultar carta / Digital Menu.
+Caso de uso Consultar carta / `36_DIGITAL_MENU.md`.
 
 ---
 
@@ -1569,6 +1569,8 @@ Pedido solo si está habilitado
 
 Los pedidos desde PWA/QR solo existen cuando el club habilita esa capacidad.
 
+Un `Menu Item` con `available = false` **no** puede añadirse a un `Order`.
+
 Impacto
 
 - Restaurant
@@ -1577,7 +1579,7 @@ Impacto
 
 Justificación
 
-Caso de uso Pedido del Restaurant Module.
+Caso de uso Pedido; disponibilidad fiable en carta.
 
 ---
 
@@ -1602,7 +1604,7 @@ Caso de uso Check-in restaurante.
 
 Depósito previo condiciona confirmación
 
-Si la reserva gastronómica requiere depósito/pago previo, no se confirma hasta cobro validado.
+Si la reserva gastronómica requiere depósito/pago previo, no se confirma (`Confirmed`) hasta `PAYMENT.Captured`.
 
 Impacto
 
@@ -1654,9 +1656,9 @@ Caso especial documentado en el flujo.
 
 ## BR-0088
 
-Carta digital no es un PDF estático
+Digital Menu no es un PDF estático
 
-La carta es una experiencia interactiva (categorías, alérgenos, disponibilidad, favoritos) alineada a la identidad del club.
+El Digital Menu es una experiencia interactiva (categorías, alérgenos, disponibilidad, favoritos) alineada a la identidad del club.
 
 Impacto
 
@@ -1672,9 +1674,9 @@ Visión de `36_DIGITAL_MENU.md`.
 
 ## BR-0089
 
-Alérgenos visibles en carta
+Alérgenos visibles en Digital Menu
 
-La información de alérgenos debe poder consultarse en los productos de la carta.
+Todo `Menu Item` expone su lista de alérgenos consultable en el Digital Menu.
 
 Impacto
 
@@ -1684,6 +1686,61 @@ Impacto
 Justificación
 
 Alcance de la carta digital.
+
+---
+
+## BR-0161
+
+Favoritos de Menu Item
+
+Un Member puede guardar `Menu Item` como favoritos; un Guest no.
+
+Impacto
+
+- Digital Menu
+- Profile
+
+Justificación
+
+`36_DIGITAL_MENU.md` — favoritos.
+
+---
+
+## BR-0162
+
+Precio mostrado = precio aplicable
+
+El precio mostrado en Digital Menu / Order es el precio final aplicable en el momento de la consulta o del alta del `Order Item` (BR-0113).
+
+Si el precio cambia antes de confirmar un pedido, se revalida antes de `Order.Sent`.
+
+Impacto
+
+- Digital Menu
+- Order
+- Payments
+
+Justificación
+
+Caso límite de cambio de precio en `36_DIGITAL_MENU.md`.
+
+---
+
+## BR-0163
+
+Menu de temporada
+
+Un `Menu` puede activarse/desactivarse por temporada; solo el menú activo es visible por defecto en Digital Menu.
+
+Impacto
+
+- Digital Menu
+- Restaurant
+- CMS
+
+Justificación
+
+Temporadas y activación en `36_DIGITAL_MENU.md`.
 
 ---
 
@@ -2983,9 +3040,9 @@ Estados oficiales BOOKING; alineación con 47_BOOKING_MODULE.
 
 ## BR-0160
 
-Estados de recurso finitos y explícitos
+Estados de Resource finitos y explícitos
 
-Un recurso solo puede estar en estados definidos (disponible, reservado, ocupado, bloqueado, mantenimiento, fuera de servicio).
+Un Resource solo puede estar en estados definidos: Available, Reserved, Occupied, Blocked, Maintenance, OutOfService.
 
 Impacto
 
@@ -2995,12 +3052,32 @@ Impacto
 
 Justificación
 
-Estados de recurso del Booking Module.
+Estados de Resource del Booking Module.
+
+---
+
+## BR-0164
+
+Ownership editorial del Digital Menu
+
+* Manager y Club Admin gestionan la estructura editorial del Digital Menu (`Menu`, `Menu Category`, `Menu Item`: precios, temporadas, fotografías, promociones).
+* Staff actualiza flags de disponibilidad operativa de `Menu Item` (activar/desactivar, agotado) sin alterar precios ni estructura, salvo permiso explícito de Club Admin.
+* Guest solo consulta; Member puede favoritos y Order cuando esté habilitado (BR-0082, BR-0083, BR-0161).
+
+Impacto
+
+- Digital Menu
+- Restaurant
+- Permissions
+
+Justificación
+
+Actores y alcance de `36_DIGITAL_MENU.md` / Restaurant Module.
 
 ---
 
 # Fin del catálogo
 
-Total de reglas: **160** (`BR-0001` … `BR-0160`).
+Total de reglas: **164** (`BR-0001` … `BR-0164`).
 
-Numeración consecutiva sin huecos.
+Numeración consecutiva sin huecos. BR-0161–BR-0164 amplían Digital Menu.

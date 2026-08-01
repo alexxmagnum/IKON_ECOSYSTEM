@@ -233,11 +233,11 @@ El organizador configura:
 
 ## Publicar
 
-Estados disponibles:
+Estados canónicos del Event en publicación (ver `state-machines.md` — EVENT):
 
-* Borrador.
-* Programado.
-* Publicado.
+* Draft
+* Published
+* RegistrationOpen (cuando se abren inscripciones)
 
 ---
 
@@ -285,27 +285,28 @@ el sistema podrá:
 
 # Estados
 
-## Evento
+## Event
 
-* Borrador
-* Programado
-* Publicado
-* Completo
-* En curso
-* Finalizado
-* Cancelado
+Estados canónicos (ver `docs/rules/state-machines.md` — EVENT):
 
----
+* Draft
+* Published
+* RegistrationOpen
+* RegistrationClosed
+* Running
+* Finished
+* Cancelled
+* Archived
 
-## Inscripción
+## Event Registration
 
-* Pendiente
-* Confirmada
-* Lista de espera
-* Check-in realizado
-* Asistió
-* No asistió
-* Cancelada
+* Pending
+* Confirmed
+* Waitlisted
+* CheckedIn
+* Attended
+* NoShow
+* Cancelled
 
 ---
 

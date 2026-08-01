@@ -1,5 +1,11 @@
 # 14 — CONTENT_ENGINE
 
+> **Status: SUPERSEDED**  
+> Este documento es histórico y **no es fuente de verdad**.  
+> Sustituido por: [`52_CMS_MODULE.md`](./52_CMS_MODULE.md)
+
+---
+
 ## Objetivo
 
 Definir el sistema de gestión, organización, distribución y reutilización de todo el contenido de IKON.
@@ -212,13 +218,12 @@ Los vídeos deberán:
 El Content Engine alimentará:
 
 * Home.
-* Community Engine.
-* Experience Engine.
-* Recommendation Engine.
-* Restaurante.
-* Carta.
-* Eventos.
-* Notificaciones.
+* Social Experience Engine (SoT: `48`; este doc `14` está SUPERSEDED por `52`).
+* Recommendation Engine (SoT: `50`).
+* Restaurant.
+* Digital Menu.
+* Event.
+* Notification Engine (SoT: `49`).
 * CMS.
 * SEO.
 

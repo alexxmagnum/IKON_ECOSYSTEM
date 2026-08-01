@@ -1,5 +1,11 @@
 # 12 — NOTIFICATION_ENGINE
 
+> **Status: SUPERSEDED**  
+> Este documento es histórico y **no es fuente de verdad**.  
+> Sustituido por: [`49_NOTIFICATION_ENGINE.md`](./49_NOTIFICATION_ENGINE.md)
+
+---
+
 ## Objetivo
 
 Definir el sistema de notificaciones de IKON.
@@ -242,16 +248,15 @@ El sistema priorizará la experiencia real sobre la comunicación.
 
 El Notification Engine trabajará junto a:
 
-* Experience Engine.
-* Community Engine.
-* Recommendation Engine.
+* Social Experience Engine (SoT: `48`; este doc `12` está SUPERSEDED por `49`).
+* Recommendation Engine (SoT: `50`).
 * Gamification Engine.
-* Reservas.
-* Restaurante.
-* Torneos.
-* Eventos.
-* Perfil.
-* Automatizaciones.
+* Booking.
+* Restaurant.
+* Tournament.
+* Event.
+* Profile.
+* Automation Engine (`30`).
 
 ---
 

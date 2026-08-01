@@ -1,5 +1,11 @@
 # 13 — SEARCH_ENGINE
 
+> **Status: SUPERSEDED**  
+> Este documento es histórico y **no es fuente de verdad**.  
+> Sustituido por: [`51_SEARCH_ENGINE.md`](./51_SEARCH_ENGINE.md)
+
+---
+
 ## Objetivo
 
 Definir el sistema de búsqueda inteligente de IKON.
@@ -296,16 +302,15 @@ Descubrir otra experiencia.
 
 El Search Engine estará conectado con:
 
-* Community Engine.
-* Experience Engine.
-* Recommendation Engine.
-* Restaurante.
-* Carta.
-* Reservas.
-* Eventos.
-* Torneos.
-* Perfil.
-* CMS.
+* Social Experience Engine (SoT: `48`; este doc `13` está SUPERSEDED por `51`).
+* Recommendation Engine (SoT: `50`).
+* Restaurant.
+* Digital Menu.
+* Booking.
+* Event.
+* Tournament.
+* Profile.
+* CMS (SoT: `52`).
 
 ---
 

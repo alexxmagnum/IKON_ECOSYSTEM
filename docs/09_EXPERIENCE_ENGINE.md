@@ -1,5 +1,12 @@
 # 09 — EXPERIENCE_ENGINE
 
+> **Status: SUPERSEDED**  
+> Este documento es histórico y **no es fuente de verdad**.  
+> Sustituido por: [`48_SOCIAL_EXPERIENCE_ENGINE.md`](./48_SOCIAL_EXPERIENCE_ENGINE.md)  
+> El concepto de dominio **Experience** permanece en el modelo de datos y en `23_DATA_MODEL.md` / `database.mmd`.
+
+---
+
 ## Objetivo
 
 Definir el sistema encargado de generar, descubrir, conectar y potenciar experiencias dentro de IKON.

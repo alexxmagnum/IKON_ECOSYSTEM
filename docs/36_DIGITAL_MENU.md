@@ -2,9 +2,9 @@
 
 ## Objetivo
 
-Definir el funcionamiento completo de la Carta Digital de IKON.
+Definir el funcionamiento completo del **Digital Menu** de IKON_ECOSYSTEM.
 
-La carta será una experiencia interactiva integrada con el ecosistema del club.
+El Digital Menu será una experiencia interactiva integrada con el ecosistema del club.
 
 No será un PDF digitalizado.
 
@@ -12,11 +12,15 @@ No será únicamente una lista de platos.
 
 Será una herramienta para descubrir, decidir y disfrutar.
 
+SoT de reglas: `docs/rules/business-rules.md` (BR-0082–0089, BR-0161–0164).  
+Persistencia: `MENU` / `MENU_ITEM` en `docs/diagrams/database.mmd` y `24_DATABASE_SCHEMA.md`.  
+Módulo Restaurant: `35_RESTAURANT_MODULE.md`.
+
 ---
 
 # Visión
 
-La carta representa la personalidad gastronómica del club.
+El Digital Menu representa la personalidad gastronómica del club.
 
 Debe transmitir la misma sensación de calidad que el restaurante.
 
@@ -52,15 +56,17 @@ La carta permitirá:
 
 # Actores
 
-## Visitante
+Roles oficiales (DEC-002):
 
-Puede consultar la carta completa.
+## Guest
+
+Puede consultar el Digital Menu completo.
 
 No necesita registrarse.
 
 ---
 
-## Usuario registrado
+## Member
 
 Puede:
 
@@ -68,7 +74,7 @@ Puede:
 * valorar platos,
 * compartir,
 * recibir recomendaciones,
-* realizar pedidos si el restaurante lo permite.
+* realizar pedidos si el Restaurant lo permite.
 
 ---
 
@@ -76,9 +82,9 @@ Puede:
 
 Puede:
 
-* activar o desactivar productos,
-* modificar disponibilidad,
-* actualizar estados.
+* activar o desactivar Menu Item (disponibilidad),
+* modificar disponibilidad operativa,
+* actualizar estados operativos de disponibilidad.
 
 ---
 
@@ -86,9 +92,9 @@ Puede:
 
 Puede:
 
-* gestionar categorías,
+* gestionar Menu Category,
 * precios,
-* temporadas,
+* temporadas (Menu activo),
 * fotografías,
 * promociones,
 * analítica.

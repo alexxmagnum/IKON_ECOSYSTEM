@@ -937,7 +937,7 @@ stateDiagram-v2
 
 * `Deleted` → `Active` (recuperación = proceso controlado de soporte que crea continuidad auditada; no transición libre).
 * Usuario `Suspended` creando nuevas reservas.
-* Visitante/Guest no autenticado representado como `USER.Active`.
+* Guest no autenticado no se modela como fila `USER` obligatoria; el rol oficial es Guest (DEC-002). Un Member autenticado usa estados `USER`.
 
 ## Reglas especiales
 

@@ -267,8 +267,8 @@ La PWA trabajará junto con:
 * Notification Engine.
 * Search Engine.
 * Recommendation Engine.
-* Community Engine.
-* Experience Engine.
+* Social Experience Engine (`48_SOCIAL_EXPERIENCE_ENGINE.md`).
+* Recommendation Engine (`50_RECOMMENDATION_ENGINE.md`).
 
 Toda la plataforma deberá sentirse como una única aplicación.
 

@@ -254,35 +254,35 @@ Al terminar el torneo:
 
 # Estados
 
-## Torneo
+## Tournament
 
-* Borrador
-* Programado
-* Inscripciones abiertas
-* Completo
-* En curso
-* Finalizado
-* Cancelado
+Estados canónicos (ver `docs/rules/state-machines.md` — TOURNAMENT):
 
----
+* Draft
+* Published
+* RegistrationOpen
+* RegistrationClosed
+* Scheduled
+* Running
+* Finished
+* Archived
+* Cancelled
 
-## Inscripción
+## Tournament Entry
 
-* Pendiente
-* Confirmada
-* Lista de espera
-* Cancelada
-* Validada
+* Pending
+* Confirmed
+* Waitlisted
+* Cancelled
+* Validated
 
----
+## Tournament Match
 
-## Partido
-
-* Pendiente
-* Programado
-* En juego
-* Finalizado
-* Suspendido
+* Pending
+* Scheduled
+* InProgress
+* Finished
+* Suspended
 
 ---
 

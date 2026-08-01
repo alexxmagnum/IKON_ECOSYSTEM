@@ -1,5 +1,11 @@
 # 11 — RECOMMENDATION_ENGINE
 
+> **Status: SUPERSEDED**  
+> Este documento es histórico y **no es fuente de verdad**.  
+> Sustituido por: [`50_RECOMMENDATION_ENGINE.md`](./50_RECOMMENDATION_ENGINE.md)
+
+---
+
 ## Objetivo
 
 Definir el sistema inteligente de recomendaciones de IKON.
@@ -178,16 +184,15 @@ El usuario nunca debe sentir que el sistema actúa de forma misteriosa.
 
 El Recommendation Engine trabajará con:
 
-* Experience Engine.
-* Community Engine.
+* Social Experience Engine (SoT: `48`; este doc `11` está SUPERSEDED por `50`).
 * Gamification Engine.
-* Restaurante.
-* Carta.
-* Reservas.
-* Torneos.
-* Eventos.
-* Notificaciones.
-* Automatizaciones.
+* Restaurant.
+* Digital Menu.
+* Booking.
+* Tournament.
+* Event.
+* Notification Engine (SoT: `49`).
+* Automation Engine (`30`).
 
 Nunca funcionará de forma aislada.
 

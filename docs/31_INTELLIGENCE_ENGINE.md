@@ -227,7 +227,7 @@ Trabajará junto a:
 
 * Recommendation Engine.
 * Search Engine.
-* Community Engine.
+* Social Experience Engine (`48_SOCIAL_EXPERIENCE_ENGINE.md`).
 * Automation Engine.
 * Analytics.
 * CMS.

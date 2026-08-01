@@ -1,5 +1,11 @@
 # 08 — COMMUNITY_ENGINE
 
+> **Status: SUPERSEDED**  
+> Este documento es histórico y **no es fuente de verdad**.  
+> Sustituido por: [`48_SOCIAL_EXPERIENCE_ENGINE.md`](./48_SOCIAL_EXPERIENCE_ENGINE.md)
+
+---
+
 ## Objetivo
 
 Definir el sistema que permitirá crear, mantener y hacer crecer la comunidad de IKON.

@@ -203,7 +203,7 @@ El Automation Engine podrá comunicarse con:
 * Resend.
 * Notification Engine.
 * Recommendation Engine.
-* Community Engine.
+* Social Experience Engine (`48_SOCIAL_EXPERIENCE_ENGINE.md`).
 * CMS.
 * Calendarios externos (cuando proceda).
 
