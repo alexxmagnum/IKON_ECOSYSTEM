@@ -1,12 +1,12 @@
 # 53 — PLATFORM_ADMIN
 
-# El centro de control del ecosistema IKON
+# El centro de control de MotanOS
 
 ---
 
 # Objetivo
 
-Definir el funcionamiento completo del Panel de Administración de IKON.
+Definir el funcionamiento completo del Panel de Administración de MotanOS.
 
 El Platform Admin será el centro desde el que el personal autorizado gestionará todo el ecosistema del club.
 
@@ -26,7 +26,7 @@ Sin duplicar información.
 
 Sin procesos manuales innecesarios.
 
-El Platform Admin será el cerebro operativo de IKON.
+El Platform Admin será el cerebro operativo de MotanOS.
 
 ---
 

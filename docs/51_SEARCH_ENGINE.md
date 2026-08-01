@@ -1,12 +1,12 @@
 # 51 — SEARCH_ENGINE
 
-# El buscador unificado del ecosistema IKON
+# El buscador unificado de MotanOS
 
 ---
 
 # Objetivo
 
-Definir el funcionamiento completo del Search Engine de IKON.
+Definir el funcionamiento completo del Search Engine de MotanOS.
 
 El buscador permitirá acceder de forma rápida e inteligente a cualquier elemento del ecosistema desde un único punto de entrada.
 

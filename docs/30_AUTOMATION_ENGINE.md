@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir el sistema de automatización de IKON.
+Definir el sistema de automatización de MotanOS.
 
 El Automation Engine será responsable de ejecutar procesos automáticos, reducir tareas manuales y coordinar acciones entre los distintos módulos del ecosistema.
 

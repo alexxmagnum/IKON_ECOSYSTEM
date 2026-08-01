@@ -1,12 +1,12 @@
 # 49 — NOTIFICATION_ENGINE
 
-# El motor de comunicación inteligente de IKON
+# El motor de comunicación inteligente de MotanOS
 
 ---
 
 # Objetivo
 
-Definir el funcionamiento completo del Notification Engine de IKON.
+Definir el funcionamiento completo del Notification Engine de MotanOS.
 
 Este motor será el responsable de gestionar todas las comunicaciones entre el club y los usuarios.
 

@@ -1,12 +1,12 @@
 # 52 — CMS_MODULE
 
-# El gestor de contenidos del ecosistema IKON
+# El gestor de contenidos de MotanOS
 
 ---
 
 # Objetivo
 
-Definir el funcionamiento completo del CMS (Content Management System) de IKON.
+Definir el funcionamiento completo del CMS de MotanOS.
 
 El CMS permitirá al club gestionar todo el contenido público y privado del ecosistema sin necesidad de conocimientos técnicos.
 

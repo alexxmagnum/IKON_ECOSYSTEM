@@ -1,12 +1,12 @@
 # 50 — RECOMMENDATION_ENGINE
 
-# El motor de recomendaciones inteligentes de IKON
+# El motor de recomendaciones inteligentes de MotanOS
 
 ---
 
 # Objetivo
 
-Definir el funcionamiento completo del Recommendation Engine de IKON.
+Definir el funcionamiento completo del Recommendation Engine de MotanOS.
 
 Este motor será el responsable de sugerir actividades, personas, eventos, reservas y experiencias relevantes para cada usuario.
 
