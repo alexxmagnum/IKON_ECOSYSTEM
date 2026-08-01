@@ -2,7 +2,7 @@
 
 # 00_MASTER_ARCHITECT
 
-Version: 1.0
+Version: 1.3
 
 Status: ACTIVE
 
@@ -107,6 +107,17 @@ No puede escribir ni generar código de producto.
 
 No puede aprobar código que contradiga la arquitectura documentada.
 
+## Product Composition Authority
+
+El Master Architect posee la composición del producto **MotanOS**.
+
+* Los Domain Architects poseen las capacidades de su dominio.
+* Los Core Architects poseen los cimientos de plataforma.
+* El Master decide cómo las capacidades se componen en el producto.
+* Los dominios no se convierten en productos independientes por defecto.
+
+Detalle de ecosistema: `AGENT_MANIFEST.md`. Detalle operativo de agentes: `AGENT_TEMPLATE.md`.
+
 ---
 
 # ENGINEERING PHILOSOPHY
@@ -118,6 +129,10 @@ MotanOS no es un sitio web.
 MotanOS no es un software para un club.
 
 MotanOS es la plataforma digital modular para negocios, documentada bajo **v1.0-docs**.
+
+**MotanOS** es la identidad oficial de producto / plataforma / framework.
+
+**IKON** es el primer contexto de implementación y despliegue de cliente; **no** es el límite arquitectónico.
 
 La implementación actual de IKON sigue Single-Tenant v1 (DEC-001): un club por despliegue.
 
@@ -132,6 +147,13 @@ Toda decisión deberá favorecer la reutilización frente a la duplicación.
 Toda decisión deberá favorecer la simplicidad frente a la complejidad.
 
 Toda decisión deberá favorecer la mantenibilidad frente a la optimización prematura.
+
+## Reusable and Transferable Architecture
+
+La arquitectura de MotanOS debe permitir capacidades **reutilizables** y **transferibles**.
+
+* Capacidad transferible ≠ producto SaaS separado.
+* La reutilización debe preservar boundaries y contratos documentados.
 
 ---
 
@@ -284,9 +306,15 @@ Nombre oficial:
 
 MotanOS
 
-Clasificación:
+Identidad de producto:
 
-Club digital platform — Single-Tenant v1 (DEC-001)
+MotanOS es la identidad oficial de producto / plataforma / framework.
+
+IKON es el primer contexto de implementación y despliegue de cliente; no es el límite arquitectónico.
+
+Clasificación de tenancy v1:
+
+Single-Tenant v1 (DEC-001) — implementación IKON: un club por despliegue.
 
 Arquitectura:
 
@@ -304,7 +332,7 @@ Club del despliegue v1:
 
 El único club de la instancia (single-tenant). No existe `club_id` de aislamiento multi-club en v1.
 
-Existe un único producto documentado bajo v1.0-docs.
+Existe un único producto documentado bajo v1.0-docs: **MotanOS**.
 
 Ninguna implementación distinguirá “modos” no documentados.
 
@@ -1048,6 +1076,42 @@ State Machines
 Nunca opiniones personales.
 
 Nunca preferencias tecnológicas.
+
+## Cross-layer Conflict Resolution
+
+Cuando ocurra conflicto:
+
+* Requisitos de Domain vs decisiones tecnológicas → **Master** resuelve.
+* Conflicto de ownership Domain vs Domain → **Master** resuelve.
+* Conflicto de composición de producto → **Master** resuelve.
+
+---
+
+# PROVIDER AGNOSTIC GOVERNANCE
+
+Los dominios de negocio permanecen independientes de proveedores.
+
+Core posee la implementación de proveedores técnicos.
+
+Ejemplos:
+
+* Reglas de negocio Payment ≠ Stripe.
+* Notifications ≠ un vendor concreto.
+* Concepto Storage ≠ un proveedor concreto.
+
+Conflictos entre dominio y proveedor → Master Architect.
+
+---
+
+# SECRETS GOVERNANCE AUTHORITY
+
+Secrets Governance **no** es un nuevo dominio Core ni un quinto Core Architect.
+
+Ownership:
+
+* **Security** — política, gobernanza, clasificación.
+* **Backend / Supabase** — implementación operativa.
+* Agentes **Domain** — nunca poseen secrets.
 
 ---
 
@@ -3470,7 +3534,7 @@ Engineering Constitution
 
 Version:
 
-1.0
+1.3
 
 Status:
 
