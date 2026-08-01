@@ -1,7 +1,12 @@
 /**
- * @motanos/database — MotanOS data foundation (Drizzle).
- * Phase 2: identity tables only. No booking/payment/domain schemas.
- * DEC-001: no club_id / tenant_id.
+ * @motanos/database — MotanOS data runtime (Drizzle + identity schema).
+ * Phase 3: identity tables only. DEC-001: no club_id / tenant_id.
  */
-export { createDatabase, type Database } from "./client";
+export {
+  createDatabase,
+  getDatabase,
+  hasDatabaseUrl,
+  schema,
+  type Database,
+} from "./client";
 export * from "./schema";

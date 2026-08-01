@@ -1,10 +1,8 @@
 # @motanos/database
 
-Drizzle ORM foundation for MotanOS.
+Drizzle + Postgres runtime for MotanOS identity foundation.
 
-## Phase 2 scope
-
-Identity tables only:
+## Schema (Phase 3)
 
 - `users`
 - `profiles`
@@ -12,16 +10,21 @@ Identity tables only:
 - `permissions`
 - `user_roles`
 
-## Out of scope
+SQL source of truth for local Supabase:
 
-- Booking / Payment / Golf / Restaurant schemas
-- Applied production migrations
-- `club_id` / `tenant_id` (DEC-001)
+`infra/supabase/migrations/20260802000000_identity_foundation.sql`
 
 ## Usage
 
 ```ts
-import { createDatabase } from "@motanos/database";
+import { getDatabase, hasDatabaseUrl } from "@motanos/database";
 
-const db = createDatabase(); // requires DATABASE_URL
+if (hasDatabaseUrl()) {
+  const db = getDatabase();
+}
 ```
+
+## Constraints
+
+- DEC-001: no `club_id` / `tenant_id`
+- No booking/payment/domain tables in this package yet

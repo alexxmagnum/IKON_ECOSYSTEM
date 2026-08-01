@@ -8,8 +8,11 @@ export {
 } from "./supabase/server";
 export {
   getCurrentUser,
+  getCurrentUserFromAccessToken,
   getSession,
   requireSession,
+  requireUser,
+  requireUserFromAccessToken,
   toMotanSession,
   toMotanUser,
 } from "./session";

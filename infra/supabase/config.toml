@@ -1,6 +1,6 @@
-# MotanOS Supabase infrastructure scaffold (Phase 1).
-# No business tables or migrations yet.
+# MotanOS Supabase local foundation (Phase 3 — Identity Runtime)
 # Project id is a local placeholder — not a secret.
+# DEC-001: Single-Tenant v1
 
 project_id = "motanos-local"
 
@@ -15,6 +15,10 @@ max_rows = 1000
 port = 54322
 shadow_port = 54320
 major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed/seed.sql"]
 
 [studio]
 enabled = true
