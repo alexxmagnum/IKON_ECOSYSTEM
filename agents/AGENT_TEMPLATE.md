@@ -1,6 +1,6 @@
 # AGENT_TEMPLATE
 
-Version: 1.1
+Version: 1.2
 
 Status: ACTIVE
 
@@ -116,6 +116,14 @@ Mapear, como mínimo cuando aplique:
 
 Especializar la tabla al perímetro del agente; no inventar ownership fuera del manifiesto.
 
+### Secrets Governance ownership
+
+* **Security Architect** posee la política de gobernanza de secrets, clasificación, reglas de exposición y principios de seguridad.
+* **Supabase Architect / Backend Architect** poseen el manejo operativo, integración de entorno y mecanismos de almacenamiento de plataforma.
+* Los agentes **Domain** nunca poseen secrets.
+
+(Ver también la nota bajo Platform vs Domain Responsibilities.)
+
 ---
 
 # Platform vs Domain Responsibilities
@@ -133,6 +141,75 @@ Cuando el agente es Core: opera sobre núcleo técnico. Nunca define reglas de n
 ### Domain (Booking / Restaurant / Golf / Payment / Social / …)
 
 Cuando el agente es Domain: opera sobre dominio de producto documentado. Nunca redefine infraestructura, plataforma, modelo global ni política de seguridad.
+
+Cuando el agente es **Domain**, especializar además los principios de evolución del framework siguientes. Si el agente es Core / Delivery / Governance / Review: indicar `N/A` (no aplican).
+
+#### Reusable Domain Principle
+
+Un Domain Architect define **capacidades de negocio reutilizables**.
+
+* **IKON** es el primer contexto de implementación, no el límite arquitectónico del dominio.
+* Los dominios no deben acoplarse a un club, marca o cliente concretos.
+* Un dominio puede reutilizarse en futuras implementaciones MotanOS.
+* Reutilizabilidad significa capacidad arquitectónica documentada, **no** extracción automática a SaaS independiente.
+
+#### Transferable Architecture Principle
+
+La arquitectura creada dentro de MotanOS debe ser **transferible como capacidad**.
+
+* Transferible **no** significa que cada dominio se convierta en un producto separado.
+* Los dominios se componen **dentro** de MotanOS.
+* Futuras implementaciones de cliente consumen capacidades documentadas.
+
+#### Product Composition Principle
+
+MotanOS se construye componiendo capacidades documentadas.
+
+* Los Domain Architects poseen los límites de su dominio.
+* Los dominios consumen otros dominios solo mediante contratos documentados.
+* Los dominios no deben duplicar motores compartidos (p. ej. Booking, Payment, Identity o Security).
+* La autoridad de composición de producto pertenece al **Master Architect**.
+
+#### Provider Agnostic Principle
+
+Los dominios de negocio deben permanecer independientes de proveedores tecnológicos.
+
+Ejemplos:
+
+* Dominio Payment ≠ Stripe.
+* Dominio Notification ≠ un vendor de email concreto.
+* Concepto Storage ≠ un proveedor de almacenamiento concreto.
+
+Clarificación:
+
+* **Core** posee las integraciones técnicas.
+* **Domain** posee las reglas de negocio.
+* Conflictos entre requisitos de dominio y elecciones tecnológicas → escalar al **Master Architect**.
+
+#### Sport Domain Principle (opcional)
+
+Especialización opcional para dominios deportivos (cuando la categoría Domain lo requiera; si no: `N/A`):
+
+* Un Domain Architect por deporte cuando esté documentado en SoT.
+* Golf es la primera implementación.
+* Futuros deportes (Padel, Tennis, Football, etc.) siguen el mismo patrón.
+* No crear un mega-dominio genérico Sports que absorba todos los deportes.
+
+Los dominios deportivos:
+
+* poseen el conocimiento / reglas del deporte;
+* consumen Booking, Payment, Social cuando se requiera;
+* no poseen infraestructura.
+
+### Secrets Governance (nota de ownership)
+
+La gobernanza de secrets **no** es un nuevo agente Core.
+
+| Aspecto | Propietario |
+|---|---|
+| Política de seguridad, clasificación, reglas de exposición, principios de gobernanza | Security Architect |
+| Manejo de entorno, integración de plataforma, almacenamiento operativo | Supabase Architect / Backend Architect |
+| Secrets | Ningún Domain Architect posee secrets |
 
 ### Regla de no mezcla
 
@@ -454,6 +531,7 @@ Al escalar: exponer hechos, docs consultados, opciones y recomendación. No impl
 |---|---|---|
 | 1.0 | 2026-08-01 | Plantilla oficial inicial |
 | 1.1 | 2026-08-01 | Framework consolidation FT-001…FT-009 — Boundaries, Consultations, Ownership, Platform vs Domain, Escalation Principles, Standards≠Checklist |
+| 1.2 | 2026-08-01 | Framework Evolution principles for Domain templates — Reusable, Transferable, Product Composition, Provider Agnostic, Sport (optional), Secrets Governance note |
 
 Al especializar un agente: registrar cada cambio de versión del agente aquí, sin eliminar filas históricas.
 

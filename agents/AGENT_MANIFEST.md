@@ -1,6 +1,6 @@
 # MotanOS — AGENT MANIFEST
 
-Version: 1.2
+Version: 1.3
 
 Status: ACTIVE
 
@@ -34,6 +34,14 @@ No sustituye a `00_MASTER_ARCHITECT.md`.
 No sustituye a `AGENT_TEMPLATE.md`.
 
 No sustituye a **v1.0-docs**.
+
+## Product identity
+
+* **MotanOS** es la identidad oficial de producto / plataforma / framework.
+* **IKON** es el primer contexto de implementación y despliegue de cliente; **no** es el límite arquitectónico del framework.
+* Los dominios son capacidades reutilizables **dentro** de MotanOS, no productos SaaS independientes por defecto.
+
+Detalle operativo de Framework Evolution (FE-001…FE-006): `AGENT_TEMPLATE.md` (v1.2+).
 
 ---
 
@@ -113,6 +121,15 @@ Autoridad máxima de gobernanza de ingeniería, subordinada a **v1.0-docs**.
 * veta contradicciones documentales,
 * nunca sustituye la documentación oficial.
 
+### Product Composition
+
+La composición de producto pertenece al **Master Architect**.
+
+* El Master decide cómo las capacidades documentadas forman el producto MotanOS.
+* Los Domain Architects poseen los límites de su dominio.
+* Los Core Architects poseen los cimientos de plataforma.
+* Ningún dominio crea arquitectura independiente sin aprobación del Master / ADR cuando corresponda.
+
 Documento: `00_MASTER_ARCHITECT.md`
 
 ## Review Architects (funciones de Governance)
@@ -183,6 +200,17 @@ Reglas:
 * Implementación de plataforma (Supabase) ≠ implementación de negocio (Backend / Domain).
 * Todo Core activo sigue `AGENT_TEMPLATE.md` (Boundaries, Consultations, Ownership, Checklist).
 
+### Secrets Governance
+
+Secrets Governance **no** crea un nuevo agente Core ni una quinta categoría Core.
+
+| Aspecto | Propietario |
+|---|---|
+| Gobernanza, clasificación, reglas de exposición, política de seguridad | Security Architect |
+| Manejo operativo, integración de entorno, mecanismos de almacenamiento de plataforma | Backend Architect / Supabase Architect |
+
+Los agentes Domain **nunca** poseen secrets.
+
 ---
 
 # 5. Domain Architects
@@ -190,6 +218,8 @@ Reglas:
 Responsables del **dominio de producto** documentado.
 
 Garantizan que el comportamiento del sistema respete el negocio oficial.
+
+Los Domain Architects definen **capacidades reutilizables de MotanOS**.
 
 Futuros Domain Architects (perímetros oficiales):
 
@@ -207,6 +237,33 @@ Reglas:
 * Domain no contradice **v1.0-docs**.
 * Domain no aprueba cambios que rompan estados o reglas oficiales.
 * Domain se materializa desde `AGENT_TEMPLATE.md` cuando pase Lifecycle.
+
+### Domain Architect principles (Framework Evolution)
+
+* Los dominios son capacidades de negocio **reutilizables**.
+* Los dominios **no** son productos independientes por defecto.
+* Los dominios se componen mediante **contratos documentados**.
+* Los dominios no pueden duplicar motores compartidos poseídos en otro perímetro (p. ej. Booking, Payment, Identity, Security).
+* La arquitectura es **transferible como capacidad** dentro de MotanOS; transferible no significa producto separado automático.
+
+### Provider Agnostic
+
+Los dominios definen reglas de negocio con independencia de proveedores.
+
+Los proveedores técnicos pertenecen a la implementación Core.
+
+Ejemplos: Payment ≠ Stripe; Notification ≠ vendor; concepto Storage ≠ proveedor concreto.
+
+Conflictos entre dominio y elección tecnológica → escalar al Master Architect.
+
+### Sport Domain pattern
+
+Los dominios deportivos son especializaciones **opcionales**.
+
+* Un Domain Architect por deporte cuando esté documentado en SoT.
+* Golf es la primera implementación.
+* Futuros deportes siguen el mismo patrón.
+* No existe un mega-dominio genérico Sports que absorba todos los deportes.
 
 ---
 
@@ -417,8 +474,9 @@ Aprobación / Rechazo / Escalada
 
 ## Cómo evolucionan los agentes
 
-* Todo agente activo sigue `AGENT_TEMPLATE.md` (v1.1+).
+* Todo agente activo sigue `AGENT_TEMPLATE.md` (v1.2+).
 * Secciones obligatorias nuevas del framework: Implementation Boundaries, Ownership Rules, Platform vs Domain, Mandatory Consultations, Escalation Principles.
+* Framework Evolution (FE-001…FE-006) vive en detalle en la plantilla; este manifiesto fija las reglas oficiales de ecosistema.
 * Engineering Standards = principios; Validation Checklist = comprobación (nunca listas idénticas).
 * Los cambios de un agente se registran en su Version History.
 * Los cambios de organización del ecosistema se registran en este manifiesto.
