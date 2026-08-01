@@ -1,0 +1,173 @@
+%% ============================================================
+%% IKON Community OS — Golf Experience Flow
+%% Source of truth: docs/37_GOLF_ECOSYSTEM.md (+ booking/social/payments)
+%% Scope: functional journey before · during · after play
+%% Not API · not SQL · not architecture
+%% ============================================================
+
+flowchart TB
+
+    %% ------------------------------------------------------------
+    %% START
+    %% ------------------------------------------------------------
+    START([Inicio]) --> U_OPEN
+
+    %% ------------------------------------------------------------
+    %% USER — discovery & selection
+    %% ------------------------------------------------------------
+    subgraph USER["Usuario"]
+        direction TB
+        U_OPEN[Abre Golf]
+        U_AVAIL[Consulta disponibilidad]
+        U_DATE[Selecciona fecha]
+        U_TEE[Selecciona Tee Time]
+        U_PLAYERS[Selecciona jugadores]
+        U_MISSING{¿Faltan jugadores?}
+        U_CONTINUE[Continuar con el grupo]
+        U_CANCEL[Cancelar reserva]
+        U_NOSHOW[No se presenta]
+    end
+
+    U_OPEN --> U_AVAIL --> U_DATE --> U_TEE --> U_PLAYERS --> U_MISSING
+
+    %% ------------------------------------------------------------
+    %% SOCIAL EXPERIENCE ENGINE — complete the group
+    %% ------------------------------------------------------------
+    subgraph SOCIAL["Social Experience Engine"]
+        direction TB
+        S_FIND[Buscar jugadores compatibles]
+        S_INVITE[Enviar invitaciones]
+        S_COMPLETE{¿Grupo completo?}
+        S_WAIT[Esperar aceptación]
+    end
+
+    U_MISSING -->|Sí| S_FIND --> S_INVITE --> S_WAIT --> S_COMPLETE
+    S_COMPLETE -->|Sí| U_CONTINUE
+    S_COMPLETE -->|No — grupo incompleto| U_CONTINUE
+    U_MISSING -->|No| U_CONTINUE
+
+    U_CONTINUE --> BE_VALID
+
+    %% ------------------------------------------------------------
+    %% BOOKING ENGINE — validate & create
+    %% ------------------------------------------------------------
+    subgraph BOOKING["Booking Engine"]
+        direction TB
+        BE_VALID[Validar disponibilidad]
+        BE_RULES[Validar reglas del campo]
+        BE_MEM[Validar membresía]
+        BE_OK{¿Validaciones OK?}
+        BE_FAIL[Rechazar solicitud]
+        BE_PAY_NEED{¿Requiere pago?}
+        BE_CREATE[Crear reserva de golf]
+        BE_BOOKING[Generar Booking]
+        BE_ASSIGN[Asignar Tee Time]
+        BE_WEATHER[Cierre por lluvia / campo cerrado]
+        BE_RESCHED[Cambio de horario]
+        BE_WAITLIST[Incorporación desde lista de espera]
+        BE_RELEASE[Liberar Tee Time]
+    end
+
+    BE_VALID --> BE_RULES --> BE_MEM --> BE_OK
+    BE_OK -->|No| BE_FAIL --> END_FAIL([Fin: no se puede reservar])
+    BE_OK -->|Sí| BE_PAY_NEED
+
+    %% ------------------------------------------------------------
+    %% PAYMENT ENGINE
+    %% ------------------------------------------------------------
+    subgraph PAYMENT["Payment Engine"]
+        direction TB
+        P_START[Iniciar cobro]
+        P_OK{¿Pago correcto?}
+        P_FAIL[Pago rechazado o timeout]
+        P_CANCEL[Cancelar proceso]
+    end
+
+    BE_PAY_NEED -->|Sí| P_START --> P_OK
+    BE_PAY_NEED -->|No| BE_CREATE
+    P_OK -->|Sí| BE_CREATE
+    P_OK -->|No| P_FAIL --> P_CANCEL --> END_PAY([Fin: pago fallido])
+
+    BE_CREATE --> BE_BOOKING --> BE_ASSIGN --> N_CONFIRM
+
+    %% ------------------------------------------------------------
+    %% NOTIFICATION ENGINE — before play day
+    %% ------------------------------------------------------------
+    subgraph NOTIFY["Notification Engine"]
+        direction TB
+        N_CONFIRM[Enviar confirmación]
+        N_REMIND[Recordatorio automático]
+        N_DAY[Información del día de juego]
+        N_CANCEL[Notificar cancelación]
+        N_WEATHER[Avisar cierre del campo]
+        N_RESCHED[Avisar cambio de horario]
+        N_WAIT[Avisar plaza desde lista de espera]
+        N_NOSHOW[Registrar No Show]
+    end
+
+    N_CONFIRM --> N_REMIND --> N_DAY --> DAY_PLAY
+
+    %% ------------------------------------------------------------
+    %% DAY OF PLAY
+    %% ------------------------------------------------------------
+    subgraph PLAY["Día de juego"]
+        direction TB
+        DAY_PLAY[Llegada al club]
+        CHECKIN[Check-in]
+        START_ROUND[Comenzar partida]
+        PLAY_ROUND[Jugar / tarjeta digital]
+        END_ROUND[Finalizar partida]
+        RESULT[Registrar resultado cuando proceda]
+    end
+
+    DAY_PLAY --> CHECKIN --> START_ROUND --> PLAY_ROUND --> END_ROUND --> RESULT --> R_SUGGEST
+
+    %% ------------------------------------------------------------
+    %% AFTER PLAY — recommendation, rating, analytics
+    %% ------------------------------------------------------------
+    subgraph RECOMMEND["Recommendation Engine"]
+        direction TB
+        R_SUGGEST[Sugerir siguientes experiencias]
+        R_REST[Sugerir restaurante]
+        R_NEXT[Sugerir próxima partida]
+        R_TOUR[Sugerir torneo]
+        R_EVENT[Sugerir evento]
+    end
+
+    R_SUGGEST --> R_REST
+    R_SUGGEST --> R_NEXT
+    R_SUGGEST --> R_TOUR
+    R_SUGGEST --> R_EVENT
+    R_REST --> RATE
+    R_NEXT --> RATE
+    R_TOUR --> RATE
+    R_EVENT --> RATE
+
+    RATE[Solicitar valoración] --> A_UPDATE
+
+    subgraph ANALYTICS["Analytics"]
+        direction TB
+        A_UPDATE[Actualizar métricas de golf]
+    end
+
+    A_UPDATE --> END_OK([Fin: experiencia completada])
+
+    %% ------------------------------------------------------------
+    %% SPECIAL CASES — all terminate cleanly
+    %% ------------------------------------------------------------
+    %% User cancellation (after booking exists)
+    BE_ASSIGN -.->|cancelación del usuario| U_CANCEL
+    U_CANCEL --> BE_RELEASE --> N_CANCEL --> END_CANCEL([Fin: reserva cancelada])
+
+    %% Weather / course closure
+    N_DAY -.->|lluvia o cierre| BE_WEATHER --> BE_RELEASE --> N_WEATHER --> END_WEATHER([Fin: campo cerrado])
+
+    %% Schedule change
+    N_REMIND -.->|cambio de horario| BE_RESCHED --> N_RESCHED --> N_DAY
+
+    %% No-show
+    DAY_PLAY -.->|no presentación| U_NOSHOW --> BE_RELEASE --> N_NOSHOW --> END_NOSHOW([Fin: No Show])
+
+    %% Waitlist incorporation (alternate entry)
+    START -.->|plaza desde lista de espera| BE_WAITLIST
+    BE_WAITLIST --> N_WAIT --> U_CONTINUE

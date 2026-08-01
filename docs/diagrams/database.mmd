@@ -1,0 +1,538 @@
+%% ============================================================
+%% IKON Community OS — High-Level Data Model (ER)
+%% Source of truth: docs/00 → docs/53
+%% Scope: entities · relationships · cardinalities
+%% Not SQL · not migrations · not RLS · not full columns
+%% ============================================================
+
+erDiagram
+    %% ========================================================
+    %% IDENTITY
+    %% ========================================================
+    AUTH_USER ||--|| USER : "maps to"
+    USER ||--|| PROFILE : "has"
+    USER ||--o{ USER_ROLE : "assigned"
+    ROLE ||--o{ USER_ROLE : "includes"
+    ROLE }o--o{ PERMISSION : "grants"
+    USER ||--o| USER_PREFERENCE : "has"
+
+    %% ========================================================
+    %% MEMBERSHIPS
+    %% ========================================================
+    MEMBERSHIP_PLAN ||--o{ MEMBERSHIP : "defines"
+    USER ||--o{ MEMBERSHIP : "holds"
+
+    %% ========================================================
+    %% FACILITIES & BOOKABLE RESOURCES
+    %% ========================================================
+    FACILITY ||--o{ RESOURCE : "contains"
+    RESOURCE ||--o{ AVAILABILITY_RULE : "governed by"
+    RESOURCE ||--o{ BOOKING : "reserved as"
+    RESOURCE ||--o{ WAITLIST_ENTRY : "queues"
+
+    %% ========================================================
+    %% UNIFIED BOOKING ENGINE
+    %% ========================================================
+    USER ||--o{ BOOKING : "owns"
+    BOOKING ||--o{ BOOKING_PARTICIPANT : "includes"
+    USER ||--o{ BOOKING_PARTICIPANT : "joins"
+    USER ||--o{ WAITLIST_ENTRY : "joins"
+    BOOKING ||--o| CHECK_IN : "confirmed by"
+    USER ||--o{ CHECK_IN : "performs"
+    %% Intentional cycle: EVENT ↔ EXPERIENCE ↔ BOOKING (domain overlap)
+    EXPERIENCE ||--o{ BOOKING : "may generate"
+    EVENT ||--o{ BOOKING : "may generate"
+
+    %% ========================================================
+    %% SOCIAL EXPERIENCE ENGINE
+    %% ========================================================
+    USER ||--o{ EXPERIENCE : "creates"
+    EXPERIENCE ||--o{ EXPERIENCE_PARTICIPANT : "includes"
+    USER ||--o{ EXPERIENCE_PARTICIPANT : "joins"
+    EXPERIENCE ||--o{ INVITATION : "invites via"
+    USER ||--o{ INVITATION : "sends"
+    USER ||--o{ INVITATION : "receives"
+    USER ||--o{ GROUP : "creates"
+    GROUP ||--o{ GROUP_MEMBER : "includes"
+    USER ||--o{ GROUP_MEMBER : "belongs"
+    USER ||--o{ FRIENDSHIP : "requests"
+    USER ||--o{ FRIENDSHIP : "accepts"
+
+    %% ========================================================
+    %% GOLF
+    %% ========================================================
+    BOOKING ||--o| GOLF_ROUND : "may start"
+    GOLF_ROUND ||--o| GOLF_SCORECARD : "has"
+    GOLF_ROUND ||--o{ GOLF_PLAYER : "includes"
+    USER ||--o{ GOLF_PLAYER : "plays as"
+
+    %% ========================================================
+    %% PADEL
+    %% ========================================================
+    BOOKING ||--o| PADEL_MATCH : "may start"
+
+    %% ========================================================
+    %% FOOTBALL 7
+    %% ========================================================
+    BOOKING ||--o| FOOTBALL_MATCH : "may start"
+    FOOTBALL_MATCH ||--o{ FOOTBALL_TEAM : "includes"
+
+    %% ========================================================
+    %% BILLIARD
+    %% ========================================================
+    BOOKING ||--o| BILLIARD_MATCH : "may start"
+
+    %% ========================================================
+    %% DARTS
+    %% ========================================================
+    BOOKING ||--o| DARTS_MATCH : "may start"
+
+    %% ========================================================
+    %% EVENTS (distinct from EXPERIENCE)
+    %% ========================================================
+    EVENT ||--o{ EVENT_REGISTRATION : "has"
+    USER ||--o{ EVENT_REGISTRATION : "registers"
+    EVENT }o--o| EXPERIENCE : "may relate"
+
+    %% ========================================================
+    %% TOURNAMENTS
+    %% ========================================================
+    TOURNAMENT ||--o{ TOURNAMENT_ENTRY : "has"
+    USER ||--o{ TOURNAMENT_ENTRY : "enters"
+    TOURNAMENT ||--o{ TOURNAMENT_MATCH : "schedules"
+    TOURNAMENT_MATCH ||--o| TOURNAMENT_RESULT : "produces"
+
+    %% ========================================================
+    %% RESTAURANT & DIGITAL MENU
+    %% ========================================================
+    RESTAURANT ||--o{ DINING_TABLE : "has"
+    %% RESOURCE 1 — DINING_TABLE 0..1 (not every resource is a table)
+    RESOURCE ||--o| DINING_TABLE : "specialized as"
+    RESTAURANT ||--o{ MENU : "publishes"
+    MENU ||--o{ MENU_CATEGORY : "contains"
+    MENU_CATEGORY ||--o{ MENU_ITEM : "contains"
+    MENU_ITEM ||--o{ MENU_ITEM_ALLERGEN : "tagged"
+    ALLERGEN ||--o{ MENU_ITEM_ALLERGEN : "applies"
+    USER ||--o{ ORDER : "places"
+    BOOKING ||--o| ORDER : "may include"
+    ORDER ||--o{ ORDER_ITEM : "contains"
+    MENU_ITEM ||--o{ ORDER_ITEM : "ordered as"
+
+    %% ========================================================
+    %% PAYMENTS (independent · clean associations)
+    %% ========================================================
+    USER ||--o{ PAYMENT : "pays"
+    BOOKING ||--o{ PAYMENT : "settled by"
+    ORDER ||--o{ PAYMENT : "settled by"
+    MEMBERSHIP ||--o{ PAYMENT : "settled by"
+    PAYMENT ||--o{ REFUND : "may refund"
+    PAYMENT ||--o| INVOICE : "invoiced as"
+
+    %% ========================================================
+    %% COMMUNICATION
+    %% ========================================================
+    USER ||--o{ NOTIFICATION : "receives"
+    USER ||--|| NOTIFICATION_PREFERENCE : "configures"
+    USER ||--o{ RECOMMENDATION : "receives"
+
+    %% ========================================================
+    %% CMS
+    %% ========================================================
+    CONTENT ||--o{ CONTENT_VERSION : "versioned as"
+    CONTENT ||--o{ MEDIA_ASSET : "uses"
+    USER ||--o{ CONTENT : "may author"
+    USER ||--o{ MEDIA_ASSET : "may upload"
+
+    %% ========================================================
+    %% SYSTEM
+    %% ========================================================
+    USER ||--o{ AUDIT_LOG : "actions"
+    AUTOMATION_RUN }o--o| USER : "may target"
+    AUTOMATION_RUN }o--o| BOOKING : "may act on"
+    AUTOMATION_RUN }o--o| NOTIFICATION : "may trigger"
+
+    %% ========================================================
+    %% ENTITY ATTRIBUTES (minimal)
+    %% ========================================================
+
+    AUTH_USER {
+        uuid id PK
+        string email
+        string status
+        datetime created_at
+    }
+
+    USER {
+        uuid id PK
+        uuid auth_user_id FK
+        string status
+        datetime created_at
+    }
+
+    PROFILE {
+        uuid id PK
+        uuid user_id FK
+        string status
+        datetime updated_at
+    }
+
+    ROLE {
+        uuid id PK
+        string status
+    }
+
+    PERMISSION {
+        uuid id PK
+        string status
+    }
+
+    USER_ROLE {
+        uuid id PK
+        uuid user_id FK
+        uuid role_id FK
+        datetime assigned_at
+    }
+
+    MEMBERSHIP_PLAN {
+        uuid id PK
+        string status
+    }
+
+    MEMBERSHIP {
+        uuid id PK
+        uuid user_id FK
+        uuid membership_plan_id FK
+        string status
+        datetime starts_at
+        datetime ends_at
+    }
+
+    FACILITY {
+        uuid id PK
+        string status
+    }
+
+    RESOURCE {
+        uuid id PK
+        uuid facility_id FK
+        string status
+    }
+
+    AVAILABILITY_RULE {
+        uuid id PK
+        uuid resource_id FK
+        string status
+    }
+
+    BOOKING {
+        uuid id PK
+        uuid user_id FK
+        uuid resource_id FK
+        uuid experience_id FK
+        uuid event_id FK
+        string status
+        datetime starts_at
+        datetime ends_at
+        datetime created_at
+    }
+
+    BOOKING_PARTICIPANT {
+        uuid id PK
+        uuid booking_id FK
+        uuid user_id FK
+        string status
+    }
+
+    WAITLIST_ENTRY {
+        uuid id PK
+        uuid resource_id FK
+        uuid user_id FK
+        string status
+        datetime created_at
+    }
+
+    CHECK_IN {
+        uuid id PK
+        uuid booking_id FK
+        uuid user_id FK
+        datetime checked_in_at
+    }
+
+    EXPERIENCE {
+        uuid id PK
+        uuid creator_user_id FK
+        string status
+        datetime starts_at
+        datetime created_at
+    }
+
+    EXPERIENCE_PARTICIPANT {
+        uuid id PK
+        uuid experience_id FK
+        uuid user_id FK
+        string status
+    }
+
+    INVITATION {
+        uuid id PK
+        uuid experience_id FK
+        uuid sender_user_id FK
+        uuid recipient_user_id FK
+        string status
+        datetime created_at
+    }
+
+    GROUP {
+        uuid id PK
+        uuid creator_user_id FK
+        string status
+        datetime created_at
+    }
+
+    GROUP_MEMBER {
+        uuid id PK
+        uuid group_id FK
+        uuid user_id FK
+        string status
+    }
+
+    FRIENDSHIP {
+        uuid id PK
+        uuid requester_user_id FK
+        uuid addressee_user_id FK
+        string status
+        datetime created_at
+    }
+
+    USER_PREFERENCE {
+        uuid id PK
+        uuid user_id FK
+        datetime updated_at
+    }
+
+    GOLF_ROUND {
+        uuid id PK
+        uuid booking_id FK
+        string status
+        datetime started_at
+    }
+
+    GOLF_SCORECARD {
+        uuid id PK
+        uuid golf_round_id FK
+        string status
+    }
+
+    GOLF_PLAYER {
+        uuid id PK
+        uuid golf_round_id FK
+        uuid user_id FK
+        string status
+    }
+
+    PADEL_MATCH {
+        uuid id PK
+        uuid booking_id FK
+        string status
+    }
+
+    FOOTBALL_MATCH {
+        uuid id PK
+        uuid booking_id FK
+        string status
+    }
+
+    FOOTBALL_TEAM {
+        uuid id PK
+        uuid football_match_id FK
+        string status
+    }
+
+    BILLIARD_MATCH {
+        uuid id PK
+        uuid booking_id FK
+        string status
+    }
+
+    DARTS_MATCH {
+        uuid id PK
+        uuid booking_id FK
+        string status
+    }
+
+    EVENT {
+        uuid id PK
+        uuid experience_id FK
+        string status
+        datetime starts_at
+    }
+
+    EVENT_REGISTRATION {
+        uuid id PK
+        uuid event_id FK
+        uuid user_id FK
+        string status
+        datetime created_at
+    }
+
+    TOURNAMENT {
+        uuid id PK
+        string status
+        datetime starts_at
+    }
+
+    TOURNAMENT_ENTRY {
+        uuid id PK
+        uuid tournament_id FK
+        uuid user_id FK
+        string status
+    }
+
+    TOURNAMENT_MATCH {
+        uuid id PK
+        uuid tournament_id FK
+        string status
+    }
+
+    TOURNAMENT_RESULT {
+        uuid id PK
+        uuid tournament_match_id FK
+        string status
+    }
+
+    RESTAURANT {
+        uuid id PK
+        string status
+    }
+
+    DINING_TABLE {
+        uuid id PK
+        uuid restaurant_id FK
+        uuid resource_id FK
+        string status
+    }
+
+    MENU {
+        uuid id PK
+        uuid restaurant_id FK
+        string status
+    }
+
+    MENU_CATEGORY {
+        uuid id PK
+        uuid menu_id FK
+        string status
+    }
+
+    MENU_ITEM {
+        uuid id PK
+        uuid menu_category_id FK
+        string status
+    }
+
+    ALLERGEN {
+        uuid id PK
+        string status
+    }
+
+    MENU_ITEM_ALLERGEN {
+        uuid id PK
+        uuid menu_item_id FK
+        uuid allergen_id FK
+    }
+
+    ORDER {
+        uuid id PK
+        uuid user_id FK
+        uuid booking_id FK
+        string status
+        datetime created_at
+    }
+
+    ORDER_ITEM {
+        uuid id PK
+        uuid order_id FK
+        uuid menu_item_id FK
+        string status
+    }
+
+    PAYMENT {
+        uuid id PK
+        uuid user_id FK
+        uuid booking_id FK
+        uuid order_id FK
+        uuid membership_id FK
+        string status
+        datetime created_at
+    }
+
+    REFUND {
+        uuid id PK
+        uuid payment_id FK
+        string status
+        datetime created_at
+    }
+
+    INVOICE {
+        uuid id PK
+        uuid payment_id FK
+        string status
+        datetime created_at
+    }
+
+    NOTIFICATION {
+        uuid id PK
+        uuid user_id FK
+        string status
+        datetime created_at
+    }
+
+    NOTIFICATION_PREFERENCE {
+        uuid id PK
+        uuid user_id FK
+        datetime updated_at
+    }
+
+    RECOMMENDATION {
+        uuid id PK
+        uuid user_id FK
+        string status
+        datetime created_at
+    }
+
+    CONTENT {
+        uuid id PK
+        uuid author_user_id FK
+        string status
+        datetime updated_at
+    }
+
+    MEDIA_ASSET {
+        uuid id PK
+        uuid uploader_user_id FK
+        uuid content_id FK
+        string status
+        datetime created_at
+    }
+
+    CONTENT_VERSION {
+        uuid id PK
+        uuid content_id FK
+        string status
+        datetime created_at
+    }
+
+    AUDIT_LOG {
+        uuid id PK
+        uuid user_id FK
+        datetime created_at
+    }
+
+    AUTOMATION_RUN {
+        uuid id PK
+        uuid user_id FK
+        uuid booking_id FK
+        uuid notification_id FK
+        string status
+        datetime started_at
+    }

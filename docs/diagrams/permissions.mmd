@@ -1,0 +1,109 @@
+%% ============================================================
+%% IKON Community OS — Conceptual Authorization Model (RBAC)
+%% Source of truth: docs/27_PERMISSIONS.md (+ 00 → 53)
+%% Scope: roles · permissions · actions · resources
+%% Not SQL · not RLS · not ownership · not dynamic rules
+%% ============================================================
+
+flowchart TB
+
+    %% ------------------------------------------------------------
+    %% Privilege ladder — actor levels (conceptual)
+    %% Authorization always flows through ROLE → PERMISSION
+    %% ------------------------------------------------------------
+    subgraph ACTORS["Actors"]
+        direction TB
+        GUEST["Guest"]
+        MEMBER["Member"]
+        STAFF["Staff"]
+        MANAGER["Manager"]
+        CLUB_ADMIN["Club Admin"]
+        PLATFORM_ADMIN["Platform Admin"]
+
+        GUEST --> MEMBER
+        MEMBER --> STAFF
+        STAFF --> MANAGER
+        MANAGER --> CLUB_ADMIN
+        CLUB_ADMIN --> PLATFORM_ADMIN
+    end
+
+    %% ------------------------------------------------------------
+    %% RBAC core — no direct user → resource links
+    %% ------------------------------------------------------------
+    subgraph RBAC["RBAC Model"]
+        direction TB
+        USER["USER"]
+        ROLE["ROLE"]
+        PERMISSION["PERMISSION"]
+
+        USER -->|"has one or more"| ROLE
+        ROLE -->|"contains"| PERMISSION
+    end
+
+    %% ------------------------------------------------------------
+    %% Actions granted by permissions
+    %% ------------------------------------------------------------
+    subgraph ACTIONS["Actions"]
+        direction LR
+        READ["READ"]
+        CREATE["CREATE"]
+        UPDATE["UPDATE"]
+        DELETE["DELETE"]
+        APPROVE["APPROVE"]
+        PUBLISH["PUBLISH"]
+        CONFIGURE["CONFIGURE"]
+        EXPORT["EXPORT"]
+    end
+
+    %% ------------------------------------------------------------
+    %% Protected resources
+    %% ------------------------------------------------------------
+    subgraph RESOURCES["Resources"]
+        direction TB
+
+        subgraph SPORT["Sport Domains"]
+            direction LR
+            BOOKINGS["BOOKINGS"]
+            GOLF["GOLF"]
+            PADEL["PADEL"]
+            FOOTBALL["FOOTBALL"]
+            BILLIARD["BILLIARD"]
+            DARTS["DARTS"]
+        end
+
+        subgraph OPS["Club Operations"]
+            direction LR
+            RESTAURANT["RESTAURANT"]
+            MENU["MENU"]
+            EVENTS["EVENTS"]
+            TOURNAMENTS["TOURNAMENTS"]
+            MEMBERS["MEMBERS"]
+            PROFILE["PROFILE"]
+            PAYMENTS["PAYMENTS"]
+        end
+
+        subgraph PLATFORM["Platform Services"]
+            direction LR
+            CMS["CMS"]
+            NOTIFICATIONS["NOTIFICATIONS"]
+            AUTOMATIONS["AUTOMATIONS"]
+            ANALYTICS["ANALYTICS"]
+            SETTINGS["SETTINGS"]
+        end
+    end
+
+    %% ------------------------------------------------------------
+    %% Authorization flow
+    %% USER → ROLE → PERMISSION → ACTION → RESOURCE
+    %% ------------------------------------------------------------
+    ACTORS -->|"maps to"| USER
+    PERMISSION -->|"allows"| ACTIONS
+    ACTIONS -->|"on"| RESOURCES
+
+    %% Scope (conceptual notes — not direct grants):
+    %% Guest          → public content only
+    %% Member         → own data + authorized features
+    %% Staff          → operational tasks
+    %% Manager        → daily operations
+    %% Club Admin     → own club only
+    %% Platform Admin → full platform access

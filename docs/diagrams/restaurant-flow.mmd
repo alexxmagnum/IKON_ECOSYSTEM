@@ -1,0 +1,180 @@
+%% ============================================================
+%% IKON Community OS — Restaurant Experience Flow
+%% Source of truth: docs/35_RESTAURANT_MODULE.md · 36_DIGITAL_MENU.md
+%%                  + booking / payments / notifications
+%% Scope: functional journey (not API · not SQL · not architecture)
+%% Philosophy: restaurant is part of the club experience
+%% ============================================================
+
+flowchart TB
+
+    %% ------------------------------------------------------------
+    %% START — includes post-sport arrival & gastronomic events
+    %% ------------------------------------------------------------
+    START([Inicio]) --> U_OPEN
+    START -.->|llegada tras actividad deportiva| U_OPEN
+    START -.->|evento gastronómico asociado| U_EVENT
+    START -.->|plaza desde lista de espera| BE_WAITLIST
+
+    %% ------------------------------------------------------------
+    %% USER — discovery & selection
+    %% ------------------------------------------------------------
+    subgraph USER["Usuario"]
+        direction TB
+        U_OPEN[Abre Restaurante]
+        U_AVAIL[Consulta disponibilidad]
+        U_NEED{¿Reserva necesaria?}
+        U_DIRECT[Acceso directo]
+        U_DATE[Selecciona fecha]
+        U_TIME[Selecciona hora]
+        U_GUESTS[Selecciona número de comensales]
+        U_ALT[Revisa horarios alternativos]
+        U_WAIT{¿Unirse a lista de espera?}
+        U_WAIT_JOIN[Se apunta a lista de espera]
+        U_WAIT_SKIP[Declina lista de espera]
+        U_CANCEL[Cancelar reserva]
+        U_NOSHOW[No se presenta]
+        U_EVENT[Acceder a evento gastronómico]
+    end
+
+    U_OPEN --> U_AVAIL --> U_NEED
+
+    %% Walk-in / no reservation required
+    U_NEED -->|No| U_DIRECT --> REST_ASSIGN_SOFT --> SVC_READY
+
+    %% Reservation required
+    U_NEED -->|Sí| U_DATE --> U_TIME --> U_GUESTS --> BE_START
+    U_EVENT --> U_DATE
+
+    %% ------------------------------------------------------------
+    %% BOOKING ENGINE
+    %% ------------------------------------------------------------
+    subgraph BOOKING["Booking Engine"]
+        direction TB
+        BE_START[Recibe solicitud de mesa]
+        BE_LOCK[Aplicar bloqueo temporal]
+        BE_AVAIL{¿Mesa disponible?}
+        BE_SHOW_ALT[Mostrar horarios alternativos]
+        BE_WAIT_OFFER[Ofrecer lista de espera]
+        BE_RULES[Validar reglas]
+        BE_MEM[Validar membresía si aplica]
+        BE_OK{¿Validaciones OK?}
+        BE_FAIL[Rechazar solicitud]
+        BE_PAY_NEED{¿Requiere depósito o pago previo?}
+        BE_CREATE[Crear reserva]
+        BE_ASSIGN[Asignar mesa]
+        BE_WAITLIST[Incorporación desde lista de espera]
+        BE_CLOSE[Cierre temporal del restaurante]
+    end
+
+    BE_START --> BE_LOCK --> BE_AVAIL
+
+    BE_AVAIL -->|No| BE_SHOW_ALT --> U_ALT --> BE_WAIT_OFFER --> U_WAIT
+    U_WAIT -->|Sí| U_WAIT_JOIN --> REL_WAIT[Liberar bloqueo temporal] --> END_WAIT([Fin: en lista de espera])
+    U_WAIT -->|No| U_WAIT_SKIP --> REL_SKIP[Liberar bloqueo temporal] --> END_NO([Fin: sin reserva])
+
+    BE_AVAIL -->|Sí| BE_RULES --> BE_MEM --> BE_OK
+    BE_OK -->|No| BE_FAIL --> REL_FAIL[Liberar bloqueo temporal] --> END_FAIL([Fin: no se puede reservar])
+    BE_OK -->|Sí| BE_PAY_NEED
+
+    %% ------------------------------------------------------------
+    %% PAYMENT ENGINE
+    %% ------------------------------------------------------------
+    subgraph PAYMENT["Payment Engine"]
+        direction TB
+        P_START[Iniciar cobro / depósito]
+        P_OK{¿Pago correcto?}
+        P_FAIL[Pago rechazado o timeout]
+        P_CANCEL[Cancelar proceso]
+    end
+
+    BE_PAY_NEED -->|Sí| P_START --> P_OK
+    BE_PAY_NEED -->|No| BE_CREATE
+    P_OK -->|Sí| BE_CREATE
+    P_OK -->|No| P_FAIL --> P_CANCEL --> REL_PAY[Liberar bloqueo temporal] --> END_PAY([Fin: pago fallido])
+
+    BE_CREATE --> BE_ASSIGN --> N_CONFIRM
+
+    %% Waitlist entry joins selection path
+    BE_WAITLIST --> N_WAIT --> U_DATE
+
+    %% ------------------------------------------------------------
+    %% NOTIFICATION ENGINE
+    %% ------------------------------------------------------------
+    subgraph NOTIFY["Notification Engine"]
+        direction TB
+        N_CONFIRM[Enviar confirmación]
+        N_REMIND[Recordatorio automático]
+        N_CANCEL[Notificar cancelación]
+        N_NOSHOW[Registrar No Show]
+        N_CLOSE[Avisar cierre temporal]
+        N_WAIT[Avisar plaza desde lista de espera]
+        N_TABLE[Avisar cambio de mesa]
+    end
+
+    N_CONFIRM --> N_REMIND --> ARRIVE
+
+    %% ------------------------------------------------------------
+    %% RESTAURANT — service experience
+    %% ------------------------------------------------------------
+    subgraph RESTAURANT["Restaurant"]
+        direction TB
+        REST_ASSIGN_SOFT[Asignación de mesa si procede]
+        ARRIVE[Llegada al restaurante]
+        CHECKIN[Check-in]
+        REST_FINAL[Asignación definitiva de mesa]
+        REST_CHANGE[Cambio de mesa]
+        MENU[Consultar carta digital]
+        ORDER[Realizar pedido cuando aplique]
+        ENJOY[Disfrutar de la experiencia]
+        END_SVC[Finalizar servicio]
+        SVC_READY[Continuar al servicio]
+    end
+
+    ARRIVE --> CHECKIN --> REST_FINAL --> MENU --> ORDER --> ENJOY --> END_SVC --> RATE
+
+    %% Walk-in joins service at digital menu
+    SVC_READY --> MENU
+
+    %% Table change during service
+    REST_FINAL -.->|cambio de mesa| REST_CHANGE --> N_TABLE --> MENU
+
+    %% ------------------------------------------------------------
+    %% AFTER SERVICE
+    %% ------------------------------------------------------------
+    RATE[Solicitar valoración] --> R_SUGGEST
+
+    subgraph RECOMMEND["Recommendation Engine"]
+        direction TB
+        R_SUGGEST[Sugerir siguientes experiencias]
+        R_EVENT[Sugerir próximo evento]
+        R_BOOK[Sugerir nueva reserva]
+        R_MENU[Sugerir menú especial]
+        R_CLUB[Sugerir actividad del club]
+    end
+
+    R_SUGGEST --> R_EVENT
+    R_SUGGEST --> R_BOOK
+    R_SUGGEST --> R_MENU
+    R_SUGGEST --> R_CLUB
+    R_EVENT --> A_UPDATE
+    R_BOOK --> A_UPDATE
+    R_MENU --> A_UPDATE
+    R_CLUB --> A_UPDATE
+
+    subgraph ANALYTICS["Analytics"]
+        direction TB
+        A_UPDATE[Actualizar métricas del restaurante]
+    end
+
+    A_UPDATE --> END_OK([Fin: experiencia gastronómica completada])
+
+    %% ------------------------------------------------------------
+    %% SPECIAL CASES — all terminate cleanly
+    %% ------------------------------------------------------------
+    BE_ASSIGN -.->|cancelación de la reserva| U_CANCEL
+    U_CANCEL --> REL_CANCEL[Liberar mesa] --> N_CANCEL --> END_CANCEL([Fin: reserva cancelada])
+
+    ARRIVE -.->|No Show| U_NOSHOW --> REL_NOSHOW[Liberar mesa] --> N_NOSHOW --> END_NOSHOW([Fin: No Show])
+
+    N_REMIND -.->|cierre temporal| BE_CLOSE --> REL_CLOSE[Liberar reservas afectadas] --> N_CLOSE --> END_CLOSE([Fin: restaurante cerrado])

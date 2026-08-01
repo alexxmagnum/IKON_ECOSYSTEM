@@ -1,0 +1,145 @@
+%% ============================================================
+%% IKON Community OS — Unified Booking Flow
+%% Source of truth: docs/47_BOOKING_MODULE.md (+ related modules)
+%% Scope: business process only (not API · not SQL · not architecture)
+%% ============================================================
+
+flowchart TB
+
+    %% ------------------------------------------------------------
+    %% START
+    %% ------------------------------------------------------------
+    START([Inicio: Usuario pulsa Reservar]) --> U_SEL
+
+    %% ------------------------------------------------------------
+    %% USER ACTIONS
+    %% ------------------------------------------------------------
+    subgraph USER["Usuario"]
+        direction TB
+        U_SEL[Selecciona recurso]
+        U_DATE[Selecciona fecha]
+        U_TIME[Selecciona hora]
+        U_DUR[Selecciona duración]
+        U_ALT[Revisa alternativas]
+        U_WAIT{¿Unirse a lista de espera?}
+        U_WAIT_JOIN[Se apunta a lista de espera]
+        U_WAIT_SKIP[Declina lista de espera]
+    end
+
+    U_SEL --> U_DATE --> U_TIME --> U_DUR --> BE_START
+
+    %% ------------------------------------------------------------
+    %% BOOKING ENGINE
+    %% ------------------------------------------------------------
+    subgraph BOOKING["Booking Engine"]
+        direction TB
+        BE_START[Recibe solicitud de reserva]
+        BE_LOCK[Aplicar bloqueo temporal]
+        BE_AVAIL{¿Disponible?}
+
+        BE_OCCUPIED[Error: recurso ocupado]
+        BE_BLOCKED[Error: recurso bloqueado]
+        BE_SHOW_ALT[Mostrar alternativas]
+        BE_WAIT_OFFER[Ofrecer lista de espera]
+
+        BE_PERM{¿Permisos válidos?}
+        BE_PERM_FAIL[Error: sin permiso]
+
+        BE_USER{¿Estado de usuario válido?}
+        BE_USER_FAIL[Error: usuario suspendido]
+
+        BE_MEM{¿Membresía válida si aplica?}
+        BE_MEM_FAIL[Error: membresía inválida]
+
+        BE_RULES{¿Reglas del recurso OK?}
+        BE_RULES_FAIL[Error: reglas del recurso]
+
+        BE_HOURS{¿Horario válido?}
+        BE_HOURS_FAIL[Error: horario inválido]
+
+        BE_CAPACITY{¿Capacidad disponible?}
+        BE_CAPACITY_FAIL[Error: capacidad completa]
+
+        BE_PAY_NEED{¿Requiere pago?}
+
+        BE_CREATE[Crear reserva Confirmada]
+        BE_ASSIGN[Asignar recurso]
+        BE_CHECKIN[Generar Check-in]
+        BE_AUDIT[Registrar auditoría]
+        BE_UNEXPECTED[Error: fallo inesperado]
+    end
+
+    BE_START --> BE_LOCK --> BE_AVAIL
+    BE_START -.->|fallo inesperado| BE_UNEXPECTED
+
+    %% Not available / occupied
+    BE_AVAIL -->|No — ocupado| BE_OCCUPIED --> BE_SHOW_ALT
+    BE_AVAIL -->|No — bloqueado| BE_BLOCKED --> REL_BLOCK[Liberar bloqueo temporal] --> END_BLOCK([Fin: recurso no reservable])
+
+    BE_SHOW_ALT --> U_ALT --> BE_WAIT_OFFER --> U_WAIT
+    U_WAIT -->|Sí| U_WAIT_JOIN --> REL_WAIT[Liberar bloqueo temporal] --> END_WAIT([Fin: en lista de espera])
+    U_WAIT -->|No| U_WAIT_SKIP --> REL_SKIP[Liberar bloqueo temporal] --> END_NO([Fin: sin reserva])
+
+    %% Available → validations
+    BE_AVAIL -->|Sí| BE_PERM
+    BE_PERM -->|No| BE_PERM_FAIL --> REL_PERM[Liberar bloqueo temporal] --> END_PERM([Fin: no autorizado])
+    BE_PERM -->|Sí| BE_USER
+
+    BE_USER -->|No| BE_USER_FAIL --> REL_USER[Liberar bloqueo temporal] --> END_USER([Fin: usuario no válido])
+    BE_USER -->|Sí| BE_MEM
+
+    BE_MEM -->|No| BE_MEM_FAIL --> REL_MEM[Liberar bloqueo temporal] --> END_MEM([Fin: membresía no válida])
+    BE_MEM -->|Sí| BE_RULES
+
+    BE_RULES -->|No| BE_RULES_FAIL --> REL_RULES[Liberar bloqueo temporal] --> END_RULES([Fin: reglas no cumplidas])
+    BE_RULES -->|Sí| BE_HOURS
+
+    BE_HOURS -->|No| BE_HOURS_FAIL --> REL_HOURS[Liberar bloqueo temporal] --> END_HOURS([Fin: horario no válido])
+    BE_HOURS -->|Sí| BE_CAPACITY
+
+    BE_CAPACITY -->|No| BE_CAPACITY_FAIL --> BE_SHOW_ALT
+    BE_CAPACITY -->|Sí| BE_PAY_NEED
+
+    BE_UNEXPECTED --> REL_ERR[Liberar bloqueo temporal] --> END_ERR([Fin: error controlado])
+
+    %% ------------------------------------------------------------
+    %% PAYMENT ENGINE
+    %% ------------------------------------------------------------
+    subgraph PAYMENT["Payment Engine"]
+        direction TB
+        PAY_START[Iniciar cobro]
+        PAY_OK{¿Pago correcto?}
+        PAY_REJECT[Error: pago rechazado]
+        PAY_TIMEOUT[Error: timeout de pago]
+        PAY_CANCEL[Cancelar proceso de reserva]
+    end
+
+    BE_PAY_NEED -->|Sí| PAY_START --> PAY_OK
+    BE_PAY_NEED -->|No| BE_CREATE
+
+    PAY_OK -->|Sí| BE_CREATE
+    PAY_OK -->|Rechazado| PAY_REJECT --> PAY_CANCEL
+    PAY_OK -->|Timeout| PAY_TIMEOUT --> PAY_CANCEL
+    PAY_CANCEL --> REL_PAY[Liberar bloqueo temporal] --> END_PAY([Fin: pago fallido])
+
+    %% ------------------------------------------------------------
+    %% SUCCESS — notifications, analytics, recommendations
+    %% ------------------------------------------------------------
+    BE_CREATE --> BE_ASSIGN --> BE_CHECKIN --> BE_AUDIT --> N_SEND
+
+    subgraph NOTIFY["Notification Engine"]
+        direction TB
+        N_SEND[Enviar confirmación de reserva]
+    end
+
+    subgraph ANALYTICS["Analytics"]
+        direction TB
+        A_UPDATE[Actualizar métricas de ocupación]
+    end
+
+    subgraph RECOMMEND["Recommendation Engine"]
+        direction TB
+        R_UPDATE[Actualizar señales de recomendación]
+    end
+
+    N_SEND --> A_UPDATE --> R_UPDATE --> END_OK([Fin: reserva confirmada])

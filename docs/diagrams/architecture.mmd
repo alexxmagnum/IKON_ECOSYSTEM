@@ -1,0 +1,102 @@
+%% ============================================================
+%% IKON Community OS — High-Level System Architecture
+%% Source of truth: docs/00 → docs/53
+%% Scope: architectural layers only (no DB entities/tables)
+%% ============================================================
+
+flowchart TB
+
+    %% ------------------------------------------------------------
+    %% Presentation Layer
+    %% Surfaces that deliver the product experience
+    %% Runtime: Next.js · React · TypeScript · TailwindCSS · PWA
+    %% ------------------------------------------------------------
+    subgraph PRESENTATION["Presentation Layer"]
+        direction TB
+
+        subgraph SURFACES["Product Surfaces"]
+            direction LR
+            PUBLIC["Public Website"]
+            MEMBER["Member Portal"]
+            DASHBOARD["Club Dashboard"]
+            ADMIN["Platform Admin"]
+            PWA["PWA"]
+        end
+    end
+
+    %% ------------------------------------------------------------
+    %% Application Layer
+    %% Use cases and cross-cutting product engines
+    %% Runtime: Next.js Server Actions · Route Handlers
+    %% ------------------------------------------------------------
+    subgraph APPLICATION["Application Layer"]
+        direction TB
+
+        subgraph ENGINES["Product Engines"]
+            direction LR
+            AUTH["Authentication"]
+            BOOKING["Booking Engine"]
+            SOCIAL["Social Experience Engine"]
+            NOTIFY["Notification Engine"]
+            RECOMMEND["Recommendation Engine"]
+            SEARCH["Search Engine"]
+            CMS["CMS"]
+            PAYMENTS["Payments"]
+            AUTOMATION["Automation Engine"]
+            ANALYTICS["Analytics Engine"]
+        end
+    end
+
+    %% ------------------------------------------------------------
+    %% Domain Layer
+    %% Business capabilities of the club ecosystem
+    %% ------------------------------------------------------------
+    subgraph DOMAIN["Domain Layer"]
+        direction TB
+
+        subgraph DOMAINS["Domain Modules"]
+            direction LR
+            GOLF["Golf"]
+            RESTAURANT["Restaurant"]
+            MENU["Digital Menu"]
+            EVENTS["Events"]
+            TOURNAMENTS["Tournaments"]
+            MEMBERS["Members"]
+            PROFILE["Profile"]
+            PADEL["Padel"]
+            FOOTBALL7["Football 7"]
+            BILLIARD["Billiard"]
+            DARTS["Darts"]
+        end
+    end
+
+    %% ------------------------------------------------------------
+    %% Infrastructure
+    %% Persistence, identity, storage and realtime
+    %% Multi-tenant boundary enforced at this layer
+    %% ------------------------------------------------------------
+    subgraph INFRASTRUCTURE["Infrastructure"]
+        direction TB
+
+        subgraph DATA["Data & Platform Services"]
+            direction LR
+            DRIZZLE["Drizzle ORM"]
+            POSTGRES["PostgreSQL"]
+            SB_AUTH["Supabase Auth"]
+            SB_STORAGE["Supabase Storage"]
+            SB_REALTIME["Supabase Realtime"]
+        end
+    end
+
+    %% ------------------------------------------------------------
+    %% Layer dependencies (top → bottom)
+    %% Presentation depends on Application
+    %% Application orchestrates Domain
+    %% Domain persists through Infrastructure
+    %% ------------------------------------------------------------
+    PRESENTATION --> APPLICATION
+    APPLICATION --> DOMAIN
+    DOMAIN --> INFRASTRUCTURE
+
+    %% Data access path within Infrastructure
+    DRIZZLE --> POSTGRES
