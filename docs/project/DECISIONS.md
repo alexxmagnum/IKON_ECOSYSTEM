@@ -1623,3 +1623,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Notification into a messaging product; Notification → WhatsApp/email/Twilio/Firebase imports; Application → Notification Provider; implementing real delivery or template rendering in this phase.
 
 ---
+
+## DEC-AUDIT-BOUNDARY-001 — Audit Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 75 introduces the Audit Engine so MotanOS can represent audit events, traceability, action context, and future history independently of authentication, authorization, RBAC, user management, database logging, SIEM, and monitoring infrastructure. Audit answers “what happened” — not “who is allowed to do it.”
+
+**Decision:**
+
+* **Ownership:** `AuditEvent`, factories, and `AuditPort` live in `@motanos/audit` (`packages/engines/audit`). Audit is an independent bounded context — not Identity, Auth, Permissions, Database, or Analytics.
+* **Pipeline relation:** Authorization (“may they?”) → Domain Action (“they did”) → Audit Boundary (“it is recorded”) → future Audit Storage / Analytics. Any engine action (Booking, Payment, Community, Membership, Commerce, …) may emit opaque audit events.
+* **Separations:** Audit ≠ Authentication. Audit ≠ Authorization. Audit ≠ RBAC. Audit ≠ User management. Audit ≠ Database logging. Audit ≠ SIEM. Audit ≠ Monitoring infrastructure.
+* **Kinds (foundation):** `audit.creation`, `audit.update`, `audit.deletion`, `audit.access`, `audit.lifecycle`, `audit.operational`.
+* **Statuses (foundation):** `pending`, `recorded`, `archived`, `failed`, `cancelled` (e.g. pending → recorded).
+* **Contract shape:** Opaque `auditReference`, required `tenantReference`, `auditKind`, `auditStatus`; optional opaque `actorReference`, `entityReference`, `entityKind`, `actionReference`, `sourceReference`, controlled `metadata`. No passwords, tokens, JWTs, credentials, or capability catalogs.
+* **Tenant isolation:** Audit events may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createAuditEvent` / `resolveAuditEvent` only. No storeAudit, writeDatabaseLog, or sendLog methods in this foundation.
+* **Runtime:** Composition root for future `Audit Port → Adapter`. No database, external APIs, or analytics SDKs in this foundation.
+* **Dependencies:** `@motanos/audit` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** audit storage adapters, analytics pipelines, history query APIs, SIEM integrations.
+
+**Rejected:** Turning Audit into auth/permissions; Audit → database/Supabase imports; Application → Audit Storage; implementing real persistence or monitoring in this phase.
+
+---

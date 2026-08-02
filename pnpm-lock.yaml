@@ -261,6 +261,15 @@ importers:
         specifier: workspace:*
         version: link:../../engines/payments
 
+  packages/engines/audit:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/engines/availability:
     dependencies:
       '@motanos/contracts':
