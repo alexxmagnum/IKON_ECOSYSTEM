@@ -16,6 +16,11 @@ import {
   canTransitionBooking,
   checkRangeAvailability,
   DEFAULT_HOLD_TTL_MINUTES,
+  emitBookingCancelled,
+  emitBookingConfirmed,
+  emitBookingCreated,
+  emitBookingHoldExpired,
+  emitBookingRescheduled,
   intervalsOverlap,
   shouldExpireBookingHold,
 } from "@motanos/booking";
@@ -61,7 +66,10 @@ function memoryBookingService(): BookingService {
         ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
       };
       store.set(id, booking);
-      return { booking };
+      return {
+        booking,
+        events: [emitBookingCreated(booking)],
+      };
     },
     async confirm(input) {
       const existing = store.get(input.bookingId);
@@ -78,7 +86,10 @@ function memoryBookingService(): BookingService {
       const { holdExpiresAt: _h, ...rest } = existing;
       const next: Booking = { ...rest, status: "Confirmed" };
       store.set(next.id, next);
-      return { booking: next };
+      return {
+        booking: next,
+        events: [emitBookingConfirmed(next)],
+      };
     },
     async update(input) {
       const existing = store.get(input.bookingId);
@@ -129,7 +140,15 @@ function memoryBookingService(): BookingService {
         endsAt: input.endsAt,
       };
       store.set(next.id, next);
-      return { booking: next };
+      return {
+        booking: next,
+        events: [
+          emitBookingRescheduled(next, {
+            startsAt: existing.startsAt,
+            endsAt: existing.endsAt,
+          }),
+        ],
+      };
     },
     async expireHolds(input) {
       const candidates =
@@ -141,6 +160,7 @@ function memoryBookingService(): BookingService {
 
       const expired: { booking: Booking }[] = [];
       const expiredBookingIds: string[] = [];
+      const events: ReturnType<typeof emitBookingHoldExpired>[] = [];
 
       for (const booking of candidates) {
         if (!shouldExpireBookingHold(booking, input.now)) {
@@ -151,12 +171,14 @@ function memoryBookingService(): BookingService {
         store.set(next.id, next);
         expired.push({ booking: next });
         expiredBookingIds.push(next.id);
+        events.push(emitBookingHoldExpired(next, input.now));
       }
 
       return {
         expired,
         expiredBookingIds,
         processedCount: candidates.length,
+        ...(events.length > 0 ? { events } : {}),
       };
     },
     async cancel(input) {
@@ -173,7 +195,10 @@ function memoryBookingService(): BookingService {
       }
       const next: Booking = { ...existing, status: "Cancelled" };
       store.set(next.id, next);
-      return { booking: next };
+      return {
+        booking: next,
+        events: [emitBookingCancelled(next)],
+      };
     },
     async getById(id) {
       const booking = store.get(id);
@@ -267,6 +292,8 @@ describe("CreateBooking vertical slice", () => {
     assert.ok(result.data.bookingReference);
     assert.equal(result.data.resourceReference, "resource-1");
     assert.equal(result.data.status, "Draft");
+    assert.equal(result.events?.length, 1);
+    assert.equal(result.events?.[0]?.eventType, "booking.created");
   });
 
   it("Case 2: invalid input returns ApplicationError ValidationError", async () => {
@@ -328,6 +355,7 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
     assert.equal(isSuccess(confirmed), true);
     if (!isSuccess(confirmed)) return;
     assert.equal(confirmed.data.status, "Confirmed");
+    assert.equal(confirmed.events?.[0]?.eventType, "booking.confirmed");
   });
 
   it("Cancel success — Draft → Cancelled", async () => {

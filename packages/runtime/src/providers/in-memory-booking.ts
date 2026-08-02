@@ -4,6 +4,11 @@ import {
   canTransitionBooking,
   checkRangeAvailability,
   DEFAULT_HOLD_TTL_MINUTES,
+  emitBookingCancelled,
+  emitBookingConfirmed,
+  emitBookingCreated,
+  emitBookingHoldExpired,
+  emitBookingRescheduled,
   intervalsOverlap,
   shouldExpireBookingHold,
 } from "@motanos/booking";
@@ -34,7 +39,10 @@ export function createInMemoryBookingService(): BookingService {
         ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
       };
       bookings.set(id, booking);
-      return { booking };
+      return {
+        booking,
+        events: [emitBookingCreated(booking)],
+      };
     },
     async confirm(input) {
       const existing = bookings.get(input.bookingId);
@@ -66,7 +74,10 @@ export function createInMemoryBookingService(): BookingService {
           : {}),
       };
       bookings.set(next.id, next);
-      return { booking: next };
+      return {
+        booking: next,
+        events: [emitBookingConfirmed(next)],
+      };
     },
     async update(input) {
       const existing = bookings.get(input.bookingId);
@@ -108,6 +119,10 @@ export function createInMemoryBookingService(): BookingService {
       if (!availability.available) {
         throw new Error(`CONFLICT:${availability.reason ?? "overlap"}`);
       }
+      const previous = {
+        startsAt: existing.startsAt,
+        endsAt: existing.endsAt,
+      };
       const next: Booking = {
         ...existing,
         startsAt: input.startsAt,
@@ -122,7 +137,10 @@ export function createInMemoryBookingService(): BookingService {
           : {}),
       };
       bookings.set(next.id, next);
-      return { booking: next };
+      return {
+        booking: next,
+        events: [emitBookingRescheduled(next, previous)],
+      };
     },
     async cancel(input) {
       const existing = bookings.get(input.bookingId);
@@ -142,7 +160,16 @@ export function createInMemoryBookingService(): BookingService {
       }
       const next: Booking = { ...existing, status: "Cancelled" };
       bookings.set(next.id, next);
-      return { booking: next };
+      return {
+        booking: next,
+        events: [
+          emitBookingCancelled(
+            next,
+            new Date().toISOString(),
+            input.reason !== undefined ? { reason: input.reason } : undefined,
+          ),
+        ],
+      };
     },
     async expireHolds(input) {
       const candidates =
@@ -154,6 +181,7 @@ export function createInMemoryBookingService(): BookingService {
 
       const expired: { booking: Booking }[] = [];
       const expiredBookingIds: string[] = [];
+      const events: ReturnType<typeof emitBookingHoldExpired>[] = [];
 
       for (const booking of candidates) {
         if (!shouldExpireBookingHold(booking, input.now)) {
@@ -164,12 +192,14 @@ export function createInMemoryBookingService(): BookingService {
         bookings.set(next.id, next);
         expired.push({ booking: next });
         expiredBookingIds.push(next.id);
+        events.push(emitBookingHoldExpired(next, input.now));
       }
 
       return {
         expired,
         expiredBookingIds,
         processedCount: candidates.length,
+        ...(events.length > 0 ? { events } : {}),
       };
     },
     async getById(bookingId) {

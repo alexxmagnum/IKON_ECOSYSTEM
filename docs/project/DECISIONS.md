@@ -467,17 +467,27 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ## DEC-BOOKING-EVENTS-001 — ApplicationResult vs Domain Events emission
 
-**Status:** DECISION REQUIRED
+**Status:** SUPERSEDED by DEC-BOOKING-EVENTS-002
 
 **Date:** 2026-08-02
 
-**Context:** Fase 29 introduces Booking domain event contracts (`DomainEvent` + Booking*Event factories) owned by `@motanos/booking`. Application use cases currently return `ApplicationResult` only. Emitting events from use cases would require either wrapping results (`{ data, events }`), a side-channel publisher, or engine-level emission — none of which exist yet (no bus/outbox).
+**Context:** Fase 29 introduced Booking domain event contracts without emission.
 
-**Open question:** Should ApplicationResult gain an optional `events` collection, should BookingService return events alongside mutations, or should a future outbox/publisher sit at Runtime composition only?
+---
 
-**Interim (non-binding):**
+## DEC-BOOKING-EVENTS-002 — Event ownership and ApplicationResult transport
 
-* Contracts and factories live in `@motanos/booking` (`src/events/`).
-* Use cases do **not** emit events in this foundation (no breaking change to Create/Confirm/Cancel/Reschedule/Expire).
-* API and Runtime remain unaware of domain events.
-* Future consumers must not be imported by Booking.
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 30 wires real emission after Booking mutations.
+
+**Decision:**
+
+* **Ownership (Option A):** `@motanos/booking` adapters emit events after successful mutations via `emitBooking*` helpers; `BookingResult.events` / `ExpireBookingHoldsResult.events` carry them.
+* **Transport (Option C):** `ApplicationSuccess.events` optionally forwards engine events to upper layers without changing `data`.
+* **API:** remains unaware — `toApiResponse` maps only `data` / `error` / `metadata` (events are not copied into the HTTP envelope).
+* **Runtime:** no EventBus / dispatcher / consumers.
+
+**Rejected:** Application inventing event payloads independently of the engine (Option B alone).

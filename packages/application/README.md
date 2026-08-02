@@ -22,6 +22,7 @@ Application owns use-case orchestration. Deep booking rules stay in `@motanos/bo
   - **ListBookings** (`booking.list`)
   - **RescheduleBooking** (`booking.reschedule`)
   - **ExpireBookingHolds** (`booking.expire`)
+- Optional `ApplicationSuccess.events` for domain event transport (DEC-BOOKING-EVENTS-002)
 
 ## Out of scope (current)
 

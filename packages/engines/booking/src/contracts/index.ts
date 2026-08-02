@@ -9,6 +9,10 @@ import type {
 import type { Availability, AvailabilitySlot } from "../domain/availability";
 import type { Resource, ResourceId } from "../domain/resource";
 import type { BookingStatus } from "../types/states";
+import type {
+  BookingDomainEvent,
+  BookingHoldExpiredEvent,
+} from "../events/booking-events";
 
 /**
  * API-oriented TypeScript contracts for a future Booking HTTP surface.
@@ -78,11 +82,15 @@ export interface ExpireBookingHoldsResult {
   expiredBookingIds: BookingId[];
   /** Number of candidates evaluated (not only expired). */
   processedCount: number;
+  /** Domain events produced for expired holds (BookingHoldExpired). */
+  events?: BookingHoldExpiredEvent[];
 }
 
 export interface BookingResult {
   booking: Booking;
   participants?: BookingParticipant[];
+  /** Domain events produced by this mutation (empty/omitted for reads). */
+  events?: BookingDomainEvent[];
 }
 
 /**

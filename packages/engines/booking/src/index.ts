@@ -112,5 +112,10 @@ export {
   createBookingCreatedEvent,
   createBookingHoldExpiredEvent,
   createBookingRescheduledEvent,
+  emitBookingCancelled,
+  emitBookingConfirmed,
+  emitBookingCreated,
+  emitBookingHoldExpired,
+  emitBookingRescheduled,
   isDomainEvent,
 } from "./events";

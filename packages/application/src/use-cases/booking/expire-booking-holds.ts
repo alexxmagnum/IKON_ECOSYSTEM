@@ -94,11 +94,18 @@ export function createExpireBookingHoldsUseCase(
           : {}),
       });
 
-      return success({
-        bookings: result.expired.map((item) => toBookingOutput(item.booking)),
-        expiredBookingReferences: result.expiredBookingIds,
-        processedCount: result.processedCount,
-      });
+      return success(
+        {
+          bookings: result.expired.map((item) =>
+            toBookingOutput(item.booking),
+          ),
+          expiredBookingReferences: result.expiredBookingIds,
+          processedCount: result.processedCount,
+        },
+        {
+          ...(result.events !== undefined ? { events: result.events } : {}),
+        },
+      );
     },
   };
 }

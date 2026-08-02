@@ -23,3 +23,11 @@ export {
   createBookingHoldExpiredEvent,
   createBookingRescheduledEvent,
 } from "./booking-events";
+
+export {
+  emitBookingCancelled,
+  emitBookingConfirmed,
+  emitBookingCreated,
+  emitBookingHoldExpired,
+  emitBookingRescheduled,
+} from "./emit";

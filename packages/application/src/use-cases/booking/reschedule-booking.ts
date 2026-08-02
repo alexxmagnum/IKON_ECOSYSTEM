@@ -112,7 +112,9 @@ export function createRescheduleBookingUseCase(
             ? { metadata: input.metadata }
             : {}),
         });
-        return success(toBookingOutput(result.booking));
+        return success(toBookingOutput(result.booking), {
+          ...(result.events !== undefined ? { events: result.events } : {}),
+        });
       } catch (err) {
         return mapRescheduleEngineError(err, bookingReference);
       }

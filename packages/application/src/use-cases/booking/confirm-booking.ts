@@ -103,7 +103,9 @@ export function createConfirmBookingUseCase(
         ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
       });
 
-      return success(toBookingOutput(result.booking));
+      return success(toBookingOutput(result.booking), {
+        ...(result.events !== undefined ? { events: result.events } : {}),
+      });
     },
   };
 }

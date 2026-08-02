@@ -103,7 +103,9 @@ export function createCancelBookingUseCase(
         ...(input.reason !== undefined ? { reason: input.reason } : {}),
       });
 
-      return success(toBookingOutput(result.booking));
+      return success(toBookingOutput(result.booking), {
+        ...(result.events !== undefined ? { events: result.events } : {}),
+      });
     },
   };
 }

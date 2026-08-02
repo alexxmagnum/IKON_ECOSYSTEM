@@ -76,7 +76,9 @@ export function createCreateBookingUseCase(
       const engineInput = toBookingEngineInput(input);
       const result = await deps.booking.create(engineInput);
 
-      return success(toBookingOutput(result.booking));
+      return success(toBookingOutput(result.booking), {
+        ...(result.events !== undefined ? { events: result.events } : {}),
+      });
     },
   };
 }
