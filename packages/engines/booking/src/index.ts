@@ -93,6 +93,11 @@ export {
   createBookingService,
   type CreateBookingServiceOptions,
 } from "./services/create-booking-service";
+export {
+  commitBookingMutation,
+  type BookingMutationCommitResult,
+  type BookingMutationPhase,
+} from "./services/booking-mutation-boundary";
 
 export type {
   BookingRepository,

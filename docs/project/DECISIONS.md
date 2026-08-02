@@ -511,3 +511,26 @@ They are **provisional** until real execution workflows exist. A later phase may
 * **Deferred:** PostgreSQL, Supabase, ORM choice, migrations, connection pools, and real transactions.
 
 **Rejected:** BookingService owning Maps/arrays; Application depending on repositories; API exposing storage.
+
+---
+
+## DEC-BOOKING-TRANSACTION-001 — Booking mutation consistency boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 32 defines consistency between aggregate change, persistence, and domain events — without real DB transactions.
+
+**Decision:**
+
+* **Coordinator / ownership:** `BookingService` (`createBookingService`) owns the **Booking Mutation Boundary**. Application remains on Option A (no `BookingTransactionService`).
+* **Ordered phases:** (1) domain validation → (2) aggregate state change → (3) repository persist (`create` / `update`) → (4) domain event production.
+* **Completion:** A mutation is complete when persistence has succeeded and the service returns a result. Events in that result are valid only if produced **after** a successful persist of the described aggregate.
+* **Invariant:** No successful domain event if repository persist failed; no persist if validation/transition failed.
+* **Helper:** `commitBookingMutation(persist, produceEvents)` encodes persist-before-emit. Not a Unit of Work, Outbox, EventBus, or DB transaction.
+* **Repository:** remains persistence-only (no events, no use cases, no lifecycle control) — aligns with DEC-BOOKING-PERSISTENCE-001.
+* **Events:** continue per DEC-BOOKING-EVENTS-002 (engine emission; ApplicationSuccess.events transport).
+* **Deferred:** real DB transactions, Unit of Work, Outbox Pattern, Event Store, message queues.
+
+**Rejected:** Emitting events before persist; Application coordinating persistence+events; Repository emitting events.
