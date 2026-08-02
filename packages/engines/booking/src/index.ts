@@ -157,6 +157,22 @@ export {
 } from "./pricing";
 
 export type {
+  BookingDiscount,
+  BookingDiscountOperation,
+  BookingDiscountRequest,
+  CreateBookingDiscountOptions,
+  DiscountDecision,
+} from "./discounts";
+export {
+  BOOKING_DISCOUNT_OPERATIONS,
+  BOOKING_DISCOUNT_OPERATION_VALUES,
+  createBookingDiscount,
+  isBookingDiscount,
+  isBookingDiscountOperation,
+  isDiscountDecision,
+} from "./discounts";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,

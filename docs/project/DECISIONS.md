@@ -851,3 +851,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** BookingPricing → Payment vendor SDKs; mixing Pricing with Payment/Billing; Application → Pricing Provider; embedding card/secret data; implementing commercial pricing engines in this phase.
 
 ---
+
+## DEC-BOOKING-DISCOUNT-001 — Booking Discount Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 46 introduces a Discount Boundary so Booking can express whether an economic reduction applies, without owning Pricing calculations, Payment capture, Billing, promotions engines, or Domain Rules. Aligns with `22_PAYMENT_ARCHITECT`: Discount = “what reduction applies”; Payment = “how the charge is processed”. Pricing Architect does not exist as an agent file; separation follows DEC-BOOKING-PRICING-001.
+
+**Decision:**
+
+* **Ownership:** `BookingDiscount`, `BookingDiscountRequest`, `DiscountDecision`, and `createBookingDiscount` live in `@motanos/booking` (`packages/engines/booking/src/discounts/`). Discount belongs to the Booking Engine — not Pricing ownership, not Payment, not Billing, and not a new top-level layer.
+* **Pipeline relation:** Policy → Discount → Pricing → Payment. Discount does not replace Pricing; Pricing consumes reduction references when wired later.
+* **Separations:** Authorization = may they?; Policy = conditions (DEC-BOOKING-POLICY-001); Discount = does a reduction apply?; Pricing = resulting price (DEC-BOOKING-PRICING-001); Payment = how to charge (DEC-BOOKING-PAYMENT-001); Domain = is the transition valid?
+* **Operations (foundation):** `booking.create`, `booking.confirm`, `booking.reschedule`, `booking.cancel`.
+* **Contract shape:** Request requires opaque `tenantReference` and `actorReference`; optional `bookingReference`, `membershipReference`, `resourceReference`, `pricingReference`, controlled `metadata`. Decision: `applied`, optional `discountReference` / `discountAmountReference` / `reason`. Economic fields are opaque domain references — not gateway or billing ids. No cards, tokens, private promo secrets, or PII.
+* **Tenant isolation:** Discount may be bound to a tenant; cross-tenant evaluation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Workflow:** Workflows may consult Discount then Pricing (DEC-BOOKING-WORKFLOW-001). Workflows must not mutate discount catalogs via this boundary.
+* **Application:** Forbidden `Application → Discount Provider`. Flow: Use Case → Discount Boundary → Pricing Boundary → Booking Service → Domain.
+* **Domain Events:** No `discount.created|applied|removed` events in this foundation.
+* **Runtime:** Composition root for future discount adapters only. No coupons, campaigns, loyalty points, CRM, or admin promotion panels in this foundation.
+* **Deferred:** promotion systems, discount codes, marketing campaigns, loyalty, points, dynamic remote catalogs.
+
+**Rejected:** Mixing Discount with Pricing/Payment/Billing; Application → Discount Provider; embedding secrets/PII; implementing coupons or campaigns in this phase.
+
+---
