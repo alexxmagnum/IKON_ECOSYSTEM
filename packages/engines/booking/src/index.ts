@@ -217,6 +217,32 @@ export {
 } from "./fees";
 
 export type {
+  BalanceDecision,
+  BookingBalance,
+  BookingBalanceKind,
+  BookingBalancePort,
+  BookingBalanceRequest,
+  BookingBalanceStatus,
+  CreateBookingBalanceOptions,
+  CreateBookingBalanceRequestInput,
+} from "./balances";
+export {
+  BOOKING_BALANCE_KINDS,
+  BOOKING_BALANCE_KIND_VALUES,
+  BOOKING_BALANCE_STATUSES,
+  BOOKING_BALANCE_STATUS_VALUES,
+  createBookingBalance,
+  createBookingBalanceRequest,
+  isBalanceDecision,
+  isBookingBalance,
+  isBookingBalanceKind,
+  isBookingBalancePort,
+  isBookingBalanceRequest,
+  isBookingBalanceStatus,
+  resetBookingBalanceReferenceSequence,
+} from "./balances";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,

@@ -929,3 +929,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Fee with Pricing/Discount/Tax/Payment; Application → Fee Provider; embedding secrets/PII; implementing billing fee engines in this phase.
 
 ---
+
+## DEC-BOOKING-BALANCE-001 — Booking Balance Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 49 introduces a Balance Boundary so Booking can express pending economic state for a reservation without implementing wallets, ledgers, reconciliation, Billing, or Payment capture. Aligns with `22_PAYMENT_ARCHITECT`: Balance = “what is outstanding?”; Payment = “how the charge moves externally”.
+
+**Decision:**
+
+* **Ownership:** `BookingBalance`, `BookingBalanceRequest`, `BalanceDecision`, factories, and `BookingBalancePort` live in `@motanos/booking` (`packages/engines/booking/src/balances/`). Balance belongs to the Booking Engine — not Pricing, Fee, Tax, Payment, Accounting, or a new top-level layer.
+* **Pipeline relation:** Discount → Pricing → Fee → Tax → Balance → Payment. Balance must not charge, mutate Payment, substitute Payment, or create a ledger.
+* **Separations:** Pricing = calculated amount; Discount = reductions; Fee = additional charges; Tax = fiscal impact; Balance = pending economic state; Payment = external movement/capture.
+* **Kinds (foundation):** `booking.remaining_balance`, `booking.deposit_balance`, `booking.refund_balance`, `booking.outstanding_balance`.
+* **Statuses (foundation):** `pending`, `partial`, `settled`, `cancelled`.
+* **Contract shape:** Opaque `balanceReference`, `tenantReference`, `amountReference`, `balanceKind`; optional `bookingReference`, `actorReference`, controlled `metadata`. Decision: `balanceReference`, `amountReference`, `balanceStatus`, optional `reason`. No bank accounts, cards, invoices, PII, or credentials.
+* **Tenant isolation:** Balance may be bound to a tenant; cross-tenant evaluation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Workflow:** Workflows may consult Balance Boundary then Booking flow (DEC-BOOKING-WORKFLOW-001). Workflows must not call accounting providers.
+* **Application:** Forbidden `Application → Accounting System`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No `booking.balance_created` / `booking.balance_updated` events in this foundation. Existing Booking domain events remain intact.
+* **Runtime:** Composition root for future `Balance Port → Adapter`. No banks, ledgers, billing, or accounting SDKs in this foundation.
+* **Deferred:** wallets, financial ledgers, reconciliation, invoicing, real settlement engines.
+
+**Rejected:** Mixing Balance with Payment/Accounting; Application → Accounting Provider; embedding bank/card secrets; implementing ledgers in this phase.
+
+---
