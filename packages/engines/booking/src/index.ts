@@ -21,7 +21,8 @@ export { RESOURCE_TYPES } from "./domain/resource";
 export type {
   Booking,
   BookingId,
-  BookingParticipant,
+  /** Legacy aggregate party shape — use boundary `BookingParticipant` for new work. */
+  BookingParticipant as BookingAggregateParticipant,
   ParticipantId,
   TimeInterval,
   UserId,
@@ -519,6 +520,27 @@ export {
   isBookingRecurrenceStatus,
   resetBookingRecurrenceReferenceSequence,
 } from "./recurrences";
+
+export type {
+  BookingParticipant,
+  BookingParticipantKind,
+  BookingParticipantPort,
+  BookingParticipantStatus,
+  CreateBookingParticipantInput,
+  CreateBookingParticipantOptions,
+} from "./participants";
+export {
+  BOOKING_PARTICIPANT_KINDS,
+  BOOKING_PARTICIPANT_KIND_VALUES,
+  BOOKING_PARTICIPANT_STATUSES,
+  BOOKING_PARTICIPANT_STATUS_VALUES,
+  createBookingParticipant,
+  isBookingParticipant,
+  isBookingParticipantKind,
+  isBookingParticipantPort,
+  isBookingParticipantStatus,
+  resetBookingParticipantReferenceSequence,
+} from "./participants";
 
 export type {
   BookingAuditAction,

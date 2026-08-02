@@ -1307,3 +1307,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Recurrence with Calendar Engine/Booking auto-generation/Payment/Subscription Billing; Application → Recurrence Provider; embedding PII/payment secrets; implementing schedulers or mass booking creation in this phase.
 
 ---
+
+## DEC-BOOKING-PARTICIPANT-001 — Booking Participant Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 63 introduces a Participant Boundary so Booking can express the relationship between a reservation and the people/entities involved, without user management, customer creation, profiles, identity/auth, individual payments, invitations, notifications, or permissions. Participant belongs to the Booking Engine — not Identity. Participant ≠ Payer / Payment Method / Billing Account.
+
+**Decision:**
+
+* **Ownership:** `BookingParticipant`, factories, and `BookingParticipantPort` live in `@motanos/booking` (`packages/engines/booking/src/participants/`). Participant is a conceptual boundary in the Booking Engine — not Identity/Auth, Membership, Payment, Notification, or Runtime. Package-root `BookingParticipant` is this boundary; the legacy domain party shape in `domain/booking.ts` is re-exported as `BookingAggregateParticipant` to avoid a name collision.
+* **Pipeline relation:** Booking → Participant Boundary → Future Identity / Membership / Notification / Payment Context. Participant answers “is there a person or entity participant associated with a reservation?”
+* **Separations:** Participant ≠ User/Identity. Participant ≠ Member/Membership. Participant ≠ Payment / Payer / Payment Method / Billing Account. Participant ≠ Notification. Participant ≠ Auth/Permissions.
+* **Kinds (foundation):** `booking.primary`, `booking.guest`, `booking.attendee`, `booking.player`, `booking.staff`, `booking.operational`. `operational` is a Booking-process initiation — not a technical infrastructure error.
+* **Statuses (foundation):** `invited`, `confirmed`, `checked_in`, `completed`, `cancelled`, `removed` (e.g. invited → confirmed → checked_in → completed).
+* **Contract shape:** Opaque `participantReference`, required `tenantReference`, required `bookingReference` (participant always belongs to a booking), `participantKind`, `participantStatus`; optional `actorReference`, opaque `identityReference`, `membershipReference`, controlled `metadata`. No PII, passwords, tokens, or payment data.
+* **Tenant isolation:** Participant may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Application:** Forbidden `Application → Participant Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No new participant domain events from this boundary. Existing domain events remain intact. Boundary rule ≠ Domain Event fact.
+* **Runtime:** Composition root for future `Participant Port → Adapter` (`addParticipant` / `resolveParticipant`). No real users, auth, membership, or persistence adapters in this foundation.
+* **Deferred:** identity resolution, membership linkage, invitation flows, per-participant payment, notifications.
+
+**Rejected:** Mixing Participant with Identity/Auth/Membership/Payment/Notification; Application → Participant Provider; embedding PII/credentials/payment secrets; implementing live user or membership management in this phase.
+
+---
