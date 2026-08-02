@@ -1148,3 +1148,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Reschedule with Cancellation/Domain mutation/Availability/Pricing/Payment/Notification/Workflow; Application → Reschedule Provider; embedding PII/payment secrets; implementing aggregate window changes in this phase.
 
 ---
+
+## DEC-BOOKING-MODIFICATION-001 — Booking Modification Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 57 introduces a Modification Boundary so Booking can express modification intent/context for an existing reservation without mutating the Booking aggregate, recalculating price, executing payment, sending notifications, or running workflows. Distinct from Reschedule (schedule move), Cancellation (remove), Authorization/Policy, Domain transition, Pricing, and Payment.
+
+**Decision:**
+
+* **Ownership:** `BookingModification`, factories, and `BookingModificationPort` live in `@motanos/booking` (`packages/engines/booking/src/modifications/`). Modification belongs to the Booking Engine as a conceptual boundary — not Domain state machine, Reschedule, Cancellation, Pricing, Payment, Notification, or Runtime.
+* **Pipeline relation:** Actor → Modification Boundary → Booking Policy → Domain Transition → Future Pricing / Payment / Notification. Modification answers “is there an intent to modify this booking?”
+* **Separations:** Modification ≠ Reschedule (general change vs schedule move; Reschedule may follow Modification). Modification ≠ Cancellation. Modification ≠ Authorization/Policy. Modification ≠ Domain Transition. Modification ≠ Pricing / Payment / Refund. Modification ≠ Notification. Modification ≠ Workflow.
+* **Kinds (foundation):** `booking.customer_requested`, `booking.operator_requested`, `booking.business_required`, `booking.policy_required`, `booking.operational`. `operational` is a Booking-process initiation — not a technical infrastructure error.
+* **Statuses (foundation):** `requested`, `approved`, `rejected`, `completed`, `cancelled` — intent statuses, not aggregate lifecycle states.
+* **Contract shape:** Opaque `modificationReference`, required `tenantReference` and `bookingReference`, `modificationKind`, `modificationStatus`; optional `actorReference`, opaque `reasonReference`, controlled `metadata`. No PII, tokens, credentials, or payment data.
+* **Tenant isolation:** Modification may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Application:** Forbidden `Application → Modification Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No new `booking.modified` intent events from this boundary. Existing domain events remain intact. Boundary intent ≠ Domain Event fact.
+* **Runtime:** Composition root for future `Modification Port → Adapter` (`requestModification` / `completeModification`). No persist, pricing, payment, or notification adapters in this foundation.
+* **Deferred:** real modification orchestration, field-level change catalogs, price/payment adjustment, notification dispatch.
+
+**Rejected:** Mixing Modification with Reschedule/Cancellation/Domain mutation/Pricing/Payment/Notification/Workflow; Application → Modification Provider; embedding PII/payment secrets; implementing aggregate mutations in this phase.
+
+---

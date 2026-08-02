@@ -395,6 +395,27 @@ export {
 } from "./reschedules";
 
 export type {
+  BookingModification,
+  BookingModificationKind,
+  BookingModificationPort,
+  BookingModificationStatus,
+  CreateBookingModificationInput,
+  CreateBookingModificationOptions,
+} from "./modifications";
+export {
+  BOOKING_MODIFICATION_KINDS,
+  BOOKING_MODIFICATION_KIND_VALUES,
+  BOOKING_MODIFICATION_STATUSES,
+  BOOKING_MODIFICATION_STATUS_VALUES,
+  createBookingModification,
+  isBookingModification,
+  isBookingModificationKind,
+  isBookingModificationPort,
+  isBookingModificationStatus,
+  resetBookingModificationReferenceSequence,
+} from "./modifications";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,
