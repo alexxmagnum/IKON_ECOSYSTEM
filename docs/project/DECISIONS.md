@@ -1333,3 +1333,26 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Participant with Identity/Auth/Membership/Payment/Notification; Application → Participant Provider; embedding PII/credentials/payment secrets; implementing live user or membership management in this phase.
 
 ---
+
+## DEC-BOOKING-FREEZE-001 — Booking Boundary Freeze & Ecosystem Integration Map
+
+**Status:** ACCEPTED
+
+**Date:** 2026-08-02
+
+**Context:** After the Booking foundation boundary phases (through Participant / Recurrence / Waitlist / lifecycle / commercial context), MotanOS needs to freeze the Booking model so Booking remains a connecting capability of the ecosystem — not the whole product, and not a dumping ground for Calendar, Availability, Resource, Membership, Community, Identity, or payment rails.
+
+**Decision:**
+
+* **Freeze:** No new Booking Boundaries without a DEC that explicitly revises this freeze. Canonical freeze document: `docs/project/BOOKING_BOUNDARY_FREEZE.md`.
+* **Booking owns:** reservation lifecycle; operation intents (modification, reschedule, no-show, exception, approval, cancellation, check-in, completion); participants; recurrence rules; waitlist demand; commercial *context* attached to a booking; opaque policy/integration ports toward other engines.
+* **Booking does not own:** users/community; identity/auth product; membership product; real payment/billing/accounting; calendar product; availability capacity engine; physical resource inventory; notification delivery; schedulers/cron/mass booking generators.
+* **Intent ≠ execution:** derived operation boundaries express intent/context; they do not replace Booking Service transitions.
+* **Commercial context ≠ Commerce Engine:** Pricing/Discount/Fee/Tax/Balance/Settlement/Invoice/Document stay as Booking-associated context; execution and ledgers belong to future Commerce.
+* **Export surface:** package-root `BookingParticipant` is the Participant Boundary; legacy domain party shape is `BookingAggregateParticipant`.
+* **Dependencies:** `@motanos/booking` remains limited to `@motanos/contracts` + `@motanos/core`; no vendor SDKs or secret material in the engine package.
+* **Integration map:** Community / Experience / Booking / Commerce / Resource / Membership (and Identity, Notification, Calendar, Availability) integrate via opaque references, ports, and domain events composed in Runtime.
+
+**Rejected:** Building Calendar/Availability/Resource/Membership/Community/Identity/Payment-rails engines inside `@motanos/booking`; Application → Provider shortcuts; treating Booking commercial context as a full billing system; adding further Booking Boundaries without revising this freeze.
+
+---
