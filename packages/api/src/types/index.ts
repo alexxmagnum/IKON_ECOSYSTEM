@@ -32,3 +32,13 @@ export type {
 export { toApiResponse, toExecutionContext } from "../pipeline/execute";
 
 export type { ApiService } from "../services/api-service";
+
+export type {
+  CreateBookingRequest,
+  CreateBookingResponse,
+  CreateBookingResponseData,
+} from "../contracts/booking";
+export {
+  toCreateBookingInput,
+  toCreateBookingResponse,
+} from "../contracts/booking";

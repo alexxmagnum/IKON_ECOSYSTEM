@@ -117,12 +117,18 @@ importers:
 
   packages/application:
     dependencies:
+      '@motanos/booking':
+        specifier: workspace:*
+        version: link:../engines/booking
       '@motanos/contracts':
         specifier: workspace:*
         version: link:../contracts
       '@motanos/core':
         specifier: workspace:*
         version: link:../core
+      '@motanos/permissions':
+        specifier: workspace:*
+        version: link:../permissions
 
   packages/auth:
     dependencies:

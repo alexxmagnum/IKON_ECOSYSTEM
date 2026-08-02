@@ -3,7 +3,7 @@
  *
  * External Request → API Runtime → Application Layer → Domains / Engines
  *
- * Contracts and pipeline only. No business endpoints, Auth, or database access.
+ * Contracts and pipeline only. No business endpoints, Auth, or persistence adapters.
  */
 
 export const API_LAYER = "@motanos/api" as const;
@@ -42,3 +42,13 @@ export type {
 export { toApiResponse, toExecutionContext } from "./pipeline/execute";
 
 export type { ApiService } from "./services/api-service";
+
+export type {
+  CreateBookingRequest,
+  CreateBookingResponse,
+  CreateBookingResponseData,
+} from "./contracts/booking";
+export {
+  toCreateBookingInput,
+  toCreateBookingResponse,
+} from "./contracts/booking";

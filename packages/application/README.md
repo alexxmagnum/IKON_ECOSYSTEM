@@ -1,33 +1,30 @@
 # `@motanos/application`
 
-Application Layer foundation for MotanOS.
+Application Layer for MotanOS.
 
 ## Placement
 
 ```
-UI / API → Application Layer → Engines + Domains → Core
+UI / API → Application Layer → Permissions → Engines (+ Domains) → Core
 ```
 
-Application owns orchestration contracts (use cases, results, execution context).
-It does not own deep business rules, domain entities, or persistence.
+Application owns use-case orchestration. Deep booking rules stay in `@motanos/booking`.
 
 ## Scope (current)
 
-- `ExecutionContext` (opaque actor/request refs)
-- `UseCase<Input, Output>` contract
-- `ApplicationResult` success/failure pattern
-- `ApplicationError` codes
-- `ApplicationService` interface
+- `ExecutionContext`, `UseCase`, `ApplicationResult`, `ApplicationService`
+- First vertical slice: **CreateBooking**
+  - `CreateBookingInput` / `CreateBookingOutput` (opaque references)
+  - `createCreateBookingUseCase` → AuthorizationService → BookingService
 
 ## Out of scope (current)
 
-- Concrete product use cases
-- Auth / permissions enforcement
-- Engine or domain imports
-- API routes, UI, database access
+- HTTP routes / UI
+- Concrete persistence adapters
+- Authn providers (JWT / sessions)
 
 ## Dependencies
 
-Allowed: `@motanos/core`, `@motanos/contracts`
+Allowed: `@motanos/booking`, `@motanos/permissions`, `@motanos/core`, `@motanos/contracts`
 
-Forbidden: auth, database, permissions, engines, domains, customer branding, Next.js, infrastructure SDKs
+Forbidden: auth packages, domain packages, engines other than booking for this slice, Next.js, vendor SDKs

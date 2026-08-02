@@ -17,6 +17,8 @@ It does **not** own business endpoints, controllers, or transport adapters yet.
 - `ApiContext` (+ mapping to Application `ExecutionContext`)
 - `ApiErrorMapper` (ApplicationError → ApiError)
 - `ApiExecutionPipeline` / `ApiService` interfaces
+- First vertical slice contracts: `CreateBookingRequest` / `CreateBookingResponse`
+  (maps to Application CreateBooking — no Booking engine import)
 
 ## Out of scope (current)
 
@@ -36,4 +38,5 @@ HTTP status codes and transport adapters are deferred (**DECISION REQUIRED** for
 Allowed: `@motanos/application` (and transitively Application’s allowed stack).  
 Also permitted by phase rules when needed: `@motanos/core`, `@motanos/contracts`, `@motanos/permissions`.
 
-Forbidden: `@motanos/domain-*`, engines, database, auth, ikon, Next.js, Supabase, Stripe.
+Forbidden: `@motanos/domain-*`, engines, persistence packages, auth packages,
+ikon, Next.js, payment vendors.
