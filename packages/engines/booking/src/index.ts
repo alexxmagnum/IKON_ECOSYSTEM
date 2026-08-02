@@ -89,3 +89,28 @@ export type {
   ResourceService,
   WaitlistService,
 } from "./services";
+
+export type {
+  BookingCancelledEvent,
+  BookingConfirmedEvent,
+  BookingCreatedEvent,
+  BookingDomainEvent,
+  BookingDomainEventType,
+  BookingHoldExpiredEvent,
+  BookingRescheduledEvent,
+  CreateBookingCancelledEventInput,
+  CreateBookingConfirmedEventInput,
+  CreateBookingCreatedEventInput,
+  CreateBookingHoldExpiredEventInput,
+  CreateBookingRescheduledEventInput,
+  DomainEvent,
+} from "./events";
+export {
+  BOOKING_DOMAIN_EVENT_TYPES,
+  createBookingCancelledEvent,
+  createBookingConfirmedEvent,
+  createBookingCreatedEvent,
+  createBookingHoldExpiredEvent,
+  createBookingRescheduledEvent,
+  isDomainEvent,
+} from "./events";

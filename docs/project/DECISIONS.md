@@ -462,3 +462,22 @@ They are **provisional** until real execution workflows exist. A later phase may
 * Callers supply `now` (no wall-clock scheduler in Runtime).
 * Target status: `Expired` (SoT), not `Cancelled`.
 * PaymentPending TTL path (BR-0037) remains out of this foundation slice.
+
+---
+
+## DEC-BOOKING-EVENTS-001 — ApplicationResult vs Domain Events emission
+
+**Status:** DECISION REQUIRED
+
+**Date:** 2026-08-02
+
+**Context:** Fase 29 introduces Booking domain event contracts (`DomainEvent` + Booking*Event factories) owned by `@motanos/booking`. Application use cases currently return `ApplicationResult` only. Emitting events from use cases would require either wrapping results (`{ data, events }`), a side-channel publisher, or engine-level emission — none of which exist yet (no bus/outbox).
+
+**Open question:** Should ApplicationResult gain an optional `events` collection, should BookingService return events alongside mutations, or should a future outbox/publisher sit at Runtime composition only?
+
+**Interim (non-binding):**
+
+* Contracts and factories live in `@motanos/booking` (`src/events/`).
+* Use cases do **not** emit events in this foundation (no breaking change to Create/Confirm/Cancel/Reschedule/Expire).
+* API and Runtime remain unaware of domain events.
+* Future consumers must not be imported by Booking.
