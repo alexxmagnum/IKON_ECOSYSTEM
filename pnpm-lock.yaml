@@ -288,6 +288,15 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/engines/commerce:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/engines/community:
     dependencies:
       '@motanos/contracts':
