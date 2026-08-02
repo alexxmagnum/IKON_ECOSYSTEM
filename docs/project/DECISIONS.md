@@ -1597,3 +1597,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Absorbing Commerce/Billing into Payment; Payment → Stripe/provider/database imports; Application → Payment Provider; implementing charge/capture/checkout/refund execution in this phase.
 
 ---
+
+## DEC-NOTIFICATION-BOUNDARY-001 — Notification Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 74 introduces the Notification Engine so MotanOS can express a communication intent, associated business context, and lifecycle state independently of messaging providers and delivery channels. Notification must not become a messaging system, must not absorb providers, and must not depend on concrete channels (email, WhatsApp, SMS, push). Distinct from legacy `@motanos/notifications` scaffolding and from Booking Notification Boundary (opaque intent inside Booking).
+
+**Decision:**
+
+* **Ownership:** `Notification`, factories, and `NotificationPort` live in `@motanos/notification` (`packages/engines/notification`). Notification is an independent bounded context — not Booking, Payment, Commerce, Community, Experience, Identity, providers, or Runtime adapters.
+* **Pipeline relation:** Domain Event → Notification Boundary → Notification Provider (future: email / WhatsApp / SMS / push / in-app). Notification answers “is there a need to communicate something, and what is its state?”
+* **Separations:** Notification ≠ Provider. Notification ≠ Email. Notification ≠ WhatsApp. Notification ≠ Delivery System. No SMTP, SendGrid, Twilio, Firebase/FCM, HTML templates, final message bodies, real sends, or provider tracking in this foundation.
+* **Kinds (foundation):** `notification.alert`, `notification.reminder`, `notification.confirmation`, `notification.invitation`, `notification.update`, `notification.operational`.
+* **Statuses (foundation):** `draft`, `pending`, `scheduled`, `sent`, `failed`, `cancelled` (e.g. draft → pending → scheduled → sent).
+* **Contract shape:** Opaque `notificationReference`, required `tenantReference`, `notificationKind`, `notificationStatus`; optional opaque `actorReference`, `bookingReference`, `paymentReference`, `membershipReference`, `communityReference`, `experienceReference`, `channelReference`, controlled `metadata`. No email addresses, phone numbers, credentials, tokens, or provider secrets.
+* **Tenant isolation:** Notification may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createNotification` / `resolveNotification` only. No sendEmail, sendWhatsapp, sendPush, sendSMS, deliver, or dispatch methods in this foundation.
+* **Runtime:** Composition root for future `Notification Port → Adapter`. No database, external APIs, or channel SDKs in this foundation.
+* **Dependencies:** `@motanos/notification` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** provider adapters, template engines, delivery tracking, channel selection policies.
+
+**Rejected:** Turning Notification into a messaging product; Notification → WhatsApp/email/Twilio/Firebase imports; Application → Notification Provider; implementing real delivery or template rendering in this phase.
+
+---
