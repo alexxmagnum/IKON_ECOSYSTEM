@@ -12,4 +12,7 @@ export {
 } from "./booking-handlers";
 export { createInMemoryAuthorizationService } from "./in-memory-authorization";
 export type { InMemoryAuthorizationOptions } from "./in-memory-authorization";
-export { createInMemoryBookingService } from "./in-memory-booking";
+export {
+  createInMemoryBookingService,
+  createInMemoryBookingStack,
+} from "./in-memory-booking";

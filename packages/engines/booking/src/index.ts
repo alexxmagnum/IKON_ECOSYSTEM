@@ -89,6 +89,19 @@ export type {
   ResourceService,
   WaitlistService,
 } from "./services";
+export {
+  createBookingService,
+  type CreateBookingServiceOptions,
+} from "./services/create-booking-service";
+
+export type {
+  BookingRepository,
+  FindBookingConflictsQuery,
+} from "./repositories";
+export {
+  createInMemoryBookingRepository,
+  patchInMemoryHoldExpiresAt,
+} from "./repositories";
 
 export type {
   BookingCancelledEvent,

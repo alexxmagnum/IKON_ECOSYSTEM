@@ -28,6 +28,7 @@ describe("@motanos/runtime composition", () => {
     });
 
     assert.ok(composed.authorization);
+    assert.ok(composed.bookingRepository);
     assert.ok(composed.booking);
     assert.ok(composed.application);
     assert.ok(composed.api);
@@ -38,6 +39,27 @@ describe("@motanos/runtime composition", () => {
     const { registry } = composed.runtime;
     assert.equal(registry.has(RUNTIME_SERVICE_TOKENS.confirmBooking), true);
     assert.equal(registry.has(RUNTIME_SERVICE_TOKENS.cancelBooking), true);
+  });
+
+  it("2b. Runtime wires BookingRepository → BookingService", async () => {
+    const composed = createMotanOSRuntime({
+      config: { environment: "test" },
+    });
+
+    assert.equal(typeof composed.bookingRepository.create, "function");
+    assert.equal(typeof composed.bookingRepository.findConflicts, "function");
+
+    const created = await composed.booking.create({
+      resourceId: "resource-wire",
+      ownerUserId: "customer-wire",
+      startsAt: "2026-08-02T10:00:00.000Z",
+      endsAt: "2026-08-02T11:00:00.000Z",
+    });
+    const fromRepo = await composed.bookingRepository.getById(
+      created.booking.id,
+    );
+    assert.ok(fromRepo);
+    assert.equal(fromRepo.id, created.booking.id);
   });
 
   it("3. CreateBooking success — API → Application → Authorization → Booking", async () => {

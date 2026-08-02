@@ -491,3 +491,23 @@ They are **provisional** until real execution workflows exist. A later phase may
 * **Runtime:** no EventBus / dispatcher / consumers.
 
 **Rejected:** Application inventing event payloads independently of the engine (Option B alone).
+
+---
+
+## DEC-BOOKING-PERSISTENCE-001 — Booking persistence boundary (Repository)
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 31 introduces a persistence boundary without choosing a database vendor.
+
+**Decision:**
+
+* **Contract ownership:** `BookingRepository` lives in `@motanos/booking` (`packages/engines/booking/src/repositories/`). Methods: `create`, `getById`, `list`, `update`, `findConflicts`.
+* **Domain service:** `createBookingService(repository)` owns lifecycle, availability, and event emission; it depends only on the repository abstraction.
+* **Adapter ownership:** Concrete adapters (starting with `InMemoryBookingRepository`) are composed by **Runtime**. Future PostgreSQL / Supabase / ORM adapters will also be Runtime (or infra) concerns — not Application or API.
+* **Composition:** Runtime wires `BookingRepository` → `BookingService` → Application use cases. Application and API must not import or call `BookingRepository`.
+* **Deferred:** PostgreSQL, Supabase, ORM choice, migrations, connection pools, and real transactions.
+
+**Rejected:** BookingService owning Maps/arrays; Application depending on repositories; API exposing storage.
