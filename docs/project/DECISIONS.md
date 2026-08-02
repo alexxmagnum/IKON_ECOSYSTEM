@@ -1039,3 +1039,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Document with Invoice/Payment/Storage; Application → Document Provider; embedding content/private URLs/secrets; implementing real storage in this phase.
 
 ---
+
+## DEC-BOOKING-APPROVAL-001 — Booking Approval Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 53 introduces an Approval Boundary so Booking can express a required business approval/authorization decision without real approvers, RBAC, digital signatures, human workflows, BPM engines, or notifications. Distinct from Authorization Policy (can the actor act?), Booking Policy (business conditions), Domain Rules (aggregate transition validity), and Workflow (step coordination).
+
+**Decision:**
+
+* **Ownership:** `BookingApproval`, factories, and `BookingApprovalPort` live in `@motanos/booking` (`packages/engines/booking/src/approvals/`). Approval belongs to the Booking Engine — not Authorization, Users, RBAC, Workflow Engine, or Runtime.
+* **Pipeline relation:** Actor → Authorization Policy → Booking Policy → Approval Boundary → Domain Operation. Approval answers “is an approval decision required to continue?” — not permission, policy compliance, or aggregate validity.
+* **Separations:** Authorization ≠ Approval (permission to confirm may still require additional approval). Approval ≠ Payment (approval may exist without payment). Approval ≠ Workflow Engine.
+* **Kinds (foundation):** `booking.confirmation`, `booking.manual_review`, `booking.exception`, `booking.override`.
+* **Statuses (foundation):** `pending`, `approved`, `rejected`, `expired`, `cancelled`.
+* **Contract shape:** Opaque `approvalReference`, `tenantReference`, `approvalKind`, `approvalStatus`; optional `bookingReference`, `actorReference`, opaque `requestedByReference`, controlled `metadata`. No passwords, tokens, real roles, permissions matrices, or PII.
+* **Tenant isolation:** Approval may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Booking lifecycle:** May relate to create/confirm/cancel/reschedule without mutating aggregate state machines.
+* **Relation to Workflow:** Workflows may consult Approval Boundary then Booking flow (DEC-BOOKING-WORKFLOW-001). Workflows must not call external Approval Engines.
+* **Application:** Forbidden `Application → Approval Service`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No `booking.approval_requested` / `booking.approval_completed` events in this foundation. Existing Booking domain events remain intact. Approval Boundary does not emit events.
+* **Runtime:** Composition root for future `Approval Port → Adapter` (`requestApproval` / `evaluateApproval`). No workflow engines, users, roles, or BPM SDKs in this foundation.
+* **Deferred:** real approvers, RBAC, human approval UIs, notifications, external approval providers.
+
+**Rejected:** Mixing Approval with Authorization/RBAC/Workflow Engine; Application → Approval Provider; embedding roles/JWT/secrets; implementing human BPM in this phase.
+
+---

@@ -311,6 +311,27 @@ export {
 } from "./documents";
 
 export type {
+  BookingApproval,
+  BookingApprovalKind,
+  BookingApprovalPort,
+  BookingApprovalStatus,
+  CreateBookingApprovalInput,
+  CreateBookingApprovalOptions,
+} from "./approvals";
+export {
+  BOOKING_APPROVAL_KINDS,
+  BOOKING_APPROVAL_KIND_VALUES,
+  BOOKING_APPROVAL_STATUSES,
+  BOOKING_APPROVAL_STATUS_VALUES,
+  createBookingApproval,
+  isBookingApproval,
+  isBookingApprovalKind,
+  isBookingApprovalPort,
+  isBookingApprovalStatus,
+  resetBookingApprovalReferenceSequence,
+} from "./approvals";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,
