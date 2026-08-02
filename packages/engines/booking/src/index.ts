@@ -224,6 +224,27 @@ export {
 } from "./resources";
 
 export type {
+  BookingMembership,
+  BookingMembershipKind,
+  BookingMembershipPort,
+  BookingMembershipStatus,
+  CreateBookingMembershipInput,
+} from "./memberships";
+export {
+  BOOKING_MEMBERSHIP_KINDS,
+  BOOKING_MEMBERSHIP_KIND_VALUES,
+  BOOKING_MEMBERSHIP_STATUSES,
+  BOOKING_MEMBERSHIP_STATUS_VALUES,
+  createBookingMembership,
+  isBookingMembership,
+  isBookingMembershipKind,
+  isBookingMembershipPort,
+  isBookingMembershipStatus,
+  membershipBelongsToTenant,
+  resetBookingMembershipReferenceSequence,
+} from "./memberships";
+
+export type {
   BookingWorkflow,
   BookingWorkflowDefinition,
   BookingWorkflowKind,

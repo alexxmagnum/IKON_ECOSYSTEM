@@ -773,3 +773,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** BookingService → table store; Application → Resource Provider; embedding secrets; fusing Resource with Availability; implementing resource domain events in this phase.
 
 ---
+
+## DEC-BOOKING-MEMBERSHIP-001 — Booking Membership Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 43 introduces a Membership Boundary so Booking can represent actor↔community relationships that may affect reservations, without coupling Domain Services or Application to CRM, user profiles, commercial plans, or subscription billing.
+
+**Decision:**
+
+* **Ownership:** `BookingMembership`, kinds, statuses, port contract, and factories live in `@motanos/booking` (`packages/engines/booking/src/memberships/`). Booking owns the contract because membership may condition booking eligibility. Provider adapters belong to Runtime / future infrastructure.
+* **Contract shape:** Opaque fields — `membershipReference`, `tenantReference`, `memberReference`, `membershipKind`, `status`, optional controlled `metadata`. No emails, phones, documents, credentials, or CRM profiles.
+* **Kinds (foundation):** `booking.member`, `booking.guest`, `booking.vip`, `booking.staff`, `booking.partner`. Internal relationship kinds — not commercial plans, prices, or benefits.
+* **Statuses (foundation):** `active`, `inactive`, `suspended`, `pending`. Relationship status only — not billing/renewal.
+* **Relation to Authorization:** Authorization answers “may this actor perform this Booking operation?” (DEC-BOOKING-AUTH-001). Membership answers “what relationship does the actor have with the community?” Member ≠ Permission — do not merge.
+* **Relation to Tenant:** Every membership is scoped by `tenantReference` (DEC-BOOKING-TENANT-001). `tenantReference` → `membershipReference` isolation is mandatory.
+* **Relation to Resource / Availability:** Membership = who belongs; Resource = what is reserved; Availability = whether it is free (DEC-BOOKING-RESOURCE-001, DEC-BOOKING-AVAILABILITY-001).
+* **Relation to Domain Events:** No `member.created|updated|removed` events in this foundation. Booking domain events remain separate (DEC-BOOKING-EVENTS-002).
+* **Relation to Workflow:** Workflows may consult Membership Boundary then Booking operations (e.g. members-only premium resources) (DEC-BOOKING-WORKFLOW-001). Workflows must not call CRM APIs.
+* **Relation to Integration / Payment / Notification:** Membership is belonging; Integration is outbound I/O; Payment is money; Notification is communication — do not mix.
+* **Application:** Forbidden `Application → Membership Provider`. Flow remains Use Case → Booking Engine Boundary.
+* **Runtime:** Composition root for future `Membership Port → Adapter`. No CRM SDKs, user stores, or external member APIs in this foundation.
+* **Deferred:** CRM, real users/socios, commercial plans, dues, renewals, recurring billing, subscriptions.
+
+**Rejected:** BookingService → customer store; Application → CRM API; embedding PII; fusing Membership with Authorization; implementing membership domain events in this phase.
+
+---
