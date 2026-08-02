@@ -1571,3 +1571,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Absorbing Payment/Billing/Subscription into Commerce; Commerce → Stripe/Payment/Invoice imports; Application → Commerce Provider; implementing charge/refund/checkout/invoice adapters in this phase.
 
 ---
+
+## DEC-PAYMENT-BOUNDARY-001 — Payment Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 73 introduces the Payment Engine so MotanOS can express a payment intent, economic context, and lifecycle state independently of Commerce (what can be acquired), Billing (fiscal registration), and Payment Providers (how collection is executed). Payment must not absorb Commerce or Billing, and must not depend on Stripe or other vendors. Distinct from legacy `@motanos/payments` scaffolding and from Booking Payment Boundary (opaque request context inside Booking).
+
+**Decision:**
+
+* **Ownership:** `Payment`, factories, and `PaymentPort` live in `@motanos/payment` (`packages/engines/payment`). Payment is an independent bounded context — not Commerce, Booking, Membership, Billing, Stripe, providers, or Runtime adapters.
+* **Pipeline relation:** Commerce → Payment → Payment Provider (future) → Billing (future). Payment answers “is there a payment intent and what is its state?”
+* **Separations:** Payment ≠ Commerce. Payment ≠ Billing. Payment ≠ Provider. Payment ≠ Stripe. No cards, bank data, checkout, webhooks, charge/refund execution, invoices, or taxes in this foundation.
+* **Kinds (foundation):** `payment.purchase`, `payment.registration`, `payment.membership`, `payment.booking`, `payment.refund`, `payment.operational`.
+* **Statuses (foundation):** `draft`, `pending`, `authorized`, `completed`, `failed`, `cancelled`, `refunded` (e.g. draft → pending → authorized → completed).
+* **Contract shape:** Opaque `paymentReference`, required `tenantReference`, `paymentKind`, `paymentStatus`; optional opaque `commerceReference`, `bookingReference`, `membershipReference`, `experienceReference`, `amountReference`, `currencyReference`, `providerReference`, controlled `metadata`. No card numbers, credentials, secrets, tokens, or method payloads.
+* **Tenant isolation:** Payment may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createPayment` / `resolvePayment` only. No charge, capture, checkout, refund, or processCard methods in this foundation.
+* **Runtime:** Composition root for future `Payment Port → Adapter`. No database, provider SDKs, or Stripe in this foundation.
+* **Dependencies:** `@motanos/payment` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** provider adapters, capture/charge execution, Billing linkage, webhook handling.
+
+**Rejected:** Absorbing Commerce/Billing into Payment; Payment → Stripe/provider/database imports; Application → Payment Provider; implementing charge/capture/checkout/refund execution in this phase.
+
+---
