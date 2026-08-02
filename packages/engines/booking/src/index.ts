@@ -500,6 +500,27 @@ export {
 } from "./waitlists";
 
 export type {
+  BookingRecurrence,
+  BookingRecurrenceKind,
+  BookingRecurrencePort,
+  BookingRecurrenceStatus,
+  CreateBookingRecurrenceInput,
+  CreateBookingRecurrenceOptions,
+} from "./recurrences";
+export {
+  BOOKING_RECURRENCE_KINDS,
+  BOOKING_RECURRENCE_KIND_VALUES,
+  BOOKING_RECURRENCE_STATUSES,
+  BOOKING_RECURRENCE_STATUS_VALUES,
+  createBookingRecurrence,
+  isBookingRecurrence,
+  isBookingRecurrenceKind,
+  isBookingRecurrencePort,
+  isBookingRecurrenceStatus,
+  resetBookingRecurrenceReferenceSequence,
+} from "./recurrences";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,

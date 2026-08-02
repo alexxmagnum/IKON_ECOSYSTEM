@@ -1281,3 +1281,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Waitlist with Availability Engine/Booking creation/Payment/Notification/Resource; Application → Waitlist Provider; embedding PII/payment secrets; implementing live availability search in this phase.
 
 ---
+
+## DEC-BOOKING-RECURRENCE-001 — Booking Recurrence Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 62 introduces a Recurrence Boundary so Booking can express a repetition rule for a booking intent, without auto-generating bookings, mass reservation creation, calendar engines, availability checks, resource assignment, payments, or notifications. Recurrence belongs to the Booking Engine — not a Calendar Engine. Recurring booking ≠ recurring payment/subscription billing.
+
+**Decision:**
+
+* **Ownership:** `BookingRecurrence`, factories, and `BookingRecurrencePort` live in `@motanos/booking` (`packages/engines/booking/src/recurrences/`). Recurrence is a conceptual boundary in the Booking Engine — not Calendar Engine, Availability, Payment, Subscription Billing, Settlement, or Runtime.
+* **Pipeline relation:** Recurrence Rule → Future Booking Instances → Booking Creation → Booking Lifecycle. Recurrence answers “is there a repetition rule associated with a booking intent?”
+* **Separations:** Recurrence ≠ Booking (instances may be created later). Recurrence ≠ Calendar (calendar may interpret occurrences later). Recurrence ≠ Availability. Recurrence ≠ Payment / Subscription Billing / Settlement. Recurrence ≠ Notification.
+* **Kinds (foundation):** `booking.weekly`, `booking.daily`, `booking.monthly`, `booking.custom`, `booking.operational`. `operational` is a Booking-process initiation — not a technical infrastructure error.
+* **Statuses (foundation):** `draft`, `active`, `paused`, `completed`, `cancelled`, `expired` (e.g. draft → active ↔ paused, or active → completed).
+* **Contract shape:** Opaque `recurrenceReference`, required `tenantReference`, `recurrenceKind`, `recurrenceStatus`; optional `bookingReference` (may be absent before instances), `actorReference`, opaque `patternReference`, `startReference`, `endReference`, controlled `metadata`. No PII, payment data, or credentials.
+* **Tenant isolation:** Recurrence may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Application:** Forbidden `Application → Recurrence Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No new recurrence domain events from this boundary. Existing domain events remain intact. Boundary rule ≠ Domain Event fact.
+* **Runtime:** Composition root for future `Recurrence Port → Adapter` (`createRecurrence` / `resolveRecurrence`). No cron, scheduler, database, or mass booking generators in this foundation.
+* **Deferred:** occurrence materialization, calendar integration, auto booking creation, subscription/billing linkage.
+
+**Rejected:** Mixing Recurrence with Calendar Engine/Booking auto-generation/Payment/Subscription Billing; Application → Recurrence Provider; embedding PII/payment secrets; implementing schedulers or mass booking creation in this phase.
+
+---
