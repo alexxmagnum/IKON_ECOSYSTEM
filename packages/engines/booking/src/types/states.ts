@@ -192,6 +192,35 @@ export function isBookingFinal(status: BookingStatus): boolean {
 }
 
 /**
+ * Statuses that may change time window without a status transition (interim).
+ * Reschedule is not a SoT status edge — see DEC-BOOKING-RESCHEDULE-001.
+ * Cancelled / final / CheckedIn / InProgress are rejected.
+ */
+export const RESCHEDULABLE_BOOKING_STATUSES = [
+  "Draft",
+  "Pending",
+  "Waitlisted",
+  "PaymentPending",
+  "Confirmed",
+] as const satisfies readonly BookingStatus[];
+
+export type ReschedulableBookingStatus =
+  (typeof RESCHEDULABLE_BOOKING_STATUSES)[number];
+
+/**
+ * Whether a booking may be rescheduled (time window update, BR-0033).
+ * Does not invent SoT transitions — status is unchanged on success.
+ */
+export function canRescheduleBooking(status: BookingStatus): boolean {
+  if (status === "Cancelled" || isBookingFinal(status)) {
+    return false;
+  }
+  return (RESCHEDULABLE_BOOKING_STATUSES as readonly BookingStatus[]).includes(
+    status,
+  );
+}
+
+/**
  * Returns whether a BOOKING transition is allowed for the given event.
  * Foundation helper — no side effects or persistence.
  */

@@ -330,4 +330,58 @@ describe("@motanos/runtime composition", () => {
     if (!isFailure(forbiddenList)) return;
     assert.equal(forbiddenList.error.code, "ForbiddenError");
   });
+
+  it("10. Reschedule success and forbidden", async () => {
+    const composed = createMotanOSRuntime({
+      config: { environment: "test" },
+    });
+
+    assert.ok(composed.rescheduleBookingHandler);
+    assert.equal(
+      composed.runtime.registry.has(RUNTIME_SERVICE_TOKENS.rescheduleBookingHandler),
+      true,
+    );
+
+    const created = await composed.createBookingHandler.handle(
+      {
+        resourceReference: "resource-reschedule",
+        customerReference: "actor-1",
+        startAt: "2026-08-02T10:00:00.000Z",
+        endAt: "2026-08-02T11:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(created), true);
+    if (!isApiSuccess(created)) return;
+
+    const rescheduled = await composed.rescheduleBookingHandler.handle(
+      {
+        bookingReference: created.data.bookingReference,
+        newStartAt: "2026-08-02T16:00:00.000Z",
+        newEndAt: "2026-08-02T17:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(rescheduled), true);
+    if (!isApiSuccess(rescheduled)) return;
+    assert.equal(rescheduled.data.startAt, "2026-08-02T16:00:00.000Z");
+    assert.equal(rescheduled.data.status, "Draft");
+
+    const denied = createMotanOSRuntime({
+      config: { environment: "test" },
+      booking: composed.booking,
+      deniedActors: ["actor-denied"],
+    });
+    const forbidden = await denied.rescheduleBooking.execute(
+      {
+        bookingReference: created.data.bookingReference,
+        newStartAt: "2026-08-02T18:00:00.000Z",
+        newEndAt: "2026-08-02T19:00:00.000Z",
+      },
+      { actorReference: "actor-denied" },
+    );
+    assert.equal(isFailure(forbidden), true);
+    if (!isFailure(forbidden)) return;
+    assert.equal(forbidden.error.code, "ForbiddenError");
+  });
 });

@@ -64,6 +64,15 @@ export interface ListBookingsOutput {
   bookings: BookingOutput[];
 }
 
+export interface RescheduleBookingInput {
+  bookingReference: string;
+  newStartAt: string;
+  newEndAt: string;
+  metadata?: Record<string, unknown>;
+}
+
+export type RescheduleBookingOutput = BookingOutput;
+
 export function toBookingOutput(booking: Booking): BookingOutput {
   return {
     bookingReference: booking.id,

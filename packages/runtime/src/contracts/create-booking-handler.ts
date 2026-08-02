@@ -15,6 +15,8 @@ import type {
   GetBookingResponse,
   ListBookingsRequest,
   ListBookingsResponse,
+  RescheduleBookingRequest,
+  RescheduleBookingResponse,
 } from "@motanos/api";
 
 export interface CreateBookingHandler {
@@ -57,4 +59,11 @@ export interface ListBookingsHandler {
     request: ListBookingsRequest,
     context?: ApiContext,
   ): Promise<ListBookingsResponse>;
+}
+
+export interface RescheduleBookingHandler {
+  handle(
+    request: RescheduleBookingRequest,
+    context?: ApiContext,
+  ): Promise<RescheduleBookingResponse>;
 }

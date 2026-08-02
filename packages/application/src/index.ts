@@ -3,7 +3,7 @@
  *
  * UI / API → Application Layer → Engines + Domains → Core
  *
- * Booking slice: create / confirm / cancel / availability / get / list.
+ * Booking slice: create / confirm / cancel / availability / get / list / reschedule.
  */
 
 export const APPLICATION_LAYER = "@motanos/application" as const;
@@ -41,12 +41,14 @@ export {
   CREATE_BOOKING_ACTION,
   LIST_BOOKINGS_ACTION,
   READ_BOOKING_ACTION,
+  RESCHEDULE_BOOKING_ACTION,
   createCancelBookingUseCase,
   createCheckAvailabilityUseCase,
   createConfirmBookingUseCase,
   createCreateBookingUseCase,
   createGetBookingUseCase,
   createListBookingsUseCase,
+  createRescheduleBookingUseCase,
   DEFAULT_HOLD_TTL_MINUTES,
   toBookingOutput,
   type BookingOutput,
@@ -80,4 +82,9 @@ export {
   type ListBookingsUseCase,
   type ListBookingsUseCaseDeps,
   type ReadBookingAction,
+  type RescheduleBookingAction,
+  type RescheduleBookingInput,
+  type RescheduleBookingOutput,
+  type RescheduleBookingUseCase,
+  type RescheduleBookingUseCaseDeps,
 } from "./use-cases/booking";

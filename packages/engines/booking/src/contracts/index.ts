@@ -50,6 +50,18 @@ export interface ConfirmBookingInput {
   metadata?: Record<string, unknown>;
 }
 
+/**
+ * Reschedule — update booking time window (BR-0033).
+ * Does not change BOOKING status; revalidates availability (BR-0031).
+ * Engine uses bookingId / startsAt / endsAt (Application maps opaque refs).
+ */
+export interface RescheduleBookingInput {
+  bookingId: BookingId;
+  startsAt: string;
+  endsAt: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface BookingResult {
   booking: Booking;
   participants?: BookingParticipant[];

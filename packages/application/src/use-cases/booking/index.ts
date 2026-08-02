@@ -5,12 +5,14 @@ export {
   CREATE_BOOKING_ACTION,
   LIST_BOOKINGS_ACTION,
   READ_BOOKING_ACTION,
+  RESCHEDULE_BOOKING_ACTION,
   type CancelBookingAction,
   type CheckAvailabilityAction,
   type ConfirmBookingAction,
   type CreateBookingAction,
   type ListBookingsAction,
   type ReadBookingAction,
+  type RescheduleBookingAction,
 } from "./actions";
 export {
   createCancelBookingUseCase,
@@ -45,6 +47,11 @@ export {
   type ListBookingsUseCase,
   type ListBookingsUseCaseDeps,
 } from "./list-bookings";
+export {
+  createRescheduleBookingUseCase,
+  type RescheduleBookingUseCase,
+  type RescheduleBookingUseCaseDeps,
+} from "./reschedule-booking";
 export type {
   BookingOutput,
   CancelBookingInput,
@@ -57,5 +64,7 @@ export type {
   GetBookingOutput,
   ListBookingsInput,
   ListBookingsOutput,
+  RescheduleBookingInput,
+  RescheduleBookingOutput,
 } from "./types";
 export { toBookingOutput } from "./types";

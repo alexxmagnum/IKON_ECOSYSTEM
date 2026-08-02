@@ -7,6 +7,7 @@ import type {
   CreateBookingUseCase,
   GetBookingUseCase,
   ListBookingsUseCase,
+  RescheduleBookingUseCase,
 } from "@motanos/application";
 import type { BookingService } from "@motanos/booking";
 import type { AuthorizationService } from "@motanos/permissions";
@@ -17,6 +18,7 @@ import type {
   CreateBookingHandler,
   GetBookingHandler,
   ListBookingsHandler,
+  RescheduleBookingHandler,
 } from "./create-booking-handler";
 
 export const RUNTIME_SERVICE_TOKENS = {
@@ -30,12 +32,14 @@ export const RUNTIME_SERVICE_TOKENS = {
   checkAvailability: "motanos.application.checkAvailability" as const,
   getBooking: "motanos.application.getBooking" as const,
   listBookings: "motanos.application.listBookings" as const,
+  rescheduleBooking: "motanos.application.rescheduleBooking" as const,
   createBookingHandler: "motanos.api.createBookingHandler" as const,
   confirmBookingHandler: "motanos.api.confirmBookingHandler" as const,
   cancelBookingHandler: "motanos.api.cancelBookingHandler" as const,
   checkAvailabilityHandler: "motanos.api.checkAvailabilityHandler" as const,
   getBookingHandler: "motanos.api.getBookingHandler" as const,
   listBookingsHandler: "motanos.api.listBookingsHandler" as const,
+  rescheduleBookingHandler: "motanos.api.rescheduleBookingHandler" as const,
 } as const;
 
 export interface RuntimeServices {
@@ -49,10 +53,12 @@ export interface RuntimeServices {
   checkAvailability?: CheckAvailabilityUseCase;
   getBooking?: GetBookingUseCase;
   listBookings?: ListBookingsUseCase;
+  rescheduleBooking?: RescheduleBookingUseCase;
   createBookingHandler?: CreateBookingHandler;
   confirmBookingHandler?: ConfirmBookingHandler;
   cancelBookingHandler?: CancelBookingHandler;
   checkAvailabilityHandler?: CheckAvailabilityHandler;
   getBookingHandler?: GetBookingHandler;
   listBookingsHandler?: ListBookingsHandler;
+  rescheduleBookingHandler?: RescheduleBookingHandler;
 }

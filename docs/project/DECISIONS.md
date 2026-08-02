@@ -424,3 +424,22 @@ They are **provisional** until real execution workflows exist. A later phase may
 * Explicit `customerReference` remains accepted for internal filter support pending this decision.
 * Authorization metadata includes normalized filters and `customerScopeDefaulted`.
 * No new permission actions in this foundation.
+
+---
+
+## DEC-BOOKING-RESCHEDULE-001 — Reschedule eligible statuses
+
+**Status:** DECISION REQUIRED
+
+**Date:** 2026-08-02
+
+**Context:** Fase 27 adds `BookingService.reschedule` / `RescheduleBooking` as a time-window update. SoT state-machines.md has no dedicated reschedule event; BR-0033 requires availability revalidation on modification. Cancelled must be rejected.
+
+**Open question:** Which non-cancelled statuses may change `startsAt`/`endsAt` without a status transition — especially `Confirmed`, `Waitlisted`, `CheckedIn`, and `InProgress`?
+
+**Interim (non-binding):**
+
+* Allowed: `Draft`, `Pending`, `Waitlisted`, `PaymentPending`, `Confirmed` via `canRescheduleBooking`.
+* Rejected: `Cancelled`, final statuses (`Completed`, `NoShow`, `Expired`), `CheckedIn`, `InProgress`.
+* Status unchanged on success; overlap check excludes the booking being moved (BR-0031).
+* Conflict → Application `ConflictError`.

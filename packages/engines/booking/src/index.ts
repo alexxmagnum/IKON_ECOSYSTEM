@@ -41,6 +41,7 @@ export type {
   BookingEvent,
   BookingFinalStatus,
   BookingStatus,
+  ReschedulableBookingStatus,
   ResourceStatus,
 } from "./types/states";
 export {
@@ -50,6 +51,7 @@ export {
   BOOKING_FINAL_STATUSES,
   BOOKING_STATUSES,
   BOOKING_TRANSITIONS,
+  canRescheduleBooking,
   canTransitionBooking,
   DEFAULT_HOLD_TTL_MINUTES,
   DEFAULT_WAITLIST_OFFER_TTL_MINUTES,
@@ -57,6 +59,7 @@ export {
   isBookingFinal,
   isBookingStatus,
   NON_BLOCKING_STATUSES,
+  RESCHEDULABLE_BOOKING_STATUSES,
   RESOURCE_STATUSES,
 } from "./types/states";
 
@@ -71,6 +74,7 @@ export type {
   CreateBookingInput,
   JoinWaitlistInput,
   ListBookingsQuery,
+  RescheduleBookingInput,
   ResourceResult,
   UpdateBookingInput,
   WaitlistResult,

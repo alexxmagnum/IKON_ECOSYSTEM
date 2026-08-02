@@ -75,14 +75,16 @@ export function statusBlocksAvailability(status: BookingStatus): boolean {
 /**
  * Check whether a proposed interval is free of availability-blocking overlaps.
  * Uses existing bookings as the conflict set (engine authority).
+ * Optional excludeBookingId skips that booking (reschedule self-window).
  */
 export function checkRangeAvailability(
   resourceId: ResourceId,
   range: TimeInterval,
   existing: readonly Booking[],
+  options?: { excludeBookingId?: string },
 ): { available: boolean; reason?: string } {
   const probe: Booking = {
-    id: "__availability-probe__",
+    id: options?.excludeBookingId ?? "__availability-probe__",
     resourceId,
     ownerUserId: "__probe__",
     startsAt: range.startsAt,
@@ -91,6 +93,12 @@ export function checkRangeAvailability(
   };
 
   for (const booking of existing) {
+    if (
+      options?.excludeBookingId !== undefined &&
+      booking.id === options.excludeBookingId
+    ) {
+      continue;
+    }
     if (bookingsConflict(probe, booking)) {
       return {
         available: false,

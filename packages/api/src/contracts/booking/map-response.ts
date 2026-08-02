@@ -26,6 +26,10 @@ import type {
   ListBookingsResponse,
   ListBookingsResponseData,
 } from "./list-bookings";
+import type {
+  RescheduleBookingResponse,
+  RescheduleBookingResponseData,
+} from "./reschedule-booking";
 
 function mapResult<T>(
   result: ApplicationResult<T>,
@@ -73,6 +77,13 @@ export function toListBookingsResponse(
   result: ApplicationResult<ListBookingsResponseData>,
   metadata?: ApiResponseMetadata,
 ): ListBookingsResponse {
+  return mapResult(result, metadata);
+}
+
+export function toRescheduleBookingResponse(
+  result: ApplicationResult<RescheduleBookingResponseData>,
+  metadata?: ApiResponseMetadata,
+): RescheduleBookingResponse {
   return mapResult(result, metadata);
 }
 

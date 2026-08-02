@@ -44,12 +44,14 @@ export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
     push(tokenMap.checkAvailability, services.checkAvailability);
     push(tokenMap.getBooking, services.getBooking);
     push(tokenMap.listBookings, services.listBookings);
+    push(tokenMap.rescheduleBooking, services.rescheduleBooking);
     push(tokenMap.createBookingHandler, services.createBookingHandler);
     push(tokenMap.confirmBookingHandler, services.confirmBookingHandler);
     push(tokenMap.cancelBookingHandler, services.cancelBookingHandler);
     push(tokenMap.checkAvailabilityHandler, services.checkAvailabilityHandler);
     push(tokenMap.getBookingHandler, services.getBookingHandler);
     push(tokenMap.listBookingsHandler, services.listBookingsHandler);
+    push(tokenMap.rescheduleBookingHandler, services.rescheduleBookingHandler);
   }
 
   for (const [token, instance] of entries) {

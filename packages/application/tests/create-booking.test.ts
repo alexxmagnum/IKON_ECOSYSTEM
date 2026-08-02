@@ -12,6 +12,7 @@ import type {
   CreateBookingInput as BookingEngineCreateInput,
 } from "@motanos/booking";
 import {
+  canRescheduleBooking,
   canTransitionBooking,
   checkRangeAvailability,
   DEFAULT_HOLD_TTL_MINUTES,
@@ -30,6 +31,7 @@ import {
   createCreateBookingUseCase,
   createGetBookingUseCase,
   createListBookingsUseCase,
+  createRescheduleBookingUseCase,
   isFailure,
   isSuccess,
   type CreateBookingInput,
@@ -78,6 +80,31 @@ function memoryBookingService(): BookingService {
     },
     async update() {
       throw new Error("not used");
+    },
+    async reschedule(input) {
+      const existing = store.get(input.bookingId);
+      if (!existing) throw new Error(`NOT_FOUND:${input.bookingId}`);
+      if (!canRescheduleBooking(existing.status)) {
+        throw new Error(
+          `PRECONDITION:Cannot reschedule booking from status ${existing.status}`,
+        );
+      }
+      const availability = checkRangeAvailability(
+        existing.resourceId,
+        { startsAt: input.startsAt, endsAt: input.endsAt },
+        [...store.values()],
+        { excludeBookingId: existing.id },
+      );
+      if (!availability.available) {
+        throw new Error(`CONFLICT:${availability.reason ?? "overlap"}`);
+      }
+      const next: Booking = {
+        ...existing,
+        startsAt: input.startsAt,
+        endsAt: input.endsAt,
+      };
+      store.set(next.id, next);
+      return { booking: next };
     },
     async cancel(input) {
       const existing = store.get(input.bookingId);
@@ -554,5 +581,130 @@ describe("GetBooking / ListBookings", () => {
     assert.equal(isFailure(result), true);
     if (!isFailure(result)) return;
     assert.equal(result.error.code, "ForbiddenError");
+  });
+});
+
+describe("RescheduleBooking", () => {
+  it("Reschedule success", async () => {
+    const booking = memoryBookingService();
+    const auth = allowAllAuthorization();
+    const created = await createCreateBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(validInput, { actorReference: "actor-1" });
+    assert.equal(isSuccess(created), true);
+    if (!isSuccess(created)) return;
+
+    const result = await createRescheduleBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(
+      {
+        bookingReference: created.data.bookingReference,
+        newStartAt: "2026-08-02T14:00:00.000Z",
+        newEndAt: "2026-08-02T15:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isSuccess(result), true);
+    if (!isSuccess(result)) return;
+    assert.equal(result.data.startAt, "2026-08-02T14:00:00.000Z");
+    assert.equal(result.data.endAt, "2026-08-02T15:00:00.000Z");
+    assert.equal(result.data.status, "Draft");
+  });
+
+  it("Reschedule unavailable — ConflictError", async () => {
+    const booking = memoryBookingService();
+    const auth = allowAllAuthorization();
+    const create = createCreateBookingUseCase({ authorization: auth, booking });
+    const first = await create.execute(validInput, {
+      actorReference: "actor-1",
+    });
+    assert.equal(isSuccess(first), true);
+    if (!isSuccess(first)) return;
+
+    await create.execute(
+      {
+        ...validInput,
+        startAt: "2026-08-02T12:00:00.000Z",
+        endAt: "2026-08-02T13:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+
+    const result = await createRescheduleBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(
+      {
+        bookingReference: first.data.bookingReference,
+        newStartAt: "2026-08-02T12:00:00.000Z",
+        newEndAt: "2026-08-02T13:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isFailure(result), true);
+    if (!isFailure(result)) return;
+    assert.equal(result.error.code, "ConflictError");
+  });
+
+  it("Forbidden reschedule", async () => {
+    const booking = memoryBookingService();
+    const created = await createCreateBookingUseCase({
+      authorization: allowAllAuthorization(),
+      booking,
+    }).execute(validInput, { actorReference: "actor-1" });
+    assert.equal(isSuccess(created), true);
+    if (!isSuccess(created)) return;
+
+    const result = await createRescheduleBookingUseCase({
+      authorization: denyAllAuthorization(),
+      booking,
+    }).execute(
+      {
+        bookingReference: created.data.bookingReference,
+        newStartAt: "2026-08-02T14:00:00.000Z",
+        newEndAt: "2026-08-02T15:00:00.000Z",
+      },
+      { actorReference: "actor-denied" },
+    );
+    assert.equal(isFailure(result), true);
+    if (!isFailure(result)) return;
+    assert.equal(result.error.code, "ForbiddenError");
+  });
+
+  it("Cancelled booking cannot reschedule", async () => {
+    const booking = memoryBookingService();
+    const auth = allowAllAuthorization();
+    const created = await createCreateBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(validInput, { actorReference: "actor-1" });
+    assert.equal(isSuccess(created), true);
+    if (!isSuccess(created)) return;
+
+    const cancelled = await createCancelBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(
+      { bookingReference: created.data.bookingReference },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isSuccess(cancelled), true);
+
+    const result = await createRescheduleBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(
+      {
+        bookingReference: created.data.bookingReference,
+        newStartAt: "2026-08-02T14:00:00.000Z",
+        newEndAt: "2026-08-02T15:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isFailure(result), true);
+    if (!isFailure(result)) return;
+    assert.equal(result.error.code, "FailedPreconditionError");
   });
 });

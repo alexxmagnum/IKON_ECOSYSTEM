@@ -40,6 +40,13 @@ export type {
 } from "./list-bookings";
 export { toListBookingsInput } from "./list-bookings";
 
+export type {
+  RescheduleBookingRequest,
+  RescheduleBookingResponse,
+  RescheduleBookingResponseData,
+} from "./reschedule-booking";
+export { toRescheduleBookingInput } from "./reschedule-booking";
+
 export {
   toCancelBookingResponse,
   toCheckAvailabilityResponse,
@@ -47,4 +54,5 @@ export {
   toCreateBookingResponse,
   toGetBookingResponse,
   toListBookingsResponse,
+  toRescheduleBookingResponse,
 } from "./map-response";

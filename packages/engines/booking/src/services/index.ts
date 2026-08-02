@@ -9,6 +9,7 @@ import type {
   CreateBookingInput,
   JoinWaitlistInput,
   ListBookingsQuery,
+  RescheduleBookingInput,
   UpdateBookingInput,
   WaitlistResult,
 } from "../contracts";
@@ -24,6 +25,10 @@ export interface BookingService {
   create(input: CreateBookingInput): Promise<BookingResult>;
   confirm(input: ConfirmBookingInput): Promise<BookingResult>;
   update(input: UpdateBookingInput): Promise<BookingResult>;
+  /**
+   * Move a booking to a new time window (status unchanged when allowed).
+   */
+  reschedule(input: RescheduleBookingInput): Promise<BookingResult>;
   cancel(input: CancelBookingInput): Promise<BookingResult>;
   getById(bookingId: BookingId): Promise<BookingResult | null>;
   list(query: ListBookingsQuery): Promise<BookingResult[]>;

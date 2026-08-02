@@ -52,6 +52,9 @@ export type {
   ListBookingsRequest,
   ListBookingsResponse,
   ListBookingsResponseData,
+  RescheduleBookingRequest,
+  RescheduleBookingResponse,
+  RescheduleBookingResponseData,
 } from "../contracts/booking";
 export {
   toCancelBookingInput,
@@ -66,4 +69,6 @@ export {
   toGetBookingResponse,
   toListBookingsInput,
   toListBookingsResponse,
+  toRescheduleBookingInput,
+  toRescheduleBookingResponse,
 } from "../contracts/booking";

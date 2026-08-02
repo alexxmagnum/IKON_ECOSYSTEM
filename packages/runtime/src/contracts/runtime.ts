@@ -9,6 +9,7 @@ export type {
   CreateBookingHandler,
   GetBookingHandler,
   ListBookingsHandler,
+  RescheduleBookingHandler,
 } from "./create-booking-handler";
 export type { RuntimeServices } from "./service-tokens";
 export { RUNTIME_SERVICE_TOKENS } from "./service-tokens";

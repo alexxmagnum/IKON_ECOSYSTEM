@@ -20,12 +20,15 @@ import {
   toGetBookingResponse,
   toListBookingsInput,
   toListBookingsResponse,
+  toRescheduleBookingInput,
+  toRescheduleBookingResponse,
   type CancelBookingRequest,
   type CheckAvailabilityRequest,
   type ConfirmBookingRequest,
   type CreateBookingRequest,
   type GetBookingRequest,
   type ListBookingsRequest,
+  type RescheduleBookingRequest,
 } from "../src/index.js";
 
 describe("CreateBooking API contracts", () => {
@@ -226,6 +229,48 @@ describe("Get / List booking API contracts", () => {
     assert.equal(isApiFailure(response), true);
     if (!isApiFailure(response)) return;
     assert.equal(response.error.code, "ForbiddenError");
+    assert.equal(response.data, undefined);
+  });
+});
+
+describe("RescheduleBooking API contracts", () => {
+  it("maps RescheduleBookingRequest and success response", () => {
+    const request: RescheduleBookingRequest = {
+      bookingReference: "  b1  ",
+      newStartAt: "  2026-08-02T14:00:00.000Z  ",
+      newEndAt: "2026-08-02T15:00:00.000Z",
+    };
+    const input = toRescheduleBookingInput(request);
+    assert.equal(input.bookingReference, "b1");
+    assert.equal(input.newStartAt, "2026-08-02T14:00:00.000Z");
+    assert.equal(input.newEndAt, "2026-08-02T15:00:00.000Z");
+
+    const response = toRescheduleBookingResponse(
+      success({
+        bookingReference: "b1",
+        resourceReference: "r1",
+        customerReference: "c1",
+        startAt: "2026-08-02T14:00:00.000Z",
+        endAt: "2026-08-02T15:00:00.000Z",
+        status: "Draft",
+      }),
+    );
+    assert.equal(isApiSuccess(response), true);
+    if (!isApiSuccess(response)) return;
+    assert.equal(response.data.startAt, "2026-08-02T14:00:00.000Z");
+    assert.equal(response.error, undefined);
+  });
+
+  it("maps RescheduleBooking failure to error envelope", () => {
+    const response = toRescheduleBookingResponse(
+      failure({
+        code: "ConflictError",
+        message: "New booking window conflicts with existing availability",
+      }),
+    );
+    assert.equal(isApiFailure(response), true);
+    if (!isApiFailure(response)) return;
+    assert.equal(response.error.code, "ConflictError");
     assert.equal(response.data, undefined);
   });
 });

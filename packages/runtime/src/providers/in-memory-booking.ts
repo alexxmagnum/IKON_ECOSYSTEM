@@ -1,5 +1,6 @@
 import type { Booking, BookingService } from "@motanos/booking";
 import {
+  canRescheduleBooking,
   canTransitionBooking,
   checkRangeAvailability,
   DEFAULT_HOLD_TTL_MINUTES,
@@ -8,7 +9,7 @@ import {
 
 /**
  * Temporary in-memory BookingService for composition bootstrap / tests.
- * Enforces SoT transitions for confirm/cancel. Not part of public API.
+ * Enforces SoT transitions for confirm/cancel/reschedule. Not part of public API.
  */
 export function createInMemoryBookingService(): BookingService {
   const bookings = new Map<string, Booking>();
@@ -77,6 +78,41 @@ export function createInMemoryBookingService(): BookingService {
         ...(input.endsAt !== undefined ? { endsAt: input.endsAt } : {}),
         ...(input.status !== undefined ? { status: input.status } : {}),
         ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
+      };
+      bookings.set(next.id, next);
+      return { booking: next };
+    },
+    async reschedule(input) {
+      const existing = bookings.get(input.bookingId);
+      if (!existing) {
+        throw new Error(`NOT_FOUND:${input.bookingId}`);
+      }
+      if (!canRescheduleBooking(existing.status)) {
+        throw new Error(
+          `PRECONDITION:Cannot reschedule booking from status ${existing.status}`,
+        );
+      }
+      const availability = checkRangeAvailability(
+        existing.resourceId,
+        { startsAt: input.startsAt, endsAt: input.endsAt },
+        [...bookings.values()],
+        { excludeBookingId: existing.id },
+      );
+      if (!availability.available) {
+        throw new Error(`CONFLICT:${availability.reason ?? "overlap"}`);
+      }
+      const next: Booking = {
+        ...existing,
+        startsAt: input.startsAt,
+        endsAt: input.endsAt,
+        ...(input.metadata !== undefined
+          ? {
+              metadata: {
+                ...(existing.metadata ?? {}),
+                ...input.metadata,
+              },
+            }
+          : {}),
       };
       bookings.set(next.id, next);
       return { booking: next };
