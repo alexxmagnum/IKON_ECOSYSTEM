@@ -13,6 +13,7 @@ import type {
 } from "@motanos/booking";
 import {
   canTransitionBooking,
+  checkRangeAvailability,
   DEFAULT_HOLD_TTL_MINUTES,
 } from "@motanos/booking";
 import {
@@ -23,6 +24,7 @@ import {
 } from "@motanos/permissions";
 import {
   createCancelBookingUseCase,
+  createCheckAvailabilityUseCase,
   createConfirmBookingUseCase,
   createCreateBookingUseCase,
   isFailure,
@@ -96,6 +98,20 @@ function memoryBookingService(): BookingService {
     },
     async list() {
       return [];
+    },
+    async checkAvailability(input) {
+      const check = checkRangeAvailability(
+        input.resourceId,
+        { startsAt: input.startsAt, endsAt: input.endsAt },
+        [...store.values()],
+      );
+      return {
+        available: check.available,
+        resourceId: input.resourceId,
+        startsAt: input.startsAt,
+        endsAt: input.endsAt,
+        ...(check.reason !== undefined ? { reason: check.reason } : {}),
+      };
     },
   };
 }
@@ -269,6 +285,63 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
       { bookingReference: created.data.bookingReference },
       { actorReference: "actor-denied" },
     );
+
+    assert.equal(isFailure(result), true);
+    if (!isFailure(result)) return;
+    assert.equal(result.error.code, "ForbiddenError");
+  });
+});
+
+describe("CheckAvailability", () => {
+  const range = {
+    resourceReference: "resource-1",
+    startAt: "2026-08-02T10:00:00.000Z",
+    endAt: "2026-08-02T11:00:00.000Z",
+  };
+
+  it("available = true when no overlapping booking", async () => {
+    const useCase = createCheckAvailabilityUseCase({
+      authorization: allowAllAuthorization(),
+      booking: memoryBookingService(),
+    });
+
+    const result = await useCase.execute(range, {
+      actorReference: "actor-1",
+    });
+    assert.equal(isSuccess(result), true);
+    if (!isSuccess(result)) return;
+    assert.equal(result.data.available, true);
+  });
+
+  it("available = false when overlapping Draft exists", async () => {
+    const booking = memoryBookingService();
+    const auth = allowAllAuthorization();
+    await createCreateBookingUseCase({ authorization: auth, booking }).execute(
+      {
+        resourceReference: "resource-1",
+        customerReference: "customer-1",
+        startAt: range.startAt,
+        endAt: range.endAt,
+      },
+      { actorReference: "actor-1" },
+    );
+
+    const result = await createCheckAvailabilityUseCase({
+      authorization: auth,
+      booking,
+    }).execute(range, { actorReference: "actor-1" });
+
+    assert.equal(isSuccess(result), true);
+    if (!isSuccess(result)) return;
+    assert.equal(result.data.available, false);
+    assert.ok(result.data.reason?.startsWith("overlap:"));
+  });
+
+  it("Forbidden availability", async () => {
+    const result = await createCheckAvailabilityUseCase({
+      authorization: denyAllAuthorization(),
+      booking: memoryBookingService(),
+    }).execute(range, { actorReference: "actor-denied" });
 
     assert.equal(isFailure(result), true);
     if (!isFailure(result)) return;

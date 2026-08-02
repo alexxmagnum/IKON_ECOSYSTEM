@@ -7,6 +7,10 @@ import type {
   CancelBookingResponseData,
 } from "./cancel-booking";
 import type {
+  CheckAvailabilityResponse,
+  CheckAvailabilityResponseData,
+} from "./check-availability";
+import type {
   ConfirmBookingResponse,
   ConfirmBookingResponseData,
 } from "./confirm-booking";
@@ -16,7 +20,7 @@ import type {
 } from "./create-booking";
 
 /**
- * Maps ApplicationResult → ApiResponse for booking lifecycle operations.
+ * Maps ApplicationResult → ApiResponse for booking lifecycle / availability.
  */
 export function toCreateBookingResponse(
   result: ApplicationResult<CreateBookingResponseData>,
@@ -36,6 +40,13 @@ export function toCancelBookingResponse(
   result: ApplicationResult<CancelBookingResponseData>,
   metadata?: ApiResponseMetadata,
 ): CancelBookingResponse {
+  return toApiResponse(result, defaultApiErrorMapper, metadata);
+}
+
+export function toCheckAvailabilityResponse(
+  result: ApplicationResult<CheckAvailabilityResponseData>,
+  metadata?: ApiResponseMetadata,
+): CheckAvailabilityResponse {
   return toApiResponse(result, defaultApiErrorMapper, metadata);
 }
 

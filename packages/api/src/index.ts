@@ -47,6 +47,9 @@ export type {
   CancelBookingRequest,
   CancelBookingResponse,
   CancelBookingResponseData,
+  CheckAvailabilityRequest,
+  CheckAvailabilityResponse,
+  CheckAvailabilityResponseData,
   ConfirmBookingRequest,
   ConfirmBookingResponse,
   ConfirmBookingResponseData,
@@ -57,6 +60,8 @@ export type {
 export {
   toCancelBookingInput,
   toCancelBookingResponse,
+  toCheckAvailabilityInput,
+  toCheckAvailabilityResponse,
   toConfirmBookingInput,
   toConfirmBookingResponse,
   toCreateBookingInput,

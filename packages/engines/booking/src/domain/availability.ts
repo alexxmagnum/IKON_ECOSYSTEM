@@ -14,7 +14,7 @@ export interface AvailabilitySlot extends TimeInterval {
 }
 
 /**
- * Result of an availability inquiry (foundation shape — no DB queries yet).
+ * Result of an availability inquiry (foundation shape — no adapter I/O yet).
  */
 export interface Availability {
   resourceId: ResourceId;
@@ -70,4 +70,34 @@ export function bookingsConflict(a: Booking, b: Booking): boolean {
 /** Whether a status participates in overlap exclusion (BR-0031). */
 export function statusBlocksAvailability(status: BookingStatus): boolean {
   return isAvailabilityBlocking(status);
+}
+
+/**
+ * Check whether a proposed interval is free of availability-blocking overlaps.
+ * Uses existing bookings as the conflict set (engine authority).
+ */
+export function checkRangeAvailability(
+  resourceId: ResourceId,
+  range: TimeInterval,
+  existing: readonly Booking[],
+): { available: boolean; reason?: string } {
+  const probe: Booking = {
+    id: "__availability-probe__",
+    resourceId,
+    ownerUserId: "__probe__",
+    startsAt: range.startsAt,
+    endsAt: range.endsAt,
+    status: "Draft",
+  };
+
+  for (const booking of existing) {
+    if (bookingsConflict(probe, booking)) {
+      return {
+        available: false,
+        reason: `overlap:${booking.id}`,
+      };
+    }
+  }
+
+  return { available: true };
 }

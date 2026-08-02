@@ -172,4 +172,61 @@ describe("@motanos/runtime composition", () => {
     if (!isFailure(cancelDenied)) return;
     assert.equal(cancelDenied.error.code, "ForbiddenError");
   });
+
+  it("8. Availability available / unavailable / forbidden", async () => {
+    const composed = createMotanOSRuntime({
+      config: { environment: "test" },
+    });
+
+    const free = await composed.checkAvailabilityHandler.handle(
+      {
+        resourceReference: "resource-avail",
+        startAt: "2026-08-02T10:00:00.000Z",
+        endAt: "2026-08-02T11:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(free), true);
+    if (!isApiSuccess(free)) return;
+    assert.equal(free.data.available, true);
+
+    await composed.createBookingHandler.handle(
+      {
+        resourceReference: "resource-avail",
+        customerReference: "customer-1",
+        startAt: "2026-08-02T10:00:00.000Z",
+        endAt: "2026-08-02T11:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+
+    const blocked = await composed.checkAvailabilityHandler.handle(
+      {
+        resourceReference: "resource-avail",
+        startAt: "2026-08-02T10:30:00.000Z",
+        endAt: "2026-08-02T11:30:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(blocked), true);
+    if (!isApiSuccess(blocked)) return;
+    assert.equal(blocked.data.available, false);
+
+    const deniedRuntime = createMotanOSRuntime({
+      config: { environment: "test" },
+      booking: composed.booking,
+      deniedActors: ["actor-denied"],
+    });
+    const forbidden = await deniedRuntime.checkAvailability.execute(
+      {
+        resourceReference: "resource-avail",
+        startAt: "2026-08-02T14:00:00.000Z",
+        endAt: "2026-08-02T15:00:00.000Z",
+      },
+      { actorReference: "actor-denied" },
+    );
+    assert.equal(isFailure(forbidden), true);
+    if (!isFailure(forbidden)) return;
+    assert.equal(forbidden.error.code, "ForbiddenError");
+  });
 });

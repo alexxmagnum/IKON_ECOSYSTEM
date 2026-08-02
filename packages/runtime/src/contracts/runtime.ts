@@ -4,6 +4,7 @@ import type { RuntimeServices } from "./service-tokens";
 
 export type {
   CancelBookingHandler,
+  CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
 } from "./create-booking-handler";

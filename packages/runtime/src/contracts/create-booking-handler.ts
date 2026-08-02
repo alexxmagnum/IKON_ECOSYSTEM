@@ -1,10 +1,12 @@
 /**
- * API handler contracts for booking lifecycle — not HTTP routes.
+ * API handler contracts for booking lifecycle / availability — not HTTP routes.
  */
 import type {
   ApiContext,
   CancelBookingRequest,
   CancelBookingResponse,
+  CheckAvailabilityRequest,
+  CheckAvailabilityResponse,
   ConfirmBookingRequest,
   ConfirmBookingResponse,
   CreateBookingRequest,
@@ -30,4 +32,11 @@ export interface CancelBookingHandler {
     request: CancelBookingRequest,
     context?: ApiContext,
   ): Promise<CancelBookingResponse>;
+}
+
+export interface CheckAvailabilityHandler {
+  handle(
+    request: CheckAvailabilityRequest,
+    context?: ApiContext,
+  ): Promise<CheckAvailabilityResponse>;
 }

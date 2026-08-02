@@ -17,6 +17,7 @@ Application owns use-case orchestration. Deep booking rules stay in `@motanos/bo
   - **CreateBooking** (`booking.create`)
   - **ConfirmBooking** (`booking.confirm`) — Draft → Confirmed
   - **CancelBooking** (`booking.cancel`) — → Cancelled
+  - **CheckAvailability** (`booking.availability.check`)
 
 ## Out of scope (current)
 

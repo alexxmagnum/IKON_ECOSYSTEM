@@ -1,6 +1,7 @@
 import type { Booking, BookingService } from "@motanos/booking";
 import {
   canTransitionBooking,
+  checkRangeAvailability,
   DEFAULT_HOLD_TTL_MINUTES,
 } from "@motanos/booking";
 
@@ -123,6 +124,20 @@ export function createInMemoryBookingService(): BookingService {
           return true;
         })
         .map((booking) => ({ booking }));
+    },
+    async checkAvailability(input) {
+      const check = checkRangeAvailability(
+        input.resourceId,
+        { startsAt: input.startsAt, endsAt: input.endsAt },
+        [...bookings.values()],
+      );
+      return {
+        available: check.available,
+        resourceId: input.resourceId,
+        startsAt: input.startsAt,
+        endsAt: input.endsAt,
+        ...(check.reason !== undefined ? { reason: check.reason } : {}),
+      };
     },
   };
 }

@@ -36,9 +36,11 @@ export type { ApplicationService } from "./services/application-service";
 
 export {
   CANCEL_BOOKING_ACTION,
+  CHECK_AVAILABILITY_ACTION,
   CONFIRM_BOOKING_ACTION,
   CREATE_BOOKING_ACTION,
   createCancelBookingUseCase,
+  createCheckAvailabilityUseCase,
   createConfirmBookingUseCase,
   createCreateBookingUseCase,
   DEFAULT_HOLD_TTL_MINUTES,
@@ -49,6 +51,11 @@ export {
   type CancelBookingOutput,
   type CancelBookingUseCase,
   type CancelBookingUseCaseDeps,
+  type CheckAvailabilityAction,
+  type CheckAvailabilityInput,
+  type CheckAvailabilityOutput,
+  type CheckAvailabilityUseCase,
+  type CheckAvailabilityUseCaseDeps,
   type ConfirmBookingAction,
   type ConfirmBookingInput,
   type ConfirmBookingOutput,

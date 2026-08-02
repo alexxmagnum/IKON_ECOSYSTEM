@@ -55,6 +55,25 @@ export interface BookingResult {
   participants?: BookingParticipant[];
 }
 
+/**
+ * Result of a single-range availability check (BR-0031 overlap semantics).
+ * Foundation only — no calendar providers or persistence adapters.
+ */
+export interface AvailabilityCheckInput {
+  resourceId: ResourceId;
+  startsAt: string;
+  endsAt: string;
+}
+
+export interface AvailabilityCheckResult {
+  available: boolean;
+  /** Opaque explanation when unavailable (e.g. overlap reference). */
+  reason?: string;
+  resourceId: ResourceId;
+  startsAt: string;
+  endsAt: string;
+}
+
 export interface AvailabilityQuery {
   resourceId: ResourceId;
   startsAt: string;

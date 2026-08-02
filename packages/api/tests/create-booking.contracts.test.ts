@@ -10,11 +10,14 @@ import {
   isApiSuccess,
   toCancelBookingInput,
   toCancelBookingResponse,
+  toCheckAvailabilityInput,
+  toCheckAvailabilityResponse,
   toConfirmBookingInput,
   toConfirmBookingResponse,
   toCreateBookingInput,
   toCreateBookingResponse,
   type CancelBookingRequest,
+  type CheckAvailabilityRequest,
   type ConfirmBookingRequest,
   type CreateBookingRequest,
 } from "../src/index.js";
@@ -113,5 +116,29 @@ describe("Confirm / Cancel API contracts", () => {
     assert.equal(isApiSuccess(response), true);
     if (!isApiSuccess(response)) return;
     assert.equal(response.data.status, "Cancelled");
+  });
+});
+
+describe("CheckAvailability API contracts", () => {
+  it("maps request and available response", () => {
+    const request: CheckAvailabilityRequest = {
+      resourceReference: "r1",
+      startAt: "2026-08-02T10:00:00.000Z",
+      endAt: "2026-08-02T11:00:00.000Z",
+    };
+    const input = toCheckAvailabilityInput(request);
+    assert.equal(input.resourceReference, "r1");
+
+    const response = toCheckAvailabilityResponse(
+      success({
+        available: true,
+        resourceReference: "r1",
+        startAt: request.startAt,
+        endAt: request.endAt,
+      }),
+    );
+    assert.equal(isApiSuccess(response), true);
+    if (!isApiSuccess(response)) return;
+    assert.equal(response.data.available, true);
   });
 });

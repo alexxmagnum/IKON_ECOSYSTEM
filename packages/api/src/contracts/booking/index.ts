@@ -19,8 +19,16 @@ export type {
 } from "./cancel-booking";
 export { toCancelBookingInput } from "./cancel-booking";
 
+export type {
+  CheckAvailabilityRequest,
+  CheckAvailabilityResponse,
+  CheckAvailabilityResponseData,
+} from "./check-availability";
+export { toCheckAvailabilityInput } from "./check-availability";
+
 export {
   toCancelBookingResponse,
+  toCheckAvailabilityResponse,
   toConfirmBookingResponse,
   toCreateBookingResponse,
 } from "./map-response";

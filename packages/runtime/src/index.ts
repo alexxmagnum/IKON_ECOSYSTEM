@@ -17,6 +17,7 @@ export type {
 
 export type {
   CancelBookingHandler,
+  CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
   MotanOSRuntime,

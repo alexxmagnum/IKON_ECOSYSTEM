@@ -1,8 +1,10 @@
 export {
   CANCEL_BOOKING_ACTION,
+  CHECK_AVAILABILITY_ACTION,
   CONFIRM_BOOKING_ACTION,
   CREATE_BOOKING_ACTION,
   type CancelBookingAction,
+  type CheckAvailabilityAction,
   type ConfirmBookingAction,
   type CreateBookingAction,
 } from "./actions";
@@ -11,6 +13,13 @@ export {
   type CancelBookingUseCase,
   type CancelBookingUseCaseDeps,
 } from "./cancel-booking";
+export {
+  createCheckAvailabilityUseCase,
+  type CheckAvailabilityInput,
+  type CheckAvailabilityOutput,
+  type CheckAvailabilityUseCase,
+  type CheckAvailabilityUseCaseDeps,
+} from "./check-availability";
 export {
   createConfirmBookingUseCase,
   type ConfirmBookingUseCase,

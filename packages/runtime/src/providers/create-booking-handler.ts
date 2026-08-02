@@ -3,6 +3,8 @@ import {
   toApiResponse,
   toCancelBookingInput,
   toCancelBookingResponse,
+  toCheckAvailabilityInput,
+  toCheckAvailabilityResponse,
   toConfirmBookingInput,
   toConfirmBookingResponse,
   toCreateBookingInput,
@@ -13,11 +15,13 @@ import {
 } from "@motanos/api";
 import type {
   CancelBookingUseCase,
+  CheckAvailabilityUseCase,
   ConfirmBookingUseCase,
   CreateBookingUseCase,
 } from "@motanos/application";
 import type {
   CancelBookingHandler,
+  CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
 } from "../contracts/create-booking-handler";
@@ -71,6 +75,22 @@ export function createCancelBookingHandler(deps: {
       const executionContext = toExecutionContext(context, request);
       const result = await deps.useCase.execute(input, executionContext);
       return toCancelBookingResponse(result, responseMeta(request, context));
+    },
+  };
+}
+
+export function createCheckAvailabilityHandler(deps: {
+  useCase: CheckAvailabilityUseCase;
+}): CheckAvailabilityHandler {
+  return {
+    async handle(request, context) {
+      const input = toCheckAvailabilityInput(request);
+      const executionContext = toExecutionContext(context, request);
+      const result = await deps.useCase.execute(input, executionContext);
+      return toCheckAvailabilityResponse(
+        result,
+        responseMeta(request, context),
+      );
     },
   };
 }

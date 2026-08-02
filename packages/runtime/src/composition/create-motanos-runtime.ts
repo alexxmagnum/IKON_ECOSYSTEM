@@ -1,10 +1,12 @@
 import type { ApiService } from "@motanos/api";
 import {
   createCancelBookingUseCase,
+  createCheckAvailabilityUseCase,
   createConfirmBookingUseCase,
   createCreateBookingUseCase,
   type ApplicationService,
   type CancelBookingUseCase,
+  type CheckAvailabilityUseCase,
   type ConfirmBookingUseCase,
   type CreateBookingUseCase,
 } from "@motanos/application";
@@ -13,12 +15,14 @@ import type { AuthorizationService } from "@motanos/permissions";
 import type { RuntimeConfig } from "../config/runtime-config";
 import type {
   CancelBookingHandler,
+  CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
 } from "../contracts/create-booking-handler";
 import type { MotanOSRuntime } from "../contracts/runtime";
 import {
   createCancelBookingHandler,
+  createCheckAvailabilityHandler,
   createConfirmBookingHandler,
   createCreateBookingHandler,
   createDefaultApiService,
@@ -45,13 +49,15 @@ export interface MotanOSComposedRuntime {
   createBooking: CreateBookingUseCase;
   confirmBooking: ConfirmBookingUseCase;
   cancelBooking: CancelBookingUseCase;
+  checkAvailability: CheckAvailabilityUseCase;
   createBookingHandler: CreateBookingHandler;
   confirmBookingHandler: ConfirmBookingHandler;
   cancelBookingHandler: CancelBookingHandler;
+  checkAvailabilityHandler: CheckAvailabilityHandler;
 }
 
 /**
- * Official MotanOS bootstrap — Create / Confirm / Cancel Booking composition.
+ * Official MotanOS bootstrap — Booking create/confirm/cancel/availability.
  */
 export function createMotanOSRuntime(
   options: CreateMotanOSRuntimeOptions = {},
@@ -74,6 +80,10 @@ export function createMotanOSRuntime(
     booking,
   });
   const cancelBooking = createCancelBookingUseCase({ authorization, booking });
+  const checkAvailability = createCheckAvailabilityUseCase({
+    authorization,
+    booking,
+  });
 
   const application = createDefaultApplicationService();
   const api = createDefaultApiService();
@@ -86,6 +96,9 @@ export function createMotanOSRuntime(
   const cancelBookingHandler = createCancelBookingHandler({
     useCase: cancelBooking,
   });
+  const checkAvailabilityHandler = createCheckAvailabilityHandler({
+    useCase: checkAvailability,
+  });
 
   const runtime = createRuntime({
     config,
@@ -97,9 +110,11 @@ export function createMotanOSRuntime(
       createBooking,
       confirmBooking,
       cancelBooking,
+      checkAvailability,
       createBookingHandler,
       confirmBookingHandler,
       cancelBookingHandler,
+      checkAvailabilityHandler,
     },
     register: options.register,
   });
@@ -113,8 +128,10 @@ export function createMotanOSRuntime(
     createBooking,
     confirmBooking,
     cancelBooking,
+    checkAvailability,
     createBookingHandler,
     confirmBookingHandler,
     cancelBookingHandler,
+    checkAvailabilityHandler,
   };
 }

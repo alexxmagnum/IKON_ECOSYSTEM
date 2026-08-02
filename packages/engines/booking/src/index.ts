@@ -3,7 +3,8 @@
  *
  * MotanOS Core → Shared Engines → @motanos/booking → Domain Modules
  *
- * Must not depend on customer implementations, concrete domains, database, or payments.
+ * Must not depend on customer implementations, concrete domains,
+ * persistence packages, or payment vendors.
  */
 
 export const BOOKING_ENGINE = "@motanos/booking" as const;
@@ -30,6 +31,7 @@ export type {
 export type { Availability, AvailabilitySlot } from "./domain/availability";
 export {
   bookingsConflict,
+  checkRangeAvailability,
   intervalsOverlap,
   statusBlocksAvailability,
 } from "./domain/availability";
@@ -59,6 +61,8 @@ export {
 } from "./types/states";
 
 export type {
+  AvailabilityCheckInput,
+  AvailabilityCheckResult,
   AvailabilityQuery,
   AvailabilityResult,
   BookingResult,

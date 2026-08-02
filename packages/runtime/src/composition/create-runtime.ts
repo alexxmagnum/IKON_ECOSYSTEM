@@ -15,7 +15,6 @@ export interface CreateRuntimeOptions {
 
 /**
  * Primitive runtime factory: config + registry + context.
- * Does not construct use cases or providers.
  */
 export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
   const { config, services, register } = options;
@@ -25,8 +24,8 @@ export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
   }
 
   const registry = createServiceRegistry();
-
   const entries: Array<readonly [string, unknown]> = [];
+
   if (services?.application) {
     entries.push([RUNTIME_SERVICE_TOKENS.application, services.application]);
   }
@@ -51,6 +50,12 @@ export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
   if (services?.cancelBooking) {
     entries.push([RUNTIME_SERVICE_TOKENS.cancelBooking, services.cancelBooking]);
   }
+  if (services?.checkAvailability) {
+    entries.push([
+      RUNTIME_SERVICE_TOKENS.checkAvailability,
+      services.checkAvailability,
+    ]);
+  }
   if (services?.createBookingHandler) {
     entries.push([
       RUNTIME_SERVICE_TOKENS.createBookingHandler,
@@ -67,6 +72,12 @@ export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
     entries.push([
       RUNTIME_SERVICE_TOKENS.cancelBookingHandler,
       services.cancelBookingHandler,
+    ]);
+  }
+  if (services?.checkAvailabilityHandler) {
+    entries.push([
+      RUNTIME_SERVICE_TOKENS.checkAvailabilityHandler,
+      services.checkAvailabilityHandler,
     ]);
   }
 
