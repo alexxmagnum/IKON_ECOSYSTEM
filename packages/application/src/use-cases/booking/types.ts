@@ -73,6 +73,20 @@ export interface RescheduleBookingInput {
 
 export type RescheduleBookingOutput = BookingOutput;
 
+export interface ExpireBookingHoldsInput {
+  /** Evaluation instant (ISO-8601). */
+  now: string;
+  /** Optional candidate opaque references; omit = all known bookings. */
+  bookingReferences?: string[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface ExpireBookingHoldsOutput {
+  bookings: BookingOutput[];
+  expiredBookingReferences: string[];
+  processedCount: number;
+}
+
 export function toBookingOutput(booking: Booking): BookingOutput {
   return {
     bookingReference: booking.id,

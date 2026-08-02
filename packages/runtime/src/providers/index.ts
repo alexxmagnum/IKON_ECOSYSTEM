@@ -8,6 +8,7 @@ export {
   createGetBookingHandler,
   createListBookingsHandler,
   createRescheduleBookingHandler,
+  createExpireBookingHoldsHandler,
 } from "./booking-handlers";
 export { createInMemoryAuthorizationService } from "./in-memory-authorization";
 export type { InMemoryAuthorizationOptions } from "./in-memory-authorization";

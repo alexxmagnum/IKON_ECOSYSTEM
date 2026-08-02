@@ -22,10 +22,13 @@ import {
   toListBookingsResponse,
   toRescheduleBookingInput,
   toRescheduleBookingResponse,
+  toExpireBookingHoldsInput,
+  toExpireBookingHoldsResponse,
   type CancelBookingRequest,
   type CheckAvailabilityRequest,
   type ConfirmBookingRequest,
   type CreateBookingRequest,
+  type ExpireBookingHoldsRequest,
   type GetBookingRequest,
   type ListBookingsRequest,
   type RescheduleBookingRequest,
@@ -271,6 +274,52 @@ describe("RescheduleBooking API contracts", () => {
     assert.equal(isApiFailure(response), true);
     if (!isApiFailure(response)) return;
     assert.equal(response.error.code, "ConflictError");
+    assert.equal(response.data, undefined);
+  });
+});
+
+describe("ExpireBookingHolds API contracts", () => {
+  it("maps ExpireBookingHoldsRequest and success response", () => {
+    const request: ExpireBookingHoldsRequest = {
+      now: "  2026-08-02T12:00:00.000Z  ",
+      bookingReferences: ["  b1  "],
+    };
+    const input = toExpireBookingHoldsInput(request);
+    assert.equal(input.now, "2026-08-02T12:00:00.000Z");
+    assert.deepEqual(input.bookingReferences, ["b1"]);
+
+    const response = toExpireBookingHoldsResponse(
+      success({
+        bookings: [
+          {
+            bookingReference: "b1",
+            resourceReference: "r1",
+            customerReference: "c1",
+            startAt: "2026-08-02T10:00:00.000Z",
+            endAt: "2026-08-02T11:00:00.000Z",
+            status: "Expired",
+          },
+        ],
+        expiredBookingReferences: ["b1"],
+        processedCount: 1,
+      }),
+    );
+    assert.equal(isApiSuccess(response), true);
+    if (!isApiSuccess(response)) return;
+    assert.equal(response.data.expiredBookingReferences.length, 1);
+    assert.equal(response.error, undefined);
+  });
+
+  it("maps ExpireBookingHolds failure to error envelope", () => {
+    const response = toExpireBookingHoldsResponse(
+      failure({
+        code: "ForbiddenError",
+        message: "Booking hold expiration denied",
+      }),
+    );
+    assert.equal(isApiFailure(response), true);
+    if (!isApiFailure(response)) return;
+    assert.equal(response.error.code, "ForbiddenError");
     assert.equal(response.data, undefined);
   });
 });

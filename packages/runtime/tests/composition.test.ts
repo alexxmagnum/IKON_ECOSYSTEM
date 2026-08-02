@@ -384,4 +384,57 @@ describe("@motanos/runtime composition", () => {
     if (!isFailure(forbidden)) return;
     assert.equal(forbidden.error.code, "ForbiddenError");
   });
+
+  it("11. Expire holds success and forbidden", async () => {
+    const composed = createMotanOSRuntime({
+      config: { environment: "test" },
+    });
+
+    assert.ok(composed.expireBookingHoldsHandler);
+    assert.equal(
+      composed.runtime.registry.has(
+        RUNTIME_SERVICE_TOKENS.expireBookingHoldsHandler,
+      ),
+      true,
+    );
+
+    const created = await composed.createBookingHandler.handle(
+      {
+        resourceReference: "resource-hold",
+        customerReference: "actor-1",
+        startAt: "2026-08-02T10:00:00.000Z",
+        endAt: "2026-08-02T11:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(created), true);
+    if (!isApiSuccess(created)) return;
+
+    await composed.booking.update({
+      bookingId: created.data.bookingReference,
+      metadata: { __holdExpiresAt: "2020-01-01T00:00:00.000Z" },
+    });
+
+    const expired = await composed.expireBookingHoldsHandler.handle(
+      { now: "2026-08-02T12:00:00.000Z" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(expired), true);
+    if (!isApiSuccess(expired)) return;
+    assert.equal(expired.data.expiredBookingReferences.length, 1);
+    assert.equal(expired.data.bookings[0]?.status, "Expired");
+
+    const denied = createMotanOSRuntime({
+      config: { environment: "test" },
+      booking: composed.booking,
+      deniedActors: ["actor-denied"],
+    });
+    const forbidden = await denied.expireBookingHolds.execute(
+      { now: "2026-08-02T12:00:00.000Z" },
+      { actorReference: "actor-denied" },
+    );
+    assert.equal(isFailure(forbidden), true);
+    if (!isFailure(forbidden)) return;
+    assert.equal(forbidden.error.code, "ForbiddenError");
+  });
 });

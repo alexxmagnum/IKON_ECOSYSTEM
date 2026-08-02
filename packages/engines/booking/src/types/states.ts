@@ -221,6 +221,38 @@ export function canRescheduleBooking(status: BookingStatus): boolean {
 }
 
 /**
+ * Whether a Draft hold should expire at `now` (BR-0037).
+ * Requires holdExpiresAt and Draft → Expired via booking.hold_expired.
+ */
+export function shouldExpireBookingHold(
+  booking: {
+    status: BookingStatus;
+    holdExpiresAt?: string;
+  },
+  now: string,
+): boolean {
+  if (booking.status !== "Draft") {
+    return false;
+  }
+  if (!booking.holdExpiresAt) {
+    return false;
+  }
+  const expiresAt = Date.parse(booking.holdExpiresAt);
+  const nowMs = Date.parse(now);
+  if (Number.isNaN(expiresAt) || Number.isNaN(nowMs)) {
+    return false;
+  }
+  if (expiresAt > nowMs) {
+    return false;
+  }
+  return canTransitionBooking(
+    booking.status,
+    "Expired",
+    "booking.hold_expired",
+  );
+}
+
+/**
  * Returns whether a BOOKING transition is allowed for the given event.
  * Foundation helper — no side effects or persistence.
  */

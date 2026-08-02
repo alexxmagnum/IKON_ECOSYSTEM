@@ -8,6 +8,7 @@ import type {
   GetBookingUseCase,
   ListBookingsUseCase,
   RescheduleBookingUseCase,
+  ExpireBookingHoldsUseCase,
 } from "@motanos/application";
 import type { BookingService } from "@motanos/booking";
 import type { AuthorizationService } from "@motanos/permissions";
@@ -16,6 +17,7 @@ import type {
   CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
+  ExpireBookingHoldsHandler,
   GetBookingHandler,
   ListBookingsHandler,
   RescheduleBookingHandler,
@@ -33,6 +35,7 @@ export const RUNTIME_SERVICE_TOKENS = {
   getBooking: "motanos.application.getBooking" as const,
   listBookings: "motanos.application.listBookings" as const,
   rescheduleBooking: "motanos.application.rescheduleBooking" as const,
+  expireBookingHolds: "motanos.application.expireBookingHolds" as const,
   createBookingHandler: "motanos.api.createBookingHandler" as const,
   confirmBookingHandler: "motanos.api.confirmBookingHandler" as const,
   cancelBookingHandler: "motanos.api.cancelBookingHandler" as const,
@@ -40,6 +43,7 @@ export const RUNTIME_SERVICE_TOKENS = {
   getBookingHandler: "motanos.api.getBookingHandler" as const,
   listBookingsHandler: "motanos.api.listBookingsHandler" as const,
   rescheduleBookingHandler: "motanos.api.rescheduleBookingHandler" as const,
+  expireBookingHoldsHandler: "motanos.api.expireBookingHoldsHandler" as const,
 } as const;
 
 export interface RuntimeServices {
@@ -54,6 +58,7 @@ export interface RuntimeServices {
   getBooking?: GetBookingUseCase;
   listBookings?: ListBookingsUseCase;
   rescheduleBooking?: RescheduleBookingUseCase;
+  expireBookingHolds?: ExpireBookingHoldsUseCase;
   createBookingHandler?: CreateBookingHandler;
   confirmBookingHandler?: ConfirmBookingHandler;
   cancelBookingHandler?: CancelBookingHandler;
@@ -61,4 +66,5 @@ export interface RuntimeServices {
   getBookingHandler?: GetBookingHandler;
   listBookingsHandler?: ListBookingsHandler;
   rescheduleBookingHandler?: RescheduleBookingHandler;
+  expireBookingHoldsHandler?: ExpireBookingHoldsHandler;
 }

@@ -21,6 +21,7 @@ Application owns use-case orchestration. Deep booking rules stay in `@motanos/bo
   - **GetBooking** (`booking.read`)
   - **ListBookings** (`booking.list`)
   - **RescheduleBooking** (`booking.reschedule`)
+  - **ExpireBookingHolds** (`booking.expire`)
 
 ## Out of scope (current)
 

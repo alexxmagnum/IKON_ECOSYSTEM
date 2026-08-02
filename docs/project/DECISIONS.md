@@ -443,3 +443,22 @@ They are **provisional** until real execution workflows exist. A later phase may
 * Rejected: `Cancelled`, final statuses (`Completed`, `NoShow`, `Expired`), `CheckedIn`, `InProgress`.
 * Status unchanged on success; overlap check excludes the booking being moved (BR-0031).
 * Conflict → Application `ConflictError`.
+
+---
+
+## DEC-BOOKING-HOLD-001 — System vs authorized hold expiration
+
+**Status:** DECISION REQUIRED
+
+**Date:** 2026-08-02
+
+**Context:** Fase 28 adds `BookingService.expireHolds` / `ExpireBookingHolds` as an authorized Application action (`booking.expire`). SoT defines Draft → Expired via `booking.hold_expired` (BR-0037). No cron/scheduler/worker in foundation.
+
+**Open question:** Will hold expiration remain an authorized Application invocation (ops/admin/system actor), or become an automatic system-initiated job outside the request path?
+
+**Interim (non-binding):**
+
+* Expiration is an explicit use case requiring `actorReference` + `booking.expire`.
+* Callers supply `now` (no wall-clock scheduler in Runtime).
+* Target status: `Expired` (SoT), not `Cancelled`.
+* PaymentPending TTL path (BR-0037) remains out of this foundation slice.

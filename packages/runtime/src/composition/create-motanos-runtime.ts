@@ -7,11 +7,13 @@ import {
   createGetBookingUseCase,
   createListBookingsUseCase,
   createRescheduleBookingUseCase,
+  createExpireBookingHoldsUseCase,
   type ApplicationService,
   type CancelBookingUseCase,
   type CheckAvailabilityUseCase,
   type ConfirmBookingUseCase,
   type CreateBookingUseCase,
+  type ExpireBookingHoldsUseCase,
   type GetBookingUseCase,
   type ListBookingsUseCase,
   type RescheduleBookingUseCase,
@@ -24,6 +26,7 @@ import type {
   CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
+  ExpireBookingHoldsHandler,
   GetBookingHandler,
   ListBookingsHandler,
   RescheduleBookingHandler,
@@ -36,6 +39,7 @@ import {
   createCreateBookingHandler,
   createDefaultApiService,
   createDefaultApplicationService,
+  createExpireBookingHoldsHandler,
   createGetBookingHandler,
   createInMemoryAuthorizationService,
   createInMemoryBookingService,
@@ -65,6 +69,7 @@ export interface MotanOSComposedRuntime {
   getBooking: GetBookingUseCase;
   listBookings: ListBookingsUseCase;
   rescheduleBooking: RescheduleBookingUseCase;
+  expireBookingHolds: ExpireBookingHoldsUseCase;
   createBookingHandler: CreateBookingHandler;
   confirmBookingHandler: ConfirmBookingHandler;
   cancelBookingHandler: CancelBookingHandler;
@@ -72,6 +77,7 @@ export interface MotanOSComposedRuntime {
   getBookingHandler: GetBookingHandler;
   listBookingsHandler: ListBookingsHandler;
   rescheduleBookingHandler: RescheduleBookingHandler;
+  expireBookingHoldsHandler: ExpireBookingHoldsHandler;
 }
 
 /**
@@ -108,6 +114,10 @@ export function createMotanOSRuntime(
     authorization,
     booking,
   });
+  const expireBookingHolds = createExpireBookingHoldsUseCase({
+    authorization,
+    booking,
+  });
 
   const application = createDefaultApplicationService();
   const api = createDefaultApiService();
@@ -131,6 +141,9 @@ export function createMotanOSRuntime(
   const rescheduleBookingHandler = createRescheduleBookingHandler({
     useCase: rescheduleBooking,
   });
+  const expireBookingHoldsHandler = createExpireBookingHoldsHandler({
+    useCase: expireBookingHolds,
+  });
 
   const runtime = createRuntime({
     config,
@@ -146,6 +159,7 @@ export function createMotanOSRuntime(
       getBooking,
       listBookings,
       rescheduleBooking,
+      expireBookingHolds,
       createBookingHandler,
       confirmBookingHandler,
       cancelBookingHandler,
@@ -153,6 +167,7 @@ export function createMotanOSRuntime(
       getBookingHandler,
       listBookingsHandler,
       rescheduleBookingHandler,
+      expireBookingHoldsHandler,
     },
     register: options.register,
   });
@@ -170,6 +185,7 @@ export function createMotanOSRuntime(
     getBooking,
     listBookings,
     rescheduleBooking,
+    expireBookingHolds,
     createBookingHandler,
     confirmBookingHandler,
     cancelBookingHandler,
@@ -177,5 +193,6 @@ export function createMotanOSRuntime(
     getBookingHandler,
     listBookingsHandler,
     rescheduleBookingHandler,
+    expireBookingHoldsHandler,
   };
 }

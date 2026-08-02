@@ -12,6 +12,8 @@ import type {
   RescheduleBookingInput,
   UpdateBookingInput,
   WaitlistResult,
+  ExpireBookingHoldsInput,
+  ExpireBookingHoldsResult,
 } from "../contracts";
 import type { BookingId } from "../domain/booking";
 import type { Resource, ResourceId } from "../domain/resource";
@@ -32,6 +34,11 @@ export interface BookingService {
   cancel(input: CancelBookingInput): Promise<BookingResult>;
   getById(bookingId: BookingId): Promise<BookingResult | null>;
   list(query: ListBookingsQuery): Promise<BookingResult[]>;
+  /**
+   * Expire Draft holds past holdExpiresAt (Draft → Expired / booking.hold_expired).
+   * Foundation only — no cron/scheduler; callers supply `now`.
+   */
+  expireHolds(input: ExpireBookingHoldsInput): Promise<ExpireBookingHoldsResult>;
   /**
    * Check whether a resource interval is free of availability-blocking overlaps.
    */

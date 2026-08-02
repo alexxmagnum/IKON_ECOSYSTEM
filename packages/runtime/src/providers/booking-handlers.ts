@@ -16,6 +16,8 @@ import {
   toListBookingsResponse,
   toRescheduleBookingInput,
   toRescheduleBookingResponse,
+  toExpireBookingHoldsInput,
+  toExpireBookingHoldsResponse,
   type ApiRequest,
   type ApiService,
 } from "@motanos/api";
@@ -24,6 +26,7 @@ import type {
   CheckAvailabilityUseCase,
   ConfirmBookingUseCase,
   CreateBookingUseCase,
+  ExpireBookingHoldsUseCase,
   GetBookingUseCase,
   ListBookingsUseCase,
   RescheduleBookingUseCase,
@@ -33,6 +36,7 @@ import type {
   CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
+  ExpireBookingHoldsHandler,
   GetBookingHandler,
   ListBookingsHandler,
   RescheduleBookingHandler,
@@ -142,6 +146,22 @@ export function createRescheduleBookingHandler(deps: {
       const executionContext = toExecutionContext(context, request);
       const result = await deps.useCase.execute(input, executionContext);
       return toRescheduleBookingResponse(
+        result,
+        responseMeta(request, context),
+      );
+    },
+  };
+}
+
+export function createExpireBookingHoldsHandler(deps: {
+  useCase: ExpireBookingHoldsUseCase;
+}): ExpireBookingHoldsHandler {
+  return {
+    async handle(request, context) {
+      const input = toExpireBookingHoldsInput(request);
+      const executionContext = toExecutionContext(context, request);
+      const result = await deps.useCase.execute(input, executionContext);
+      return toExpireBookingHoldsResponse(
         result,
         responseMeta(request, context),
       );

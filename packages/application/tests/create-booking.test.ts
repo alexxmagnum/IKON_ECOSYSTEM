@@ -17,6 +17,7 @@ import {
   checkRangeAvailability,
   DEFAULT_HOLD_TTL_MINUTES,
   intervalsOverlap,
+  shouldExpireBookingHold,
 } from "@motanos/booking";
 import {
   allow,
@@ -29,6 +30,7 @@ import {
   createCheckAvailabilityUseCase,
   createConfirmBookingUseCase,
   createCreateBookingUseCase,
+  createExpireBookingHoldsUseCase,
   createGetBookingUseCase,
   createListBookingsUseCase,
   createRescheduleBookingUseCase,
@@ -78,8 +80,31 @@ function memoryBookingService(): BookingService {
       store.set(next.id, next);
       return { booking: next };
     },
-    async update() {
-      throw new Error("not used");
+    async update(input) {
+      const existing = store.get(input.bookingId);
+      if (!existing) throw new Error("missing");
+      const next: Booking = {
+        ...existing,
+        ...(input.startsAt !== undefined ? { startsAt: input.startsAt } : {}),
+        ...(input.endsAt !== undefined ? { endsAt: input.endsAt } : {}),
+        ...(input.status !== undefined ? { status: input.status } : {}),
+        ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
+        ...((input as { holdExpiresAt?: string }).holdExpiresAt !== undefined
+          ? {
+              holdExpiresAt: (input as { holdExpiresAt?: string })
+                .holdExpiresAt,
+            }
+          : {}),
+      };
+      // Allow tests to patch holdExpiresAt via metadata.__holdExpiresAt
+      if (input.metadata?.__holdExpiresAt !== undefined) {
+        const hold = input.metadata.__holdExpiresAt;
+        if (typeof hold === "string") {
+          next.holdExpiresAt = hold;
+        }
+      }
+      store.set(next.id, next);
+      return { booking: next };
     },
     async reschedule(input) {
       const existing = store.get(input.bookingId);
@@ -105,6 +130,34 @@ function memoryBookingService(): BookingService {
       };
       store.set(next.id, next);
       return { booking: next };
+    },
+    async expireHolds(input) {
+      const candidates =
+        input.bookingIds !== undefined
+          ? input.bookingIds
+              .map((id) => store.get(id))
+              .filter((b): b is Booking => b !== undefined)
+          : [...store.values()];
+
+      const expired: { booking: Booking }[] = [];
+      const expiredBookingIds: string[] = [];
+
+      for (const booking of candidates) {
+        if (!shouldExpireBookingHold(booking, input.now)) {
+          continue;
+        }
+        const { holdExpiresAt: _hold, ...rest } = booking;
+        const next: Booking = { ...rest, status: "Expired" };
+        store.set(next.id, next);
+        expired.push({ booking: next });
+        expiredBookingIds.push(next.id);
+      }
+
+      return {
+        expired,
+        expiredBookingIds,
+        processedCount: candidates.length,
+      };
     },
     async cancel(input) {
       const existing = store.get(input.bookingId);
@@ -706,5 +759,119 @@ describe("RescheduleBooking", () => {
     assert.equal(isFailure(result), true);
     if (!isFailure(result)) return;
     assert.equal(result.error.code, "FailedPreconditionError");
+  });
+});
+
+describe("ExpireBookingHolds", () => {
+  it("Expire expired Draft booking", async () => {
+    const booking = memoryBookingService();
+    const auth = allowAllAuthorization();
+    const created = await createCreateBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(validInput, { actorReference: "actor-1" });
+    assert.equal(isSuccess(created), true);
+    if (!isSuccess(created)) return;
+
+    await booking.update({
+      bookingId: created.data.bookingReference,
+      metadata: { __holdExpiresAt: "2020-01-01T00:00:00.000Z" },
+    });
+
+    const result = await createExpireBookingHoldsUseCase({
+      authorization: auth,
+      booking,
+    }).execute(
+      { now: "2026-08-02T12:00:00.000Z" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isSuccess(result), true);
+    if (!isSuccess(result)) return;
+    assert.equal(result.data.processedCount, 1);
+    assert.equal(result.data.expiredBookingReferences.length, 1);
+    assert.equal(result.data.bookings[0]?.status, "Expired");
+  });
+
+  it("Ignore active hold", async () => {
+    const booking = memoryBookingService();
+    const auth = allowAllAuthorization();
+    const created = await createCreateBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(validInput, { actorReference: "actor-1" });
+    assert.equal(isSuccess(created), true);
+    if (!isSuccess(created)) return;
+
+    await booking.update({
+      bookingId: created.data.bookingReference,
+      metadata: { __holdExpiresAt: "2099-01-01T00:00:00.000Z" },
+    });
+
+    const result = await createExpireBookingHoldsUseCase({
+      authorization: auth,
+      booking,
+    }).execute(
+      { now: "2026-08-02T12:00:00.000Z" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isSuccess(result), true);
+    if (!isSuccess(result)) return;
+    assert.equal(result.data.expiredBookingReferences.length, 0);
+    assert.equal(result.data.processedCount, 1);
+
+    const still = await booking.getById(created.data.bookingReference);
+    assert.equal(still?.booking.status, "Draft");
+  });
+
+  it("Ignore Confirmed booking", async () => {
+    const booking = memoryBookingService();
+    const auth = allowAllAuthorization();
+    const created = await createCreateBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(validInput, { actorReference: "actor-1" });
+    assert.equal(isSuccess(created), true);
+    if (!isSuccess(created)) return;
+
+    const confirmed = await createConfirmBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(
+      { bookingReference: created.data.bookingReference },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isSuccess(confirmed), true);
+
+    await booking.update({
+      bookingId: created.data.bookingReference,
+      metadata: { __holdExpiresAt: "2020-01-01T00:00:00.000Z" },
+    });
+
+    const result = await createExpireBookingHoldsUseCase({
+      authorization: auth,
+      booking,
+    }).execute(
+      { now: "2026-08-02T12:00:00.000Z" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isSuccess(result), true);
+    if (!isSuccess(result)) return;
+    assert.equal(result.data.expiredBookingReferences.length, 0);
+
+    const still = await booking.getById(created.data.bookingReference);
+    assert.equal(still?.booking.status, "Confirmed");
+  });
+
+  it("Forbidden expiration", async () => {
+    const result = await createExpireBookingHoldsUseCase({
+      authorization: denyAllAuthorization(),
+      booking: memoryBookingService(),
+    }).execute(
+      { now: "2026-08-02T12:00:00.000Z" },
+      { actorReference: "actor-denied" },
+    );
+    assert.equal(isFailure(result), true);
+    if (!isFailure(result)) return;
+    assert.equal(result.error.code, "ForbiddenError");
   });
 });

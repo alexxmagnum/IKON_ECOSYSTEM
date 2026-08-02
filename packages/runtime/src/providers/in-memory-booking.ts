@@ -5,6 +5,7 @@ import {
   checkRangeAvailability,
   DEFAULT_HOLD_TTL_MINUTES,
   intervalsOverlap,
+  shouldExpireBookingHold,
 } from "@motanos/booking";
 
 /**
@@ -79,6 +80,12 @@ export function createInMemoryBookingService(): BookingService {
         ...(input.status !== undefined ? { status: input.status } : {}),
         ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
       };
+      if (input.metadata?.__holdExpiresAt !== undefined) {
+        const hold = input.metadata.__holdExpiresAt;
+        if (typeof hold === "string") {
+          next.holdExpiresAt = hold;
+        }
+      }
       bookings.set(next.id, next);
       return { booking: next };
     },
@@ -136,6 +143,34 @@ export function createInMemoryBookingService(): BookingService {
       const next: Booking = { ...existing, status: "Cancelled" };
       bookings.set(next.id, next);
       return { booking: next };
+    },
+    async expireHolds(input) {
+      const candidates =
+        input.bookingIds !== undefined
+          ? input.bookingIds
+              .map((id) => bookings.get(id))
+              .filter((b): b is Booking => b !== undefined)
+          : [...bookings.values()];
+
+      const expired: { booking: Booking }[] = [];
+      const expiredBookingIds: string[] = [];
+
+      for (const booking of candidates) {
+        if (!shouldExpireBookingHold(booking, input.now)) {
+          continue;
+        }
+        const { holdExpiresAt: _hold, ...rest } = booking;
+        const next: Booking = { ...rest, status: "Expired" };
+        bookings.set(next.id, next);
+        expired.push({ booking: next });
+        expiredBookingIds.push(next.id);
+      }
+
+      return {
+        expired,
+        expiredBookingIds,
+        processedCount: candidates.length,
+      };
     },
     async getById(bookingId) {
       const booking = bookings.get(bookingId);

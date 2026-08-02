@@ -30,6 +30,10 @@ import type {
   RescheduleBookingResponse,
   RescheduleBookingResponseData,
 } from "./reschedule-booking";
+import type {
+  ExpireBookingHoldsResponse,
+  ExpireBookingHoldsResponseData,
+} from "./expire-booking-holds";
 
 function mapResult<T>(
   result: ApplicationResult<T>,
@@ -84,6 +88,13 @@ export function toRescheduleBookingResponse(
   result: ApplicationResult<RescheduleBookingResponseData>,
   metadata?: ApiResponseMetadata,
 ): RescheduleBookingResponse {
+  return mapResult(result, metadata);
+}
+
+export function toExpireBookingHoldsResponse(
+  result: ApplicationResult<ExpireBookingHoldsResponseData>,
+  metadata?: ApiResponseMetadata,
+): ExpireBookingHoldsResponse {
   return mapResult(result, metadata);
 }
 

@@ -23,6 +23,7 @@ export type {
   GetBookingHandler,
   ListBookingsHandler,
   RescheduleBookingHandler,
+  ExpireBookingHoldsHandler,
   MotanOSRuntime,
   RuntimeContext,
   RuntimeServices,

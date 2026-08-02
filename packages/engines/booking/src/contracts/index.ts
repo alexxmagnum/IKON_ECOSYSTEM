@@ -62,6 +62,24 @@ export interface RescheduleBookingInput {
   metadata?: Record<string, unknown>;
 }
 
+/**
+ * Expire Draft holds whose holdExpiresAt <= now (BR-0037 / booking.hold_expired).
+ * Adapters evaluate known bookings; optional bookingIds narrows candidates.
+ */
+export interface ExpireBookingHoldsInput {
+  /** Evaluation instant (ISO-8601). */
+  now: string;
+  /** Optional candidate ids; omit = evaluate all bookings known to the adapter. */
+  bookingIds?: BookingId[];
+}
+
+export interface ExpireBookingHoldsResult {
+  expired: BookingResult[];
+  expiredBookingIds: BookingId[];
+  /** Number of candidates evaluated (not only expired). */
+  processedCount: number;
+}
+
 export interface BookingResult {
   booking: Booking;
   participants?: BookingParticipant[];

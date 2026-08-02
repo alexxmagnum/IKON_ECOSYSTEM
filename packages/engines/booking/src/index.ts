@@ -61,6 +61,7 @@ export {
   NON_BLOCKING_STATUSES,
   RESCHEDULABLE_BOOKING_STATUSES,
   RESOURCE_STATUSES,
+  shouldExpireBookingHold,
 } from "./types/states";
 
 export type {
@@ -72,6 +73,8 @@ export type {
   CancelBookingInput,
   ConfirmBookingInput,
   CreateBookingInput,
+  ExpireBookingHoldsInput,
+  ExpireBookingHoldsResult,
   JoinWaitlistInput,
   ListBookingsQuery,
   RescheduleBookingInput,

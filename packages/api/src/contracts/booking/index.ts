@@ -47,11 +47,19 @@ export type {
 } from "./reschedule-booking";
 export { toRescheduleBookingInput } from "./reschedule-booking";
 
+export type {
+  ExpireBookingHoldsRequest,
+  ExpireBookingHoldsResponse,
+  ExpireBookingHoldsResponseData,
+} from "./expire-booking-holds";
+export { toExpireBookingHoldsInput } from "./expire-booking-holds";
+
 export {
   toCancelBookingResponse,
   toCheckAvailabilityResponse,
   toConfirmBookingResponse,
   toCreateBookingResponse,
+  toExpireBookingHoldsResponse,
   toGetBookingResponse,
   toListBookingsResponse,
   toRescheduleBookingResponse,

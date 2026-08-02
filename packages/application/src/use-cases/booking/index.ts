@@ -3,6 +3,7 @@ export {
   CHECK_AVAILABILITY_ACTION,
   CONFIRM_BOOKING_ACTION,
   CREATE_BOOKING_ACTION,
+  EXPIRE_BOOKING_HOLDS_ACTION,
   LIST_BOOKINGS_ACTION,
   READ_BOOKING_ACTION,
   RESCHEDULE_BOOKING_ACTION,
@@ -10,6 +11,7 @@ export {
   type CheckAvailabilityAction,
   type ConfirmBookingAction,
   type CreateBookingAction,
+  type ExpireBookingHoldsAction,
   type ListBookingsAction,
   type ReadBookingAction,
   type RescheduleBookingAction,
@@ -38,6 +40,11 @@ export {
   type CreateBookingUseCaseDeps,
 } from "./create-booking";
 export {
+  createExpireBookingHoldsUseCase,
+  type ExpireBookingHoldsUseCase,
+  type ExpireBookingHoldsUseCaseDeps,
+} from "./expire-booking-holds";
+export {
   createGetBookingUseCase,
   type GetBookingUseCase,
   type GetBookingUseCaseDeps,
@@ -60,6 +67,8 @@ export type {
   ConfirmBookingOutput,
   CreateBookingInput,
   CreateBookingOutput,
+  ExpireBookingHoldsInput,
+  ExpireBookingHoldsOutput,
   GetBookingInput,
   GetBookingOutput,
   ListBookingsInput,

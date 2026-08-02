@@ -45,6 +45,7 @@ export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
     push(tokenMap.getBooking, services.getBooking);
     push(tokenMap.listBookings, services.listBookings);
     push(tokenMap.rescheduleBooking, services.rescheduleBooking);
+    push(tokenMap.expireBookingHolds, services.expireBookingHolds);
     push(tokenMap.createBookingHandler, services.createBookingHandler);
     push(tokenMap.confirmBookingHandler, services.confirmBookingHandler);
     push(tokenMap.cancelBookingHandler, services.cancelBookingHandler);
@@ -52,6 +53,10 @@ export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
     push(tokenMap.getBookingHandler, services.getBookingHandler);
     push(tokenMap.listBookingsHandler, services.listBookingsHandler);
     push(tokenMap.rescheduleBookingHandler, services.rescheduleBookingHandler);
+    push(
+      tokenMap.expireBookingHoldsHandler,
+      services.expireBookingHoldsHandler,
+    );
   }
 
   for (const [token, instance] of entries) {
