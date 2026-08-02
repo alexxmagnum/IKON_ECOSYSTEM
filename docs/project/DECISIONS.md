@@ -621,3 +621,28 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Application → Audit Storage; Audit as substitute for Domain Events; embedding secrets/PII in audit records; Booking → Runtime for sinks.
 
 ---
+
+## DEC-BOOKING-INTEGRATION-001 — Booking Integration Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 37 introduces an outbound Integration Boundary so Booking can express needs toward future external providers without coupling the domain to SDKs, vendor APIs, credentials, or external formats.
+
+**Decision:**
+
+* **Ownership:** Integration ports live in `@motanos/booking` (`packages/engines/booking/src/integrations/`). Booking defines *what* is needed. Provider adapters belong to Runtime / future infrastructure — not to API, Application use cases, or domain services.
+* **Ports (foundation):** Aggregate `BookingIntegrationPort` with capability ports:
+  * `BookingNotificationPort.sendBookingNotification` — channel-agnostic (future email / WhatsApp / push).
+  * `BookingPaymentPort.requestPayment` — provider-agnostic (future payment vendors).
+  * `BookingCalendarPort.syncBookingCalendar` — calendar-agnostic (future external calendars).
+* **Contract shape:** Opaque references and internal kinds only. No API keys, tokens, passwords, provider configs, or vendor payloads on port requests.
+* **Relation to Domain Events:** Domain Events remain domain occurrence facts (DEC-BOOKING-EVENTS-002). Integrations are separate outbound effects. Do not call providers from `BookingService`; future consumers may react to events via adapters wired at composition time.
+* **Application:** Use cases must not call providers (`Application → Provider` forbidden). Flow remains Use Case → Booking Service → Result; outbound integration enters only through these ports when wired later.
+* **Runtime:** Composition root for future `Integration Port → Provider Adapter` wiring. No secrets, SDKs, or real providers in this foundation.
+* **Deferred:** concrete providers, webhooks, queues, external contract mapping, secret management, calendar OAuth.
+
+**Rejected:** Booking → vendor SDKs; Application → Provider; embedding credentials in integration contracts; treating Domain Events as the integration layer itself.
+
+---
