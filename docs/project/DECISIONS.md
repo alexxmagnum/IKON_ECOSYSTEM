@@ -1857,3 +1857,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Recommendation into an AI product; absorbing Search, Analytics, or Preferences; Recommendation → ML/vector/database imports; Application → Recommendation Provider; implementing algorithms, models, or predictions in this phase.
 
 ---
+
+## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 84 introduces the Localization Engine so MotanOS can manage linguistic and regional adaptation as a global SaaS platform — product UI copy, tenant content copy, and operational tool copy — independently of frontend i18n libraries, automatic translation, Google Translate, DeepL, AI, business content bodies, and monetary formatting.
+
+**Decision:**
+
+* **Ownership:** `Localization`, factories, and `LocalizationPort` live in `@motanos/localization` (`packages/engines/localization`). Localization is an independent bounded context — not Tenant, Asset, Experience, Commerce, UI frameworks, or Translation Providers.
+* **Pipeline relation:** Business Content / UI Content / System Content → Localization Boundary → Future Translation Provider. Three layers: Product Localization (MotanOS admin/surfaces), Tenant Content Localization (client-authored copy), Operational Localization (internal tools such as Smart Table / Food Cost).
+* **Separations:** Localization ≠ automatic translation. Localization ≠ AI. Localization ≠ Google Translate / DeepL. Localization ≠ frontend i18n. Localization ≠ React components. Localization ≠ business content bodies. Localization ≠ monetary formats.
+* **Kinds (foundation):** `localization.ui`, `localization.business`, `localization.operational`, `localization.content`, `localization.system`, `localization.document`.
+* **Statuses (foundation):** `draft`, `active`, `pending`, `translated`, `archived`, `cancelled` (e.g. draft → active → pending → translated → archived).
+* **Contract shape:** Opaque `localizationReference`, required `tenantReference`, `localizationKind`, `localizationStatus`; optional opaque `localeReference`, `sourceReference`, `targetReference`, `contextReference`, `ownerReference`, controlled `metadata`. No passwords, tokens, credentials, or secrets. Future opaque links to tenant/asset/experience/commerce/UI context — never engine imports.
+* **Tenant isolation:** Localization may be bound to a tenant; cross-tenant creation is denied. Supports multi-tenant SaaS locale mixes (e.g. Admin ES + Customer EN).
+* **Port surface:** `createLocalization` / `resolveLocalization` only. No translate, autoTranslate, detectLanguage, machineTranslate, or generateTranslation methods in this foundation.
+* **Runtime:** Composition root for future `Localization Port → Adapter`. No database, AI clients, or translation SDKs in this foundation.
+* **Dependencies:** `@motanos/localization` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** translation provider adapters, locale catalogs, copy resolution runtime, frontend i18n bridges.
+
+**Rejected:** Turning Localization into an i18n library or auto-translate product; Localization → Google/DeepL/AI/database imports; Application → Translation Provider; implementing real translation or language detection in this phase.
+
+---
