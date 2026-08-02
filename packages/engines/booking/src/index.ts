@@ -147,21 +147,32 @@ export type {
   BookingCalendarPort,
   BookingCalendarSyncRequest,
   BookingIntegrationPort,
-  BookingNotificationKind,
   BookingNotificationPort,
-  BookingNotificationRequest,
   BookingPaymentPort,
   BookingPaymentRequest,
   BookingPaymentResult,
 } from "./integrations";
 export {
   BOOKING_INTEGRATION_FORBIDDEN_REQUEST_KEYS,
-  BOOKING_NOTIFICATION_KINDS,
   isBookingCalendarPort,
   isBookingIntegrationPort,
   isBookingNotificationPort,
   isBookingPaymentPort,
 } from "./integrations";
+
+export type {
+  BookingNotificationKind,
+  BookingNotificationRequest,
+  CreateBookingNotificationRequestInput,
+} from "./notifications";
+export {
+  BOOKING_NOTIFICATION_KINDS,
+  BOOKING_NOTIFICATION_KIND_VALUES,
+  createBookingNotificationRequest,
+  isBookingNotificationKind,
+  isBookingNotificationRequest,
+  resetBookingNotificationReferenceSequence,
+} from "./notifications";
 
 export type {
   BookingWorkflow,

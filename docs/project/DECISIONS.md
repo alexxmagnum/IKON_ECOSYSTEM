@@ -669,3 +669,27 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Workflow as substitute for Domain Rules; Application → Workflow Engine; embedding credentials; implementing real async infrastructure in this phase.
 
 ---
+
+## DEC-BOOKING-NOTIFICATION-001 — Booking Notification Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 39 introduces a Notification Boundary so Booking can express communication intents without coupling Domain Services to email, WhatsApp, push, SMS, or other delivery channels.
+
+**Decision:**
+
+* **Ownership:** `BookingNotificationRequest`, notification kinds, and factories live in `@motanos/booking` (`packages/engines/booking/src/notifications/`). Booking owns the contract because it knows which lifecycle facts may need communication. Provider adapters belong to Runtime / future infrastructure.
+* **Relation to Integration Boundary:** `BookingNotificationPort` (DEC-BOOKING-INTEGRATION-001) accepts `BookingNotificationRequest` from this boundary. Integration owns the outbound port; Notification owns the request shape and kinds.
+* **Contract shape:** Opaque fields — `notificationReference`, `tenantReference`, `bookingReference`, `recipientReference`, optional `actorReference`, `notificationKind`, optional controlled `metadata`. No emails, phone numbers, message bodies, templates, tokens, or credentials.
+* **Kinds (foundation):** `booking.confirmed`, `booking.cancelled`, `booking.reminder`, `booking.payment_required`. Kinds are internal intents, not channels.
+* **Relation to Domain Events:** Domain Events are occurrence facts (DEC-BOOKING-EVENTS-002). Notification Requests are separate communication asks. Not every event implies a notification; not every notification requires a new domain event. No dispatcher in this foundation.
+* **Relation to Workflow Boundary:** Workflows may eventually coordinate a step that produces a Notification Request (e.g. reminder / confirmation notify). Workflows do not send messages themselves (DEC-BOOKING-WORKFLOW-001).
+* **Application:** Forbidden `Application → Email Service` (or any provider). Flow remains Use Case → Booking Service → Result. Future path: Event / Workflow → Notification Boundary → (Runtime) Provider Adapter.
+* **Runtime:** Composition root for future `Notification Port → Provider Adapter`. No SMTP, SDKs, secrets, or delivery infrastructure in this foundation.
+* **Deferred:** providers, templates, delivery, retries, queues, workers.
+
+**Rejected:** BookingService → sendEmail; Application → provider; embedding PII/contact channels in the request contract; treating Domain Events as the notification layer.
+
+---

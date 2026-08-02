@@ -2,33 +2,16 @@
  * Booking Integration Boundary — outbound ports for external capabilities.
  * Domain defines *what* is needed; Runtime/infra adapters define *how*.
  *
+ * Notification request shapes live in the Notification Boundary
+ * (`../notifications`) — this module only exposes the outbound port.
+ *
  * @see DEC-BOOKING-INTEGRATION-001
+ * @see DEC-BOOKING-NOTIFICATION-001
  */
 
-/** Internal notification intent — not an email/WhatsApp/push channel. */
-export const BOOKING_NOTIFICATION_KINDS = {
-  BookingCreated: "booking.created",
-  BookingConfirmed: "booking.confirmed",
-  BookingCancelled: "booking.cancelled",
-  BookingRescheduled: "booking.rescheduled",
-  BookingExpired: "booking.expired",
-} as const;
+import type { BookingNotificationRequest } from "../notifications/booking-notification-request";
 
-export type BookingNotificationKind =
-  (typeof BOOKING_NOTIFICATION_KINDS)[keyof typeof BOOKING_NOTIFICATION_KINDS];
-
-/**
- * Opaque request to notify about a Booking fact.
- * No addresses, phone numbers, API keys, or provider payloads.
- */
-export interface BookingNotificationRequest {
-  tenantReference: string;
-  bookingReference: string;
-  recipientReference: string;
-  notificationKind: BookingNotificationKind;
-  /** Controlled optional metadata — never secrets or credentials. */
-  metadata?: Record<string, unknown>;
-}
+export type { BookingNotificationRequest };
 
 export interface BookingNotificationPort {
   sendBookingNotification(
@@ -38,7 +21,7 @@ export interface BookingNotificationPort {
 
 /**
  * Opaque payment intent for a Booking.
- * No Stripe/PayPal payloads, tokens, or card data.
+ * No vendor payloads, tokens, or card data.
  */
 export interface BookingPaymentRequest {
   tenantReference: string;
@@ -62,7 +45,7 @@ export interface BookingPaymentPort {
 
 /**
  * Opaque calendar sync for a Booking window.
- * No Google/Outlook SDK shapes or OAuth tokens.
+ * No external calendar SDK shapes or OAuth tokens.
  */
 export interface BookingCalendarSyncRequest {
   tenantReference: string;

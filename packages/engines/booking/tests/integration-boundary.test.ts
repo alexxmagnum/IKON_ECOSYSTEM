@@ -45,6 +45,7 @@ describe("Booking Integration Boundary", () => {
     assert.equal(isBookingIntegrationPort(port), true);
 
     const notification: BookingNotificationRequest = {
+      notificationReference: "notification-1",
       tenantReference: "tenant-a",
       bookingReference: "bk-1",
       recipientReference: "user-1",
@@ -92,9 +93,11 @@ describe("Booking Integration Boundary", () => {
 
   it("request contracts do not declare secret or credential fields", () => {
     const notificationKeys: (keyof BookingNotificationRequest)[] = [
+      "notificationReference",
       "tenantReference",
       "bookingReference",
       "recipientReference",
+      "actorReference",
       "notificationKind",
       "metadata",
     ];
@@ -129,10 +132,11 @@ describe("Booking Integration Boundary", () => {
     }
 
     const sampleNotification: BookingNotificationRequest = {
+      notificationReference: "n-1",
       tenantReference: "t",
       bookingReference: "b",
       recipientReference: "r",
-      notificationKind: BOOKING_NOTIFICATION_KINDS.BookingCreated,
+      notificationKind: BOOKING_NOTIFICATION_KINDS.BookingConfirmed,
     };
     for (const forbidden of BOOKING_INTEGRATION_FORBIDDEN_REQUEST_KEYS) {
       assert.equal(
