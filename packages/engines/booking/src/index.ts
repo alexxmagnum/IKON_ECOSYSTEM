@@ -141,6 +141,22 @@ export {
 } from "./policies";
 
 export type {
+  BookingPricing,
+  BookingPricingOperation,
+  BookingPricingRequest,
+  CreateBookingPricingOptions,
+  PricingDecision,
+} from "./pricing";
+export {
+  BOOKING_PRICING_OPERATIONS,
+  BOOKING_PRICING_OPERATION_VALUES,
+  createBookingPricing,
+  isBookingPricing,
+  isBookingPricingOperation,
+  isPricingDecision,
+} from "./pricing";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,

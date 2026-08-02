@@ -826,3 +826,28 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Policy with Authorization or Domain Rules; Application → Policy Provider; embedding secrets/PII; implementing a full rules engine in this phase.
 
 ---
+
+## DEC-BOOKING-PRICING-001 — Booking Pricing Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 45 introduces a Pricing Boundary so Booking can express what economic condition / price applies to an operation, without coupling to Payment capture, Billing, Authorization, or Domain Rules. Aligns with `22_PAYMENT_ARCHITECT` separation: Pricing = “how much / what condition”; Payment = “how it is charged”.
+
+**Decision:**
+
+* **Ownership:** `BookingPricing`, `BookingPricingRequest`, `PricingDecision`, and `createBookingPricing` live in `@motanos/booking` (`packages/engines/booking/src/pricing/`). Pricing belongs to the Booking Engine — not Application, not Payment Boundary ownership, not Billing, and not a new top-level layer.
+* **Separations:** Authorization = may they?; Policy = business conditions (DEC-BOOKING-POLICY-001); Pricing = what price applies?; Payment = how to process payment (DEC-BOOKING-PAYMENT-001); Domain = is the transition valid?
+* **Operations (foundation):** `booking.create`, `booking.confirm`, `booking.reschedule`, `booking.cancel`.
+* **Contract shape:** Request requires opaque `tenantReference` and `actorReference`; optional `bookingReference`, `resourceReference`, `membershipReference`, controlled `metadata`. Decision: `allowed`, `amountReference` (pricing value reference — not a gateway id), `currency`, optional `reason` / `pricingReference`. No cards, payment tokens, bank data, or credentials.
+* **Tenant isolation:** Pricing may be bound to a tenant; cross-tenant evaluation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Workflow:** Workflows may consult Pricing then Booking operations (DEC-BOOKING-WORKFLOW-001). Workflows must not mutate pricing rules via this boundary.
+* **Application:** Forbidden `Application → Pricing Provider`. Flow: Use Case → Booking Pricing → Booking Service → Domain.
+* **Domain Events:** No `pricing.created|changed` or `price.calculated` events in this foundation.
+* **Runtime:** Composition root for future pricing adapters only. No tax engines, coupons, promotions, billing integrations, or admin price panels in this foundation.
+* **Deferred:** taxes, discounts, promotions, coupons, dynamic remote price catalogs, invoicing.
+
+**Rejected:** BookingPricing → Payment vendor SDKs; mixing Pricing with Payment/Billing; Application → Pricing Provider; embedding card/secret data; implementing commercial pricing engines in this phase.
+
+---
