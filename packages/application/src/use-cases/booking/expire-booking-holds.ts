@@ -1,11 +1,10 @@
-import type { BookingService } from "@motanos/booking";
-import {
-  isDenied,
-  type AuthorizationService,
-} from "@motanos/permissions";
+import type {
+  BookingAuthorizationPolicy,
+  BookingService,
+} from "@motanos/booking";
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
-import { EXPIRE_BOOKING_HOLDS_ACTION } from "./actions";
+import { forbiddenFromBookingPolicy } from "./booking-auth";
 import { normalizeOptionalReference, normalizeReference } from "./normalize";
 import {
   toBookingOutput,
@@ -14,7 +13,7 @@ import {
 } from "./types";
 
 export interface ExpireBookingHoldsUseCaseDeps {
-  authorization: AuthorizationService;
+  bookingAuthorizationPolicy: BookingAuthorizationPolicy;
   booking: BookingService;
 }
 
@@ -24,7 +23,7 @@ export type ExpireBookingHoldsUseCase = UseCase<
 >;
 
 /**
- * ExpireBookingHolds — auth-first Draft hold TTL expiration (no cron).
+ * ExpireBookingHolds — Policy then BookingService.expireHolds.
  */
 export function createExpireBookingHoldsUseCase(
   deps: ExpireBookingHoldsUseCaseDeps,
@@ -57,13 +56,11 @@ export function createExpireBookingHoldsUseCase(
         .map((ref) => normalizeOptionalReference(ref))
         .filter((ref): ref is string => ref !== undefined);
 
-      const authorization = await deps.authorization.authorize({
-        actor: actorReference,
-        action: EXPIRE_BOOKING_HOLDS_ACTION,
-        resource: {
-          resourceType: "booking.holds",
-          resourceReference: "holds",
-        },
+      const decision = await deps.bookingAuthorizationPolicy.decide({
+        actorReference,
+        operation: "expire",
+        resourceType: "booking.holds",
+        resourceReference: "holds",
         metadata: {
           ...(input.metadata ?? {}),
           now,
@@ -73,18 +70,11 @@ export function createExpireBookingHoldsUseCase(
         },
       });
 
-      if (isDenied(authorization.decision)) {
-        return failure({
-          code: "ForbiddenError",
-          message:
-            authorization.decision.reason ?? "Booking hold expiration denied",
-          details: {
-            decision: authorization.decision.decision,
-            ...(authorization.decision.metadata !== undefined
-              ? { decisionMetadata: authorization.decision.metadata }
-              : {}),
-          },
-        });
+      if (!decision.allowed) {
+        return forbiddenFromBookingPolicy(
+          decision,
+          "Booking hold expiration denied",
+        );
       }
 
       const result = await deps.booking.expireHolds({

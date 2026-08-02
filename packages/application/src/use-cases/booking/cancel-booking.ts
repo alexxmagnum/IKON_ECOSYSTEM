@@ -1,15 +1,12 @@
 import type {
+  BookingAuthorizationPolicy,
   BookingQueryService,
   BookingService,
 } from "@motanos/booking";
 import { canTransitionBooking } from "@motanos/booking";
-import {
-  isDenied,
-  type AuthorizationService,
-} from "@motanos/permissions";
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
-import { CANCEL_BOOKING_ACTION } from "./actions";
+import { forbiddenFromBookingPolicy } from "./booking-auth";
 import {
   toBookingOutput,
   type CancelBookingInput,
@@ -17,7 +14,7 @@ import {
 } from "./types";
 
 export interface CancelBookingUseCaseDeps {
-  authorization: AuthorizationService;
+  bookingAuthorizationPolicy: BookingAuthorizationPolicy;
   booking: BookingService;
   bookingQuery: BookingQueryService;
 }
@@ -28,7 +25,7 @@ export type CancelBookingUseCase = UseCase<
 >;
 
 /**
- * CancelBooking — → Cancelled via booking.cancelled_by_user when allowed by SoT.
+ * CancelBooking — Policy → domain transition check → BookingService.cancel.
  */
 export function createCancelBookingUseCase(
   deps: CancelBookingUseCaseDeps,
@@ -61,29 +58,24 @@ export function createCancelBookingUseCase(
         });
       }
 
-      const authorization = await deps.authorization.authorize({
-        actor: context.actorReference,
-        action: CANCEL_BOOKING_ACTION,
-        resource: {
-          resourceType: "booking",
-          resourceReference: current.id,
+      const decision = await deps.bookingAuthorizationPolicy.decide({
+        actorReference: context.actorReference,
+        operation: "cancel",
+        resourceType: "booking",
+        resourceReference: current.id,
+        booking: {
+          bookingReference: current.id,
+          ownerUserId: current.ownerUserId,
+          resourceId: current.resourceId,
+          status: current.status,
         },
         ...(input.metadata !== undefined
           ? { metadata: input.metadata }
           : {}),
       });
 
-      if (isDenied(authorization.decision)) {
-        return failure({
-          code: "ForbiddenError",
-          message: authorization.decision.reason ?? "Booking cancel denied",
-          details: {
-            decision: authorization.decision.decision,
-            ...(authorization.decision.metadata !== undefined
-              ? { decisionMetadata: authorization.decision.metadata }
-              : {}),
-          },
-        });
+      if (!decision.allowed) {
+        return forbiddenFromBookingPolicy(decision, "Booking cancel denied");
       }
 
       if (

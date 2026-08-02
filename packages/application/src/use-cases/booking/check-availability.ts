@@ -1,11 +1,10 @@
-import type { BookingQueryService } from "@motanos/booking";
-import {
-  isDenied,
-  type AuthorizationService,
-} from "@motanos/permissions";
+import type {
+  BookingAuthorizationPolicy,
+  BookingQueryService,
+} from "@motanos/booking";
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
-import { CHECK_AVAILABILITY_ACTION } from "./actions";
+import { forbiddenFromBookingPolicy } from "./booking-auth";
 
 export interface CheckAvailabilityInput {
   resourceReference: string;
@@ -23,7 +22,7 @@ export interface CheckAvailabilityOutput {
 }
 
 export interface CheckAvailabilityUseCaseDeps {
-  authorization: AuthorizationService;
+  bookingAuthorizationPolicy: BookingAuthorizationPolicy;
   bookingQuery: BookingQueryService;
 }
 
@@ -33,7 +32,7 @@ export type CheckAvailabilityUseCase = UseCase<
 >;
 
 /**
- * CheckAvailability — asks Booking Query side whether a resource interval is free.
+ * CheckAvailability — Policy → BookingQueryService.checkAvailability.
  */
 export function createCheckAvailabilityUseCase(
   deps: CheckAvailabilityUseCaseDeps,
@@ -53,30 +52,21 @@ export function createCheckAvailabilityUseCase(
         });
       }
 
-      const authorization = await deps.authorization.authorize({
-        actor: context.actorReference,
-        action: CHECK_AVAILABILITY_ACTION,
-        resource: {
-          resourceType: "booking.resource",
-          resourceReference: input.resourceReference,
-        },
+      const decision = await deps.bookingAuthorizationPolicy.decide({
+        actorReference: context.actorReference,
+        operation: "checkAvailability",
+        resourceType: "booking.resource",
+        resourceReference: input.resourceReference,
         ...(input.metadata !== undefined
           ? { metadata: input.metadata }
           : {}),
       });
 
-      if (isDenied(authorization.decision)) {
-        return failure({
-          code: "ForbiddenError",
-          message:
-            authorization.decision.reason ?? "Availability check denied",
-          details: {
-            decision: authorization.decision.decision,
-            ...(authorization.decision.metadata !== undefined
-              ? { decisionMetadata: authorization.decision.metadata }
-              : {}),
-          },
-        });
+      if (!decision.allowed) {
+        return forbiddenFromBookingPolicy(
+          decision,
+          "Availability check denied",
+        );
       }
 
       const result = await deps.bookingQuery.checkAvailability({

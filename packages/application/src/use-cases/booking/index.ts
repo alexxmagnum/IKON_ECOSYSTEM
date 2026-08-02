@@ -59,6 +59,11 @@ export {
   type RescheduleBookingUseCase,
   type RescheduleBookingUseCaseDeps,
 } from "./reschedule-booking";
+export {
+  createBookingAuthorizationGateway,
+  createBookingAuthorizationPolicyFromAuthorization,
+  forbiddenFromBookingPolicy,
+} from "./booking-auth";
 export type {
   BookingOutput,
   CancelBookingInput,

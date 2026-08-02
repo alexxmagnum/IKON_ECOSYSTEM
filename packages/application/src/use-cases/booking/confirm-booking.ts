@@ -1,15 +1,12 @@
 import type {
+  BookingAuthorizationPolicy,
   BookingQueryService,
   BookingService,
 } from "@motanos/booking";
 import { canTransitionBooking } from "@motanos/booking";
-import {
-  isDenied,
-  type AuthorizationService,
-} from "@motanos/permissions";
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
-import { CONFIRM_BOOKING_ACTION } from "./actions";
+import { forbiddenFromBookingPolicy } from "./booking-auth";
 import {
   toBookingOutput,
   type ConfirmBookingInput,
@@ -17,7 +14,7 @@ import {
 } from "./types";
 
 export interface ConfirmBookingUseCaseDeps {
-  authorization: AuthorizationService;
+  bookingAuthorizationPolicy: BookingAuthorizationPolicy;
   booking: BookingService;
   bookingQuery: BookingQueryService;
 }
@@ -28,7 +25,7 @@ export type ConfirmBookingUseCase = UseCase<
 >;
 
 /**
- * ConfirmBooking — Draft → Confirmed (booking.confirmed_without_payment).
+ * ConfirmBooking — Policy → domain transition check → BookingService.confirm.
  */
 export function createConfirmBookingUseCase(
   deps: ConfirmBookingUseCaseDeps,
@@ -61,31 +58,27 @@ export function createConfirmBookingUseCase(
         });
       }
 
-      const authorization = await deps.authorization.authorize({
-        actor: context.actorReference,
-        action: CONFIRM_BOOKING_ACTION,
-        resource: {
-          resourceType: "booking",
-          resourceReference: current.id,
+      const decision = await deps.bookingAuthorizationPolicy.decide({
+        actorReference: context.actorReference,
+        operation: "confirm",
+        resourceType: "booking",
+        resourceReference: current.id,
+        booking: {
+          bookingReference: current.id,
+          ownerUserId: current.ownerUserId,
+          resourceId: current.resourceId,
+          status: current.status,
         },
         ...(input.metadata !== undefined
           ? { metadata: input.metadata }
           : {}),
       });
 
-      if (isDenied(authorization.decision)) {
-        return failure({
-          code: "ForbiddenError",
-          message: authorization.decision.reason ?? "Booking confirm denied",
-          details: {
-            decision: authorization.decision.decision,
-            ...(authorization.decision.metadata !== undefined
-              ? { decisionMetadata: authorization.decision.metadata }
-              : {}),
-          },
-        });
+      if (!decision.allowed) {
+        return forbiddenFromBookingPolicy(decision, "Booking confirm denied");
       }
 
+      // Domain rule (not authorization): lifecycle transition eligibility
       if (
         !canTransitionBooking(
           current.status,

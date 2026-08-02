@@ -27,6 +27,7 @@ import {
   createGetBookingUseCase,
   createListBookingsUseCase,
   createRescheduleBookingUseCase,
+  createBookingAuthorizationPolicyFromAuthorization,
   isFailure,
   isSuccess,
   type CreateBookingInput,
@@ -41,6 +42,10 @@ function memoryBookingStack(): {
     booking: createBookingService(repository),
     bookingQuery: createBookingQueryService(repository),
   };
+}
+
+function policyFromAuth(authorization: AuthorizationService) {
+  return createBookingAuthorizationPolicyFromAuthorization(authorization);
 }
 
 function allowAllAuthorization(): AuthorizationService {
@@ -75,7 +80,7 @@ const validInput: CreateBookingInput = {
 describe("CreateBooking vertical slice", () => {
   it("Case 1: valid CreateBooking returns success", async () => {
     const useCase = createCreateBookingUseCase({
-      authorization: allowAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(allowAllAuthorization()),
       booking: memoryBookingStack().booking,
     });
 
@@ -96,7 +101,7 @@ describe("CreateBooking vertical slice", () => {
 
   it("Case 2: invalid input returns ApplicationError ValidationError", async () => {
     const useCase = createCreateBookingUseCase({
-      authorization: allowAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(allowAllAuthorization()),
       booking: memoryBookingStack().booking,
     });
 
@@ -115,7 +120,7 @@ describe("CreateBooking vertical slice", () => {
 
   it("Case 3: authorization denied returns ForbiddenError", async () => {
     const useCase = createCreateBookingUseCase({
-      authorization: denyAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       booking: memoryBookingStack().booking,
     });
 
@@ -134,9 +139,9 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
   it("Confirm success — Draft → Confirmed", async () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
-    const create = createCreateBookingUseCase({ authorization: auth, booking });
+    const create = createCreateBookingUseCase({ bookingAuthorizationPolicy: policyFromAuth(auth), booking });
     const confirm = createConfirmBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
       bookingQuery,
     });
@@ -160,9 +165,9 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
   it("Cancel success — Draft → Cancelled", async () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
-    const create = createCreateBookingUseCase({ authorization: auth, booking });
+    const create = createCreateBookingUseCase({ bookingAuthorizationPolicy: policyFromAuth(auth), booking });
     const cancel = createCancelBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
       bookingQuery,
     });
@@ -185,14 +190,14 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
   it("Forbidden confirm", async () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const created = await createCreateBookingUseCase({
-      authorization: allowAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(allowAllAuthorization()),
       booking,
     }).execute(validInput, { actorReference: "actor-1" });
     assert.equal(isSuccess(created), true);
     if (!isSuccess(created)) return;
 
     const result = await createConfirmBookingUseCase({
-      authorization: denyAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       booking,
       bookingQuery,
     }).execute(
@@ -208,14 +213,14 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
   it("Forbidden cancel", async () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const created = await createCreateBookingUseCase({
-      authorization: allowAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(allowAllAuthorization()),
       booking,
     }).execute(validInput, { actorReference: "actor-1" });
     assert.equal(isSuccess(created), true);
     if (!isSuccess(created)) return;
 
     const result = await createCancelBookingUseCase({
-      authorization: denyAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       booking,
       bookingQuery,
     }).execute(
@@ -238,7 +243,7 @@ describe("CheckAvailability", () => {
 
   it("available = true when no overlapping booking", async () => {
     const useCase = createCheckAvailabilityUseCase({
-      authorization: allowAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(allowAllAuthorization()),
       bookingQuery: memoryBookingStack().bookingQuery,
     });
 
@@ -253,7 +258,7 @@ describe("CheckAvailability", () => {
   it("available = false when overlapping Draft exists", async () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
-    await createCreateBookingUseCase({ authorization: auth, booking }).execute(
+    await createCreateBookingUseCase({ bookingAuthorizationPolicy: policyFromAuth(auth), booking }).execute(
       {
         resourceReference: "resource-1",
         customerReference: "customer-1",
@@ -264,7 +269,7 @@ describe("CheckAvailability", () => {
     );
 
     const result = await createCheckAvailabilityUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       bookingQuery,
     }).execute(range, { actorReference: "actor-1" });
 
@@ -276,7 +281,7 @@ describe("CheckAvailability", () => {
 
   it("Forbidden availability", async () => {
     const result = await createCheckAvailabilityUseCase({
-      authorization: denyAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       bookingQuery: memoryBookingStack().bookingQuery,
     }).execute(range, { actorReference: "actor-denied" });
 
@@ -291,14 +296,14 @@ describe("GetBooking / ListBookings", () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(validInput, { actorReference: "actor-1" });
     assert.equal(isSuccess(created), true);
     if (!isSuccess(created)) return;
 
     const got = await createGetBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       bookingQuery,
     }).execute(
       { bookingReference: `  ${created.data.bookingReference}  ` },
@@ -312,7 +317,7 @@ describe("GetBooking / ListBookings", () => {
 
   it("Get booking not found after authorize", async () => {
     const result = await createGetBookingUseCase({
-      authorization: allowAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(allowAllAuthorization()),
       bookingQuery: memoryBookingStack().bookingQuery,
     }).execute(
       { bookingReference: "missing-booking" },
@@ -326,14 +331,14 @@ describe("GetBooking / ListBookings", () => {
   it("Forbidden read — denied before existence check", async () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const created = await createCreateBookingUseCase({
-      authorization: allowAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(allowAllAuthorization()),
       booking,
     }).execute(validInput, { actorReference: "actor-1" });
     assert.equal(isSuccess(created), true);
     if (!isSuccess(created)) return;
 
     const deniedExisting = await createGetBookingUseCase({
-      authorization: denyAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       bookingQuery,
     }).execute(
       { bookingReference: created.data.bookingReference },
@@ -344,7 +349,7 @@ describe("GetBooking / ListBookings", () => {
     assert.equal(deniedExisting.error.code, "ForbiddenError");
 
     const deniedMissing = await createGetBookingUseCase({
-      authorization: denyAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       bookingQuery,
     }).execute(
       { bookingReference: "does-not-exist" },
@@ -358,7 +363,7 @@ describe("GetBooking / ListBookings", () => {
   it("List bookings filters — resource, customer, status, range", async () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
-    const create = createCreateBookingUseCase({ authorization: auth, booking });
+    const create = createCreateBookingUseCase({ bookingAuthorizationPolicy: policyFromAuth(auth), booking });
 
     await create.execute(
       {
@@ -391,7 +396,7 @@ describe("GetBooking / ListBookings", () => {
       { actorReference: "actor-1" },
     );
 
-    const list = createListBookingsUseCase({ authorization: auth, bookingQuery });
+    const list = createListBookingsUseCase({ bookingAuthorizationPolicy: policyFromAuth(auth), bookingQuery });
 
     const byResource = await list.execute(
       { resourceReference: "  resource-1  " },
@@ -437,7 +442,7 @@ describe("GetBooking / ListBookings", () => {
 
   it("List validation — startAt/endAt must be together", async () => {
     const list = createListBookingsUseCase({
-      authorization: allowAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(allowAllAuthorization()),
       bookingQuery: memoryBookingStack().bookingQuery,
     });
 
@@ -460,7 +465,7 @@ describe("GetBooking / ListBookings", () => {
 
   it("Forbidden list", async () => {
     const result = await createListBookingsUseCase({
-      authorization: denyAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       bookingQuery: memoryBookingStack().bookingQuery,
     }).execute({}, { actorReference: "actor-denied" });
 
@@ -475,14 +480,14 @@ describe("RescheduleBooking", () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(validInput, { actorReference: "actor-1" });
     assert.equal(isSuccess(created), true);
     if (!isSuccess(created)) return;
 
     const result = await createRescheduleBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
       bookingQuery,
     }).execute(
@@ -503,7 +508,7 @@ describe("RescheduleBooking", () => {
   it("Reschedule unavailable — ConflictError", async () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
-    const create = createCreateBookingUseCase({ authorization: auth, booking });
+    const create = createCreateBookingUseCase({ bookingAuthorizationPolicy: policyFromAuth(auth), booking });
     const first = await create.execute(validInput, {
       actorReference: "actor-1",
     });
@@ -520,7 +525,7 @@ describe("RescheduleBooking", () => {
     );
 
     const result = await createRescheduleBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
       bookingQuery,
     }).execute(
@@ -539,14 +544,14 @@ describe("RescheduleBooking", () => {
   it("Forbidden reschedule", async () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const created = await createCreateBookingUseCase({
-      authorization: allowAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(allowAllAuthorization()),
       booking,
     }).execute(validInput, { actorReference: "actor-1" });
     assert.equal(isSuccess(created), true);
     if (!isSuccess(created)) return;
 
     const result = await createRescheduleBookingUseCase({
-      authorization: denyAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       booking,
       bookingQuery,
     }).execute(
@@ -566,14 +571,14 @@ describe("RescheduleBooking", () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(validInput, { actorReference: "actor-1" });
     assert.equal(isSuccess(created), true);
     if (!isSuccess(created)) return;
 
     const cancelled = await createCancelBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
       bookingQuery,
     }).execute(
@@ -583,7 +588,7 @@ describe("RescheduleBooking", () => {
     assert.equal(isSuccess(cancelled), true);
 
     const result = await createRescheduleBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
       bookingQuery,
     }).execute(
@@ -605,7 +610,7 @@ describe("ExpireBookingHolds", () => {
     const { booking } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(validInput, { actorReference: "actor-1" });
     assert.equal(isSuccess(created), true);
@@ -617,7 +622,7 @@ describe("ExpireBookingHolds", () => {
     });
 
     const result = await createExpireBookingHoldsUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(
       { now: "2026-08-02T12:00:00.000Z" },
@@ -634,7 +639,7 @@ describe("ExpireBookingHolds", () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(validInput, { actorReference: "actor-1" });
     assert.equal(isSuccess(created), true);
@@ -646,7 +651,7 @@ describe("ExpireBookingHolds", () => {
     });
 
     const result = await createExpireBookingHoldsUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(
       { now: "2026-08-02T12:00:00.000Z" },
@@ -665,14 +670,14 @@ describe("ExpireBookingHolds", () => {
     const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(validInput, { actorReference: "actor-1" });
     assert.equal(isSuccess(created), true);
     if (!isSuccess(created)) return;
 
     const confirmed = await createConfirmBookingUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
       bookingQuery,
     }).execute(
@@ -687,7 +692,7 @@ describe("ExpireBookingHolds", () => {
     });
 
     const result = await createExpireBookingHoldsUseCase({
-      authorization: auth,
+      bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(
       { now: "2026-08-02T12:00:00.000Z" },
@@ -703,7 +708,7 @@ describe("ExpireBookingHolds", () => {
 
   it("Forbidden expiration", async () => {
     const result = await createExpireBookingHoldsUseCase({
-      authorization: denyAllAuthorization(),
+      bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       booking: memoryBookingStack().booking,
     }).execute(
       { now: "2026-08-02T12:00:00.000Z" },

@@ -8,6 +8,7 @@ import {
   createListBookingsUseCase,
   createRescheduleBookingUseCase,
   createExpireBookingHoldsUseCase,
+  createBookingAuthorizationPolicyFromAuthorization,
   type ApplicationService,
   type CancelBookingUseCase,
   type CheckAvailabilityUseCase,
@@ -19,6 +20,7 @@ import {
   type RescheduleBookingUseCase,
 } from "@motanos/application";
 import type {
+  BookingAuthorizationPolicy,
   BookingQueryService,
   BookingRepository,
   BookingService,
@@ -72,6 +74,7 @@ export interface MotanOSComposedRuntime {
   api: ApiService;
   application: ApplicationService;
   authorization: AuthorizationService;
+  bookingAuthorizationPolicy: BookingAuthorizationPolicy;
   bookingRepository: BookingRepository;
   booking: BookingService;
   bookingQuery: BookingQueryService;
@@ -131,36 +134,42 @@ export function createMotanOSRuntime(
     bookingQuery = stack.bookingQuery;
   }
 
-  const createBooking = createCreateBookingUseCase({ authorization, booking });
+  const bookingAuthorizationPolicy =
+    createBookingAuthorizationPolicyFromAuthorization(authorization);
+
+  const createBooking = createCreateBookingUseCase({
+    bookingAuthorizationPolicy,
+    booking,
+  });
   const confirmBooking = createConfirmBookingUseCase({
-    authorization,
+    bookingAuthorizationPolicy,
     booking,
     bookingQuery,
   });
   const cancelBooking = createCancelBookingUseCase({
-    authorization,
+    bookingAuthorizationPolicy,
     booking,
     bookingQuery,
   });
   const checkAvailability = createCheckAvailabilityUseCase({
-    authorization,
+    bookingAuthorizationPolicy,
     bookingQuery,
   });
   const getBooking = createGetBookingUseCase({
-    authorization,
+    bookingAuthorizationPolicy,
     bookingQuery,
   });
   const listBookings = createListBookingsUseCase({
-    authorization,
+    bookingAuthorizationPolicy,
     bookingQuery,
   });
   const rescheduleBooking = createRescheduleBookingUseCase({
-    authorization,
+    bookingAuthorizationPolicy,
     booking,
     bookingQuery,
   });
   const expireBookingHolds = createExpireBookingHoldsUseCase({
-    authorization,
+    bookingAuthorizationPolicy,
     booking,
   });
 
@@ -222,6 +231,7 @@ export function createMotanOSRuntime(
     api,
     application,
     authorization,
+    bookingAuthorizationPolicy,
     bookingRepository,
     booking,
     bookingQuery,

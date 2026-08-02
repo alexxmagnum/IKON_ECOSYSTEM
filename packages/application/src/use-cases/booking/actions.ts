@@ -1,15 +1,17 @@
 /**
  * Application-layer action strings for booking orchestration.
- * Domain-agnostic PermissionAction values — not an official permissions catalog.
+ * Sourced from Booking Authorization Policy action catalog.
  */
-export const CREATE_BOOKING_ACTION = "booking.create" as const;
-export const CONFIRM_BOOKING_ACTION = "booking.confirm" as const;
-export const CANCEL_BOOKING_ACTION = "booking.cancel" as const;
-export const CHECK_AVAILABILITY_ACTION = "booking.availability.check" as const;
-export const READ_BOOKING_ACTION = "booking.read" as const;
-export const LIST_BOOKINGS_ACTION = "booking.list" as const;
-export const RESCHEDULE_BOOKING_ACTION = "booking.reschedule" as const;
-export const EXPIRE_BOOKING_HOLDS_ACTION = "booking.expire" as const;
+import { BOOKING_AUTH_ACTIONS } from "@motanos/booking";
+
+export const CREATE_BOOKING_ACTION = BOOKING_AUTH_ACTIONS.create;
+export const CONFIRM_BOOKING_ACTION = BOOKING_AUTH_ACTIONS.confirm;
+export const CANCEL_BOOKING_ACTION = BOOKING_AUTH_ACTIONS.cancel;
+export const CHECK_AVAILABILITY_ACTION = BOOKING_AUTH_ACTIONS.checkAvailability;
+export const READ_BOOKING_ACTION = BOOKING_AUTH_ACTIONS.read;
+export const LIST_BOOKINGS_ACTION = BOOKING_AUTH_ACTIONS.list;
+export const RESCHEDULE_BOOKING_ACTION = BOOKING_AUTH_ACTIONS.reschedule;
+export const EXPIRE_BOOKING_HOLDS_ACTION = BOOKING_AUTH_ACTIONS.expire;
 
 export type CreateBookingAction = typeof CREATE_BOOKING_ACTION;
 export type ConfirmBookingAction = typeof CONFIRM_BOOKING_ACTION;

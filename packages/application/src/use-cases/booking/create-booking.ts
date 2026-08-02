@@ -1,15 +1,12 @@
 import type {
+  BookingAuthorizationPolicy,
   BookingService,
   CreateBookingInput as BookingEngineCreateInput,
 } from "@motanos/booking";
 import { DEFAULT_HOLD_TTL_MINUTES } from "@motanos/booking";
-import {
-  isDenied,
-  type AuthorizationService,
-} from "@motanos/permissions";
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
-import { CREATE_BOOKING_ACTION } from "./actions";
+import { forbiddenFromBookingPolicy } from "./booking-auth";
 import {
   toBookingOutput,
   type CreateBookingInput,
@@ -17,7 +14,7 @@ import {
 } from "./types";
 
 export interface CreateBookingUseCaseDeps {
-  authorization: AuthorizationService;
+  bookingAuthorizationPolicy: BookingAuthorizationPolicy;
   booking: BookingService;
 }
 
@@ -27,8 +24,7 @@ export type CreateBookingUseCase = UseCase<
 >;
 
 /**
- * CreateBooking vertical slice.
- * Flow: ExecutionContext → AuthorizationService → BookingService → ApplicationResult.
+ * CreateBooking — Authorization Policy → BookingService.
  */
 export function createCreateBookingUseCase(
   deps: CreateBookingUseCaseDeps,
@@ -48,29 +44,18 @@ export function createCreateBookingUseCase(
         });
       }
 
-      const authorization = await deps.authorization.authorize({
-        actor: context.actorReference,
-        action: CREATE_BOOKING_ACTION,
-        resource: {
-          resourceType: "booking.resource",
-          resourceReference: input.resourceReference,
-        },
+      const decision = await deps.bookingAuthorizationPolicy.decide({
+        actorReference: context.actorReference,
+        operation: "create",
+        resourceType: "booking.resource",
+        resourceReference: input.resourceReference,
         ...(input.metadata !== undefined
           ? { metadata: input.metadata }
           : {}),
       });
 
-      if (isDenied(authorization.decision)) {
-        return failure({
-          code: "ForbiddenError",
-          message: authorization.decision.reason ?? "Booking create denied",
-          details: {
-            decision: authorization.decision.decision,
-            ...(authorization.decision.metadata !== undefined
-              ? { decisionMetadata: authorization.decision.metadata }
-              : {}),
-          },
-        });
+      if (!decision.allowed) {
+        return forbiddenFromBookingPolicy(decision, "Booking create denied");
       }
 
       const engineInput = toBookingEngineInput(input);

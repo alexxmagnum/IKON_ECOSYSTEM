@@ -1,15 +1,12 @@
 import type {
+  BookingAuthorizationPolicy,
   BookingQueryService,
   BookingService,
 } from "@motanos/booking";
 import { canRescheduleBooking } from "@motanos/booking";
-import {
-  isDenied,
-  type AuthorizationService,
-} from "@motanos/permissions";
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
-import { RESCHEDULE_BOOKING_ACTION } from "./actions";
+import { forbiddenFromBookingPolicy } from "./booking-auth";
 import { normalizeReference } from "./normalize";
 import {
   toBookingOutput,
@@ -18,7 +15,7 @@ import {
 } from "./types";
 
 export interface RescheduleBookingUseCaseDeps {
-  authorization: AuthorizationService;
+  bookingAuthorizationPolicy: BookingAuthorizationPolicy;
   booking: BookingService;
   bookingQuery: BookingQueryService;
 }
@@ -29,7 +26,7 @@ export type RescheduleBookingUseCase = UseCase<
 >;
 
 /**
- * RescheduleBooking — auth-first time-window update via BookingService.reschedule.
+ * RescheduleBooking — Policy (auth-first) → domain eligibility → BookingService.
  */
 export function createRescheduleBookingUseCase(
   deps: RescheduleBookingUseCaseDeps,
@@ -61,30 +58,21 @@ export function createRescheduleBookingUseCase(
         });
       }
 
-      const authorization = await deps.authorization.authorize({
-        actor: actorReference,
-        action: RESCHEDULE_BOOKING_ACTION,
-        resource: {
-          resourceType: "booking",
-          resourceReference: bookingReference,
-        },
+      const decision = await deps.bookingAuthorizationPolicy.decide({
+        actorReference,
+        operation: "reschedule",
+        resourceType: "booking",
+        resourceReference: bookingReference,
         ...(input.metadata !== undefined
           ? { metadata: input.metadata }
           : {}),
       });
 
-      if (isDenied(authorization.decision)) {
-        return failure({
-          code: "ForbiddenError",
-          message:
-            authorization.decision.reason ?? "Booking reschedule denied",
-          details: {
-            decision: authorization.decision.decision,
-            ...(authorization.decision.metadata !== undefined
-              ? { decisionMetadata: authorization.decision.metadata }
-              : {}),
-          },
-        });
+      if (!decision.allowed) {
+        return forbiddenFromBookingPolicy(
+          decision,
+          "Booking reschedule denied",
+        );
       }
 
       const current = await deps.bookingQuery.getBooking(bookingReference);

@@ -555,3 +555,23 @@ They are **provisional** until real execution workflows exist. A later phase may
 * **Deferred:** full CQRS, read DB, projections, event sourcing, caches, replicas.
 
 **Rejected:** Queries mutating state or emitting events; Application → Repository; separate query repository without a concrete read-model need.
+
+---
+
+## DEC-BOOKING-AUTH-001 — Booking Authorization Policy boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 34 clarifies Booking access decisions vs domain lifecycle rules without full RBAC.
+
+**Decision:**
+
+* **Ownership:** `BookingAuthorizationPolicy` lives in `@motanos/booking` (`packages/engines/booking/src/policies/`).
+* **Relation to AuthorizationService:** Policy maps Booking operations → action strings and consults a `BookingAuthorizationGateway` adapted from platform `AuthorizationService` (Runtime/Application wiring). Booking engine does **not** depend on `@motanos/permissions`.
+* **Policy vs Domain:** Policy answers “may this actor perform this Booking operation on this resource?” Domain services answer “is this state transition / availability rule valid?” (e.g. Cancelled → Confirmed is FailedPrecondition, not Forbidden).
+* **Application:** Use cases call `bookingAuthorizationPolicy.decide` then Booking command/query services. No Application → Repository.
+* **Deferred:** full RBAC, memberships, dynamic roles, tenant permissions, ABAC, IdP.
+
+**Rejected:** Mixing lifecycle eligibility into authorization; Booking → Runtime; API exposing policies.

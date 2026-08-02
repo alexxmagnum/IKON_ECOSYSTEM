@@ -1,14 +1,11 @@
 import type {
+  BookingAuthorizationPolicy,
   BookingQueryService,
   ListBookingsQuery,
 } from "@motanos/booking";
-import {
-  isDenied,
-  type AuthorizationService,
-} from "@motanos/permissions";
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
-import { LIST_BOOKINGS_ACTION } from "./actions";
+import { forbiddenFromBookingPolicy } from "./booking-auth";
 import {
   normalizeOptionalReference,
   normalizeOptionalTimestamp,
@@ -21,7 +18,7 @@ import {
 } from "./types";
 
 export interface ListBookingsUseCaseDeps {
-  authorization: AuthorizationService;
+  bookingAuthorizationPolicy: BookingAuthorizationPolicy;
   bookingQuery: BookingQueryService;
 }
 
@@ -31,11 +28,8 @@ export type ListBookingsUseCase = UseCase<
 >;
 
 /**
- * ListBookings — filtered booking read (engine ListBookingsQuery).
- *
- * Actor scoping (interim): when `customerReference` is omitted, defaults to
- * `actorReference`. Explicit `customerReference` remains for internal filters.
- * See DEC-BOOKING-QUERY-001 (DECISION REQUIRED) for elevated cross-customer list.
+ * ListBookings — Policy then BookingQueryService.
+ * See DEC-BOOKING-QUERY-001 for customer scope defaults.
  */
 export function createListBookingsUseCase(
   deps: ListBookingsUseCaseDeps,
@@ -64,16 +58,14 @@ export function createListBookingsUseCase(
         return failure(validationError);
       }
 
-      const authorization = await deps.authorization.authorize({
-        actor: actorReference,
-        action: LIST_BOOKINGS_ACTION,
-        resource: {
-          resourceType: "booking.list",
-          resourceReference:
-            normalized.resourceReference ??
-            normalized.customerReference ??
-            "bookings",
-        },
+      const decision = await deps.bookingAuthorizationPolicy.decide({
+        actorReference,
+        operation: "list",
+        resourceType: "booking.list",
+        resourceReference:
+          normalized.resourceReference ??
+          normalized.customerReference ??
+          "bookings",
         metadata: {
           ...(input.metadata ?? {}),
           filters: {
@@ -97,17 +89,8 @@ export function createListBookingsUseCase(
         },
       });
 
-      if (isDenied(authorization.decision)) {
-        return failure({
-          code: "ForbiddenError",
-          message: authorization.decision.reason ?? "Booking list denied",
-          details: {
-            decision: authorization.decision.decision,
-            ...(authorization.decision.metadata !== undefined
-              ? { decisionMetadata: authorization.decision.metadata }
-              : {}),
-          },
-        });
+      if (!decision.allowed) {
+        return forbiddenFromBookingPolicy(decision, "Booking list denied");
       }
 
       const query = toListBookingsQuery(normalized);
@@ -126,7 +109,6 @@ interface NormalizedListBookingsInput {
   startAt?: string;
   endAt?: string;
   status?: ListBookingsInput["status"];
-  /** True when customerReference was defaulted from actorReference. */
   customerScopeDefaulted: boolean;
 }
 

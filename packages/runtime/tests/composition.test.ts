@@ -28,6 +28,7 @@ describe("@motanos/runtime composition", () => {
     });
 
     assert.ok(composed.authorization);
+    assert.ok(composed.bookingAuthorizationPolicy);
     assert.ok(composed.bookingRepository);
     assert.ok(composed.booking);
     assert.ok(composed.bookingQuery);

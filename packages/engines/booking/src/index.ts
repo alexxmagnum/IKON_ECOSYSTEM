@@ -103,6 +103,23 @@ export type { BookingQueryService } from "./queries";
 export { createBookingQueryService } from "./queries";
 
 export type {
+  BookingAuthAction,
+  BookingAuthOperation,
+  BookingAuthorizationDecision,
+  BookingAuthorizationGateway,
+  BookingAuthorizationPolicy,
+  BookingAuthorizationRequest,
+  BookingAuthorizationResourceContext,
+} from "./policies";
+export {
+  BOOKING_AUTH_ACTIONS,
+  BOOKING_AUTH_OPERATIONS,
+  bookingAuthActionFor,
+  createBookingAuthorizationPolicy,
+  isBookingAuthOperation,
+} from "./policies";
+
+export type {
   BookingRepository,
   FindBookingConflictsQuery,
 } from "./repositories";

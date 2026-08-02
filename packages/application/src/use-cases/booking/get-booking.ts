@@ -1,11 +1,7 @@
-import type { BookingQueryService } from "@motanos/booking";
-import {
-  isDenied,
-  type AuthorizationService,
-} from "@motanos/permissions";
+import type { BookingAuthorizationPolicy, BookingQueryService } from "@motanos/booking";
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
-import { READ_BOOKING_ACTION } from "./actions";
+import { forbiddenFromBookingPolicy } from "./booking-auth";
 import { normalizeReference } from "./normalize";
 import {
   toBookingOutput,
@@ -14,14 +10,14 @@ import {
 } from "./types";
 
 export interface GetBookingUseCaseDeps {
-  authorization: AuthorizationService;
+  bookingAuthorizationPolicy: BookingAuthorizationPolicy;
   bookingQuery: BookingQueryService;
 }
 
 export type GetBookingUseCase = UseCase<GetBookingInput, GetBookingOutput>;
 
 /**
- * GetBooking — auth-first read by opaque reference (no existence oracle).
+ * GetBooking — auth-first via BookingAuthorizationPolicy (no existence oracle).
  */
 export function createGetBookingUseCase(
   deps: GetBookingUseCaseDeps,
@@ -55,29 +51,18 @@ export function createGetBookingUseCase(
         });
       }
 
-      const authorization = await deps.authorization.authorize({
-        actor: actorReference,
-        action: READ_BOOKING_ACTION,
-        resource: {
-          resourceType: "booking",
-          resourceReference: bookingReference,
-        },
+      const decision = await deps.bookingAuthorizationPolicy.decide({
+        actorReference,
+        operation: "read",
+        resourceType: "booking",
+        resourceReference: bookingReference,
         ...(input.metadata !== undefined
           ? { metadata: input.metadata }
           : {}),
       });
 
-      if (isDenied(authorization.decision)) {
-        return failure({
-          code: "ForbiddenError",
-          message: authorization.decision.reason ?? "Booking read denied",
-          details: {
-            decision: authorization.decision.decision,
-            ...(authorization.decision.metadata !== undefined
-              ? { decisionMetadata: authorization.decision.metadata }
-              : {}),
-          },
-        });
+      if (!decision.allowed) {
+        return forbiddenFromBookingPolicy(decision, "Booking read denied");
       }
 
       const current = await deps.bookingQuery.getBooking(bookingReference);
