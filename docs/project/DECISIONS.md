@@ -1067,3 +1067,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Approval with Authorization/RBAC/Workflow Engine; Application → Approval Provider; embedding roles/JWT/secrets; implementing human BPM in this phase.
 
 ---
+
+## DEC-BOOKING-EXCEPTION-001 — Booking Exception Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 54 introduces an Exception Boundary so Booking can express registered special-case **business** situations that require treatment, without becoming Domain Errors, Authorization, Approval, Workflow Engines, Support Tickets, Incident Management, or a generic container for technical/infrastructure failures. Distinct from “can the actor?” (Authorization), “do conditions hold?” (Policy), “is the transition valid?” (Domain), and “who must approve?” (Approval).
+
+**Decision:**
+
+* **Ownership:** `BookingException`, factories, and `BookingExceptionPort` live in `@motanos/booking` (`packages/engines/booking/src/exceptions/`). Exception belongs to the Booking Engine — not Support, Incident, Approval, Authorization, or Runtime.
+* **Scope:** `BookingException` represents **business exceptions of the Booking context**. It does **not** represent technical infrastructure errors. Payment failures, integration failures, persistence failures, and runtime/API failures remain in their own boundaries (Payment, Integration, Persistence/Runtime, API).
+* **Pipeline relation:** Booking Domain → Exception Boundary → Approval (if applicable) → Workflow (if applicable) → Booking Operation. Never: Technical Error → Booking Exception. Exception answers “is there a registered special condition requiring treatment, and what is its status?”
+* **Separations:** Domain Error = invalid operation; Exception = registered business situation needing treatment. Authorization ≠ Exception. Policy ≠ Exception (`resolveException` is not Policy evaluation). Approval ≠ Exception (an exception may later require approval). Exception ≠ Support Ticket / Incident.
+* **Kinds (foundation):** `booking.conflict`, `booking.override_required`, `booking.manual_intervention`, `booking.business_exception`, `booking.operational_exception`. Technical/infrastructure failure kinds are rejected — they stay outside this boundary. `operational_exception` means an operational Booking-process situation, **not** server/API/provider/infrastructure failure.
+* **Statuses (foundation):** `pending`, `resolved`, `dismissed`, `expired`, `cancelled`.
+* **Contract shape:** Opaque `exceptionReference`, `tenantReference`, `exceptionKind`, `exceptionStatus`; optional `bookingReference`, `actorReference`, opaque `reasonReference`, controlled `metadata`. No passwords, tokens, API keys, PII, or full logs.
+* **Tenant isolation:** Exception may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Workflow:** Workflows may consult Exception Boundary (DEC-BOOKING-WORKFLOW-001). Workflows must not call Exception Providers (tickets, Slack, Jira, email).
+* **Application:** Forbidden `Application → Exception Service`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No new exception domain events in this foundation. Existing Booking domain events remain intact. Exception Boundary does not emit events.
+* **Runtime:** Composition root for future `Exception Port → Adapter` (`registerException` / `resolveException`). No databases, tickets, emails, Slack, Jira, or external providers in this foundation.
+* **Deferred:** real exception handlers, support/incident integrations, human intervention UIs.
+
+**Rejected:** Mixing Exception with Domain Error/Authorization/Approval/Support/Incident/technical infrastructure errors; Policy-style evaluation on the Exception Port (use `resolveException` for status treatment only); Application → Exception Provider; embedding secrets/PII/full logs; implementing ticket systems in this phase.
+
+---

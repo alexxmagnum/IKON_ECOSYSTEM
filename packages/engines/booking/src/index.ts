@@ -332,6 +332,27 @@ export {
 } from "./approvals";
 
 export type {
+  BookingException,
+  BookingExceptionKind,
+  BookingExceptionPort,
+  BookingExceptionStatus,
+  CreateBookingExceptionInput,
+  CreateBookingExceptionOptions,
+} from "./exceptions";
+export {
+  BOOKING_EXCEPTION_KINDS,
+  BOOKING_EXCEPTION_KIND_VALUES,
+  BOOKING_EXCEPTION_STATUSES,
+  BOOKING_EXCEPTION_STATUS_VALUES,
+  createBookingException,
+  isBookingException,
+  isBookingExceptionKind,
+  isBookingExceptionPort,
+  isBookingExceptionStatus,
+  resetBookingExceptionReferenceSequence,
+} from "./exceptions";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,
