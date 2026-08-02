@@ -1805,3 +1805,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Asset into File Storage; absorbing Media Processing or Authorization; Asset → S3/Supabase/CDN imports; Application → Storage Provider; implementing upload/download or transforms in this phase.
 
 ---
+
+## DEC-SEARCH-BOUNDARY-001 — Search Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 82 introduces the Search Engine so MotanOS can express conceptual discovery capacity, indexable entity references, and future search context independently of Elasticsearch, Algolia, ranking algorithms, domain-specific filters, index storage, and search analytics. Search answers “what information is available for discovery?” — not how it is stored, sorted, or queried technically.
+
+**Decision:**
+
+* **Ownership:** `SearchEntry`, factories, and `SearchPort` live in `@motanos/search` (`packages/engines/search`). Search is an independent bounded context — not Booking, Experience, Community, Commerce, Asset, Database, or Analytics.
+* **Pipeline relation:** Domain Events / Entity References → Search Boundary → Future Search Provider. Domain engines own what exists; Search owns what may be found; Search Provider owns how discovery runs technically. Experience / Community / Resource / Asset / Tenant / Commerce may be referenced opaquely.
+* **Separations:** Search ≠ Database. Search ≠ Search Provider. Search ≠ Analytics. Search ≠ Recommendation Engine. No Elasticsearch, Algolia, SQL queries, database indexes, ranking engines, recommendations, business filters, or permissions in this foundation.
+* **Kinds (foundation):** `search.entity`, `search.content`, `search.experience`, `search.community`, `search.resource`, `search.operational`.
+* **Statuses (foundation):** `draft`, `active`, `paused`, `indexed`, `archived`, `cancelled` (e.g. draft → active → indexed → archived).
+* **Contract shape:** Opaque `searchReference`, required `tenantReference`, `searchKind`, `searchStatus`; optional opaque `entityReference`, `entityKind`, `nameReference`, `descriptionReference`, `contextReference`, `ownerReference`, controlled `metadata`. No passwords, tokens, credentials, secrets, or API keys. Future opaque links to experience/community/resource/asset/commerce/tenant — never engine imports.
+* **Tenant isolation:** Search entries may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createSearchEntry` / `resolveSearchEntry` only. No search, query, index, rank, suggest, or autocomplete methods in this foundation.
+* **Runtime:** Composition root for future `Search Port → Adapter`. No database, adapters, providers, or search clients in this foundation.
+* **Dependencies:** `@motanos/search` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** provider adapters, ranking policies, crawling, indexing runtime, suggestion APIs.
+
+**Rejected:** Turning Search into an external search product; absorbing Analytics or recommendations; Search → Elasticsearch/Algolia/database imports; Application → Search Provider; implementing real query/rank/index runtime in this phase.
+
+---
