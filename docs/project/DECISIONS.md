@@ -1517,3 +1517,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Absorbing Booking into Availability; turning Availability into Calendar; Availability → Booking/Resource/Calendar/Payment imports; Application → Availability Provider; implementing check/generate/block/calculate adapters in this phase.
 
 ---
+
+## DEC-CALENDAR-BOUNDARY-001 — Calendar Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 71 introduces the Calendar Engine so MotanOS can represent business events and temporal references independently of Booking (usage intent), Availability (when something may be used), and Experience (what is offered). An event can exist without bookings. Calendar must not become Booking or Experience.
+
+**Decision:**
+
+* **Ownership:** `CalendarEvent`, factories, and `CalendarPort` live in `@motanos/calendar` (`packages/engines/calendar`). Calendar is an independent bounded context — not Booking, Availability, Resource, Experience, Community, Commerce, Auth, or Runtime adapters.
+* **Pipeline relation:** Calendar Definition → Calendar Event → Experience / Community / Resource References → Future Participation / Booking / Commerce. Calendar answers “what occurs and when?”
+* **Separations:** Calendar ≠ Booking (event may exist without reservations). Calendar ≠ Availability (events may consume usable windows later; they do not define them). Calendar ≠ Experience (one offering may have many occurrences).
+* **Kinds (foundation):** `calendar.event`, `calendar.session`, `calendar.activity`, `calendar.tournament`, `calendar.maintenance`, `calendar.operational`.
+* **Statuses (foundation):** `draft`, `scheduled`, `active`, `completed`, `cancelled`, `archived` (e.g. draft → scheduled → active → completed).
+* **Contract shape:** Opaque `eventReference`, required `tenantReference`, `eventKind`, `eventStatus`; optional opaque `nameReference`, `descriptionReference`, `experienceReference`, `resourceReference`, `communityReference`, `startReference`, `endReference`, controlled `metadata`. No passwords, tokens, OAuth material, or credentials.
+* **Tenant isolation:** Calendar events may be bound to a tenant; cross-tenant creation is denied.
+* **Future refs:** May later hold opaque `bookingReference` — never full foreign aggregates.
+* **Port surface:** `createCalendarEvent` / `resolveCalendarEvent` only. No createBooking, reserve, checkAvailability, sendReminder, or external calendar sync in this foundation.
+* **Runtime:** Composition root for future `Calendar Port → Adapter`. No database, Google/Outlook adapters, cron, or reminders in this foundation.
+* **Dependencies:** `@motanos/calendar` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** occurrence materialization, Availability consumption, Booking/Experience Runtime wiring, external calendar sync.
+
+**Rejected:** Turning Calendar into Booking or Experience; Calendar → Booking/Availability/Payment/OAuth imports; Application → Calendar Provider; implementing sync, reminders, or persistence adapters in this phase.
+
+---
