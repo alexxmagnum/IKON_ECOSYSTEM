@@ -6,23 +6,11 @@
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type {
-  Booking,
-  BookingService,
-  CreateBookingInput as BookingEngineCreateInput,
-} from "@motanos/booking";
+import type { BookingService, BookingQueryService } from "@motanos/booking";
 import {
-  canRescheduleBooking,
-  canTransitionBooking,
-  checkRangeAvailability,
-  DEFAULT_HOLD_TTL_MINUTES,
-  emitBookingCancelled,
-  emitBookingConfirmed,
-  emitBookingCreated,
-  emitBookingHoldExpired,
-  emitBookingRescheduled,
-  intervalsOverlap,
-  shouldExpireBookingHold,
+  createBookingQueryService,
+  createBookingService,
+  createInMemoryBookingRepository,
 } from "@motanos/booking";
 import {
   allow,
@@ -44,204 +32,14 @@ import {
   type CreateBookingInput,
 } from "../src/index.js";
 
-function memoryBookingService(): BookingService {
-  const store = new Map<string, Booking>();
-  let seq = 0;
-
+function memoryBookingStack(): {
+  booking: BookingService;
+  bookingQuery: BookingQueryService;
+} {
+  const repository = createInMemoryBookingRepository();
   return {
-    async create(input: BookingEngineCreateInput) {
-      seq += 1;
-      const id = `booking-ref-${seq}`;
-      const holdExpiresAt = new Date(
-        Date.now() + DEFAULT_HOLD_TTL_MINUTES * 60_000,
-      ).toISOString();
-      const booking: Booking = {
-        id,
-        resourceId: input.resourceId,
-        ownerUserId: input.ownerUserId,
-        startsAt: input.startsAt,
-        endsAt: input.endsAt,
-        status: "Draft",
-        holdExpiresAt,
-        ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
-      };
-      store.set(id, booking);
-      return {
-        booking,
-        events: [emitBookingCreated(booking)],
-      };
-    },
-    async confirm(input) {
-      const existing = store.get(input.bookingId);
-      if (!existing) throw new Error("missing");
-      if (
-        !canTransitionBooking(
-          existing.status,
-          "Confirmed",
-          "booking.confirmed_without_payment",
-        )
-      ) {
-        throw new Error("invalid");
-      }
-      const { holdExpiresAt: _h, ...rest } = existing;
-      const next: Booking = { ...rest, status: "Confirmed" };
-      store.set(next.id, next);
-      return {
-        booking: next,
-        events: [emitBookingConfirmed(next)],
-      };
-    },
-    async update(input) {
-      const existing = store.get(input.bookingId);
-      if (!existing) throw new Error("missing");
-      const next: Booking = {
-        ...existing,
-        ...(input.startsAt !== undefined ? { startsAt: input.startsAt } : {}),
-        ...(input.endsAt !== undefined ? { endsAt: input.endsAt } : {}),
-        ...(input.status !== undefined ? { status: input.status } : {}),
-        ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
-        ...((input as { holdExpiresAt?: string }).holdExpiresAt !== undefined
-          ? {
-              holdExpiresAt: (input as { holdExpiresAt?: string })
-                .holdExpiresAt,
-            }
-          : {}),
-      };
-      // Allow tests to patch holdExpiresAt via metadata.__holdExpiresAt
-      if (input.metadata?.__holdExpiresAt !== undefined) {
-        const hold = input.metadata.__holdExpiresAt;
-        if (typeof hold === "string") {
-          next.holdExpiresAt = hold;
-        }
-      }
-      store.set(next.id, next);
-      return { booking: next };
-    },
-    async reschedule(input) {
-      const existing = store.get(input.bookingId);
-      if (!existing) throw new Error(`NOT_FOUND:${input.bookingId}`);
-      if (!canRescheduleBooking(existing.status)) {
-        throw new Error(
-          `PRECONDITION:Cannot reschedule booking from status ${existing.status}`,
-        );
-      }
-      const availability = checkRangeAvailability(
-        existing.resourceId,
-        { startsAt: input.startsAt, endsAt: input.endsAt },
-        [...store.values()],
-        { excludeBookingId: existing.id },
-      );
-      if (!availability.available) {
-        throw new Error(`CONFLICT:${availability.reason ?? "overlap"}`);
-      }
-      const next: Booking = {
-        ...existing,
-        startsAt: input.startsAt,
-        endsAt: input.endsAt,
-      };
-      store.set(next.id, next);
-      return {
-        booking: next,
-        events: [
-          emitBookingRescheduled(next, {
-            startsAt: existing.startsAt,
-            endsAt: existing.endsAt,
-          }),
-        ],
-      };
-    },
-    async expireHolds(input) {
-      const candidates =
-        input.bookingIds !== undefined
-          ? input.bookingIds
-              .map((id) => store.get(id))
-              .filter((b): b is Booking => b !== undefined)
-          : [...store.values()];
-
-      const expired: { booking: Booking }[] = [];
-      const expiredBookingIds: string[] = [];
-      const events: ReturnType<typeof emitBookingHoldExpired>[] = [];
-
-      for (const booking of candidates) {
-        if (!shouldExpireBookingHold(booking, input.now)) {
-          continue;
-        }
-        const { holdExpiresAt: _hold, ...rest } = booking;
-        const next: Booking = { ...rest, status: "Expired" };
-        store.set(next.id, next);
-        expired.push({ booking: next });
-        expiredBookingIds.push(next.id);
-        events.push(emitBookingHoldExpired(next, input.now));
-      }
-
-      return {
-        expired,
-        expiredBookingIds,
-        processedCount: candidates.length,
-        ...(events.length > 0 ? { events } : {}),
-      };
-    },
-    async cancel(input) {
-      const existing = store.get(input.bookingId);
-      if (!existing) throw new Error("missing");
-      if (
-        !canTransitionBooking(
-          existing.status,
-          "Cancelled",
-          "booking.cancelled_by_user",
-        )
-      ) {
-        throw new Error("invalid");
-      }
-      const next: Booking = { ...existing, status: "Cancelled" };
-      store.set(next.id, next);
-      return {
-        booking: next,
-        events: [emitBookingCancelled(next)],
-      };
-    },
-    async getById(id) {
-      const booking = store.get(id);
-      return booking ? { booking } : null;
-    },
-    async list(query) {
-      return [...store.values()]
-        .filter((booking) => {
-          if (query.resourceId && booking.resourceId !== query.resourceId) {
-            return false;
-          }
-          if (query.ownerUserId && booking.ownerUserId !== query.ownerUserId) {
-            return false;
-          }
-          if (query.status) {
-            const statuses = Array.isArray(query.status)
-              ? query.status
-              : [query.status];
-            if (!statuses.includes(booking.status)) {
-              return false;
-            }
-          }
-          if (query.range && !intervalsOverlap(booking, query.range)) {
-            return false;
-          }
-          return true;
-        })
-        .map((booking) => ({ booking }));
-    },
-    async checkAvailability(input) {
-      const check = checkRangeAvailability(
-        input.resourceId,
-        { startsAt: input.startsAt, endsAt: input.endsAt },
-        [...store.values()],
-      );
-      return {
-        available: check.available,
-        resourceId: input.resourceId,
-        startsAt: input.startsAt,
-        endsAt: input.endsAt,
-        ...(check.reason !== undefined ? { reason: check.reason } : {}),
-      };
-    },
+    booking: createBookingService(repository),
+    bookingQuery: createBookingQueryService(repository),
   };
 }
 
@@ -278,7 +76,7 @@ describe("CreateBooking vertical slice", () => {
   it("Case 1: valid CreateBooking returns success", async () => {
     const useCase = createCreateBookingUseCase({
       authorization: allowAllAuthorization(),
-      booking: memoryBookingService(),
+      booking: memoryBookingStack().booking,
     });
 
     const result = await useCase.execute(validInput, {
@@ -299,7 +97,7 @@ describe("CreateBooking vertical slice", () => {
   it("Case 2: invalid input returns ApplicationError ValidationError", async () => {
     const useCase = createCreateBookingUseCase({
       authorization: allowAllAuthorization(),
-      booking: memoryBookingService(),
+      booking: memoryBookingStack().booking,
     });
 
     const result = await useCase.execute(
@@ -318,7 +116,7 @@ describe("CreateBooking vertical slice", () => {
   it("Case 3: authorization denied returns ForbiddenError", async () => {
     const useCase = createCreateBookingUseCase({
       authorization: denyAllAuthorization(),
-      booking: memoryBookingService(),
+      booking: memoryBookingStack().booking,
     });
 
     const result = await useCase.execute(validInput, {
@@ -334,12 +132,13 @@ describe("CreateBooking vertical slice", () => {
 
 describe("ConfirmBooking / CancelBooking lifecycle", () => {
   it("Confirm success — Draft → Confirmed", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const create = createCreateBookingUseCase({ authorization: auth, booking });
     const confirm = createConfirmBookingUseCase({
       authorization: auth,
       booking,
+      bookingQuery,
     });
 
     const created = await create.execute(validInput, {
@@ -359,10 +158,14 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
   });
 
   it("Cancel success — Draft → Cancelled", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const create = createCreateBookingUseCase({ authorization: auth, booking });
-    const cancel = createCancelBookingUseCase({ authorization: auth, booking });
+    const cancel = createCancelBookingUseCase({
+      authorization: auth,
+      booking,
+      bookingQuery,
+    });
 
     const created = await create.execute(validInput, {
       actorReference: "actor-1",
@@ -380,7 +183,7 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
   });
 
   it("Forbidden confirm", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const created = await createCreateBookingUseCase({
       authorization: allowAllAuthorization(),
       booking,
@@ -391,6 +194,7 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
     const result = await createConfirmBookingUseCase({
       authorization: denyAllAuthorization(),
       booking,
+      bookingQuery,
     }).execute(
       { bookingReference: created.data.bookingReference },
       { actorReference: "actor-denied" },
@@ -402,7 +206,7 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
   });
 
   it("Forbidden cancel", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const created = await createCreateBookingUseCase({
       authorization: allowAllAuthorization(),
       booking,
@@ -413,6 +217,7 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
     const result = await createCancelBookingUseCase({
       authorization: denyAllAuthorization(),
       booking,
+      bookingQuery,
     }).execute(
       { bookingReference: created.data.bookingReference },
       { actorReference: "actor-denied" },
@@ -434,7 +239,7 @@ describe("CheckAvailability", () => {
   it("available = true when no overlapping booking", async () => {
     const useCase = createCheckAvailabilityUseCase({
       authorization: allowAllAuthorization(),
-      booking: memoryBookingService(),
+      bookingQuery: memoryBookingStack().bookingQuery,
     });
 
     const result = await useCase.execute(range, {
@@ -446,7 +251,7 @@ describe("CheckAvailability", () => {
   });
 
   it("available = false when overlapping Draft exists", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     await createCreateBookingUseCase({ authorization: auth, booking }).execute(
       {
@@ -460,7 +265,7 @@ describe("CheckAvailability", () => {
 
     const result = await createCheckAvailabilityUseCase({
       authorization: auth,
-      booking,
+      bookingQuery,
     }).execute(range, { actorReference: "actor-1" });
 
     assert.equal(isSuccess(result), true);
@@ -472,7 +277,7 @@ describe("CheckAvailability", () => {
   it("Forbidden availability", async () => {
     const result = await createCheckAvailabilityUseCase({
       authorization: denyAllAuthorization(),
-      booking: memoryBookingService(),
+      bookingQuery: memoryBookingStack().bookingQuery,
     }).execute(range, { actorReference: "actor-denied" });
 
     assert.equal(isFailure(result), true);
@@ -483,7 +288,7 @@ describe("CheckAvailability", () => {
 
 describe("GetBooking / ListBookings", () => {
   it("Get booking success", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
       authorization: auth,
@@ -494,7 +299,7 @@ describe("GetBooking / ListBookings", () => {
 
     const got = await createGetBookingUseCase({
       authorization: auth,
-      booking,
+      bookingQuery,
     }).execute(
       { bookingReference: `  ${created.data.bookingReference}  ` },
       { actorReference: " actor-1 " },
@@ -508,7 +313,7 @@ describe("GetBooking / ListBookings", () => {
   it("Get booking not found after authorize", async () => {
     const result = await createGetBookingUseCase({
       authorization: allowAllAuthorization(),
-      booking: memoryBookingService(),
+      bookingQuery: memoryBookingStack().bookingQuery,
     }).execute(
       { bookingReference: "missing-booking" },
       { actorReference: "actor-1" },
@@ -519,7 +324,7 @@ describe("GetBooking / ListBookings", () => {
   });
 
   it("Forbidden read — denied before existence check", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const created = await createCreateBookingUseCase({
       authorization: allowAllAuthorization(),
       booking,
@@ -529,7 +334,7 @@ describe("GetBooking / ListBookings", () => {
 
     const deniedExisting = await createGetBookingUseCase({
       authorization: denyAllAuthorization(),
-      booking,
+      bookingQuery,
     }).execute(
       { bookingReference: created.data.bookingReference },
       { actorReference: "actor-denied" },
@@ -540,7 +345,7 @@ describe("GetBooking / ListBookings", () => {
 
     const deniedMissing = await createGetBookingUseCase({
       authorization: denyAllAuthorization(),
-      booking,
+      bookingQuery,
     }).execute(
       { bookingReference: "does-not-exist" },
       { actorReference: "actor-denied" },
@@ -551,7 +356,7 @@ describe("GetBooking / ListBookings", () => {
   });
 
   it("List bookings filters — resource, customer, status, range", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const create = createCreateBookingUseCase({ authorization: auth, booking });
 
@@ -586,7 +391,7 @@ describe("GetBooking / ListBookings", () => {
       { actorReference: "actor-1" },
     );
 
-    const list = createListBookingsUseCase({ authorization: auth, booking });
+    const list = createListBookingsUseCase({ authorization: auth, bookingQuery });
 
     const byResource = await list.execute(
       { resourceReference: "  resource-1  " },
@@ -633,7 +438,7 @@ describe("GetBooking / ListBookings", () => {
   it("List validation — startAt/endAt must be together", async () => {
     const list = createListBookingsUseCase({
       authorization: allowAllAuthorization(),
-      booking: memoryBookingService(),
+      bookingQuery: memoryBookingStack().bookingQuery,
     });
 
     const startOnly = await list.execute(
@@ -656,7 +461,7 @@ describe("GetBooking / ListBookings", () => {
   it("Forbidden list", async () => {
     const result = await createListBookingsUseCase({
       authorization: denyAllAuthorization(),
-      booking: memoryBookingService(),
+      bookingQuery: memoryBookingStack().bookingQuery,
     }).execute({}, { actorReference: "actor-denied" });
 
     assert.equal(isFailure(result), true);
@@ -667,7 +472,7 @@ describe("GetBooking / ListBookings", () => {
 
 describe("RescheduleBooking", () => {
   it("Reschedule success", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
       authorization: auth,
@@ -679,6 +484,7 @@ describe("RescheduleBooking", () => {
     const result = await createRescheduleBookingUseCase({
       authorization: auth,
       booking,
+      bookingQuery,
     }).execute(
       {
         bookingReference: created.data.bookingReference,
@@ -695,7 +501,7 @@ describe("RescheduleBooking", () => {
   });
 
   it("Reschedule unavailable — ConflictError", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const create = createCreateBookingUseCase({ authorization: auth, booking });
     const first = await create.execute(validInput, {
@@ -716,6 +522,7 @@ describe("RescheduleBooking", () => {
     const result = await createRescheduleBookingUseCase({
       authorization: auth,
       booking,
+      bookingQuery,
     }).execute(
       {
         bookingReference: first.data.bookingReference,
@@ -730,7 +537,7 @@ describe("RescheduleBooking", () => {
   });
 
   it("Forbidden reschedule", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const created = await createCreateBookingUseCase({
       authorization: allowAllAuthorization(),
       booking,
@@ -741,6 +548,7 @@ describe("RescheduleBooking", () => {
     const result = await createRescheduleBookingUseCase({
       authorization: denyAllAuthorization(),
       booking,
+      bookingQuery,
     }).execute(
       {
         bookingReference: created.data.bookingReference,
@@ -755,7 +563,7 @@ describe("RescheduleBooking", () => {
   });
 
   it("Cancelled booking cannot reschedule", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
       authorization: auth,
@@ -767,6 +575,7 @@ describe("RescheduleBooking", () => {
     const cancelled = await createCancelBookingUseCase({
       authorization: auth,
       booking,
+      bookingQuery,
     }).execute(
       { bookingReference: created.data.bookingReference },
       { actorReference: "actor-1" },
@@ -776,6 +585,7 @@ describe("RescheduleBooking", () => {
     const result = await createRescheduleBookingUseCase({
       authorization: auth,
       booking,
+      bookingQuery,
     }).execute(
       {
         bookingReference: created.data.bookingReference,
@@ -792,7 +602,7 @@ describe("RescheduleBooking", () => {
 
 describe("ExpireBookingHolds", () => {
   it("Expire expired Draft booking", async () => {
-    const booking = memoryBookingService();
+    const { booking } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
       authorization: auth,
@@ -821,7 +631,7 @@ describe("ExpireBookingHolds", () => {
   });
 
   it("Ignore active hold", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
       authorization: auth,
@@ -847,12 +657,12 @@ describe("ExpireBookingHolds", () => {
     assert.equal(result.data.expiredBookingReferences.length, 0);
     assert.equal(result.data.processedCount, 1);
 
-    const still = await booking.getById(created.data.bookingReference);
-    assert.equal(still?.booking.status, "Draft");
+    const still = await bookingQuery.getBooking(created.data.bookingReference);
+    assert.equal(still?.status, "Draft");
   });
 
   it("Ignore Confirmed booking", async () => {
-    const booking = memoryBookingService();
+    const { booking, bookingQuery } = memoryBookingStack();
     const auth = allowAllAuthorization();
     const created = await createCreateBookingUseCase({
       authorization: auth,
@@ -864,6 +674,7 @@ describe("ExpireBookingHolds", () => {
     const confirmed = await createConfirmBookingUseCase({
       authorization: auth,
       booking,
+      bookingQuery,
     }).execute(
       { bookingReference: created.data.bookingReference },
       { actorReference: "actor-1" },
@@ -886,14 +697,14 @@ describe("ExpireBookingHolds", () => {
     if (!isSuccess(result)) return;
     assert.equal(result.data.expiredBookingReferences.length, 0);
 
-    const still = await booking.getById(created.data.bookingReference);
-    assert.equal(still?.booking.status, "Confirmed");
+    const still = await bookingQuery.getBooking(created.data.bookingReference);
+    assert.equal(still?.status, "Confirmed");
   });
 
   it("Forbidden expiration", async () => {
     const result = await createExpireBookingHoldsUseCase({
       authorization: denyAllAuthorization(),
-      booking: memoryBookingService(),
+      booking: memoryBookingStack().booking,
     }).execute(
       { now: "2026-08-02T12:00:00.000Z" },
       { actorReference: "actor-denied" },

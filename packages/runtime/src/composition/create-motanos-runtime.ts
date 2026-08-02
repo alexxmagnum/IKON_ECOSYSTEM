@@ -18,8 +18,13 @@ import {
   type ListBookingsUseCase,
   type RescheduleBookingUseCase,
 } from "@motanos/application";
-import type { BookingRepository, BookingService } from "@motanos/booking";
+import type {
+  BookingQueryService,
+  BookingRepository,
+  BookingService,
+} from "@motanos/booking";
 import {
+  createBookingQueryService,
   createBookingService,
   createInMemoryBookingRepository,
 } from "@motanos/booking";
@@ -56,8 +61,8 @@ export interface CreateMotanOSRuntimeOptions {
   config?: RuntimeConfig;
   authorization?: AuthorizationService;
   deniedActors?: readonly string[];
-  /** Override both repository and service when provided. */
   booking?: BookingService;
+  bookingQuery?: BookingQueryService;
   bookingRepository?: BookingRepository;
   register?: CreateRuntimeOptions["register"];
 }
@@ -67,9 +72,9 @@ export interface MotanOSComposedRuntime {
   api: ApiService;
   application: ApplicationService;
   authorization: AuthorizationService;
-  /** Persistence adapter wired into BookingService (foundation: in-memory). */
   bookingRepository: BookingRepository;
   booking: BookingService;
+  bookingQuery: BookingQueryService;
   createBooking: CreateBookingUseCase;
   confirmBooking: ConfirmBookingUseCase;
   cancelBooking: CancelBookingUseCase;
@@ -89,7 +94,7 @@ export interface MotanOSComposedRuntime {
 }
 
 /**
- * Official MotanOS bootstrap — Booking write/read/reschedule composition.
+ * Official MotanOS bootstrap — command + query Booking composition.
  */
 export function createMotanOSRuntime(
   options: CreateMotanOSRuntimeOptions = {},
@@ -106,35 +111,53 @@ export function createMotanOSRuntime(
 
   let bookingRepository: BookingRepository;
   let booking: BookingService;
+  let bookingQuery: BookingQueryService;
 
-  if (options.booking !== undefined) {
-    booking = options.booking;
+  if (options.booking !== undefined || options.bookingQuery !== undefined) {
     bookingRepository =
       options.bookingRepository ?? createInMemoryBookingRepository();
+    booking =
+      options.booking ?? createBookingService(bookingRepository);
+    bookingQuery =
+      options.bookingQuery ?? createBookingQueryService(bookingRepository);
   } else if (options.bookingRepository !== undefined) {
     bookingRepository = options.bookingRepository;
     booking = createBookingService(bookingRepository);
+    bookingQuery = createBookingQueryService(bookingRepository);
   } else {
     const stack = createInMemoryBookingStack();
     bookingRepository = stack.repository;
     booking = stack.booking;
+    bookingQuery = stack.bookingQuery;
   }
 
   const createBooking = createCreateBookingUseCase({ authorization, booking });
   const confirmBooking = createConfirmBookingUseCase({
     authorization,
     booking,
+    bookingQuery,
   });
-  const cancelBooking = createCancelBookingUseCase({ authorization, booking });
-  const checkAvailability = createCheckAvailabilityUseCase({
+  const cancelBooking = createCancelBookingUseCase({
     authorization,
     booking,
+    bookingQuery,
   });
-  const getBooking = createGetBookingUseCase({ authorization, booking });
-  const listBookings = createListBookingsUseCase({ authorization, booking });
+  const checkAvailability = createCheckAvailabilityUseCase({
+    authorization,
+    bookingQuery,
+  });
+  const getBooking = createGetBookingUseCase({
+    authorization,
+    bookingQuery,
+  });
+  const listBookings = createListBookingsUseCase({
+    authorization,
+    bookingQuery,
+  });
   const rescheduleBooking = createRescheduleBookingUseCase({
     authorization,
     booking,
+    bookingQuery,
   });
   const expireBookingHolds = createExpireBookingHoldsUseCase({
     authorization,
@@ -201,6 +224,7 @@ export function createMotanOSRuntime(
     authorization,
     bookingRepository,
     booking,
+    bookingQuery,
     createBooking,
     confirmBooking,
     cancelBooking,

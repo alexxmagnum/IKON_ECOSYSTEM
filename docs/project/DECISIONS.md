@@ -534,3 +534,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 * **Deferred:** real DB transactions, Unit of Work, Outbox Pattern, Event Store, message queues.
 
 **Rejected:** Emitting events before persist; Application coordinating persistence+events; Repository emitting events.
+
+---
+
+## DEC-BOOKING-QUERY-002 — Booking command / query boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 33 separates read responsibilities from command mutations without full CQRS. Note: `DEC-BOOKING-QUERY-001` already covers ListBookings customer scope.
+
+**Decision:**
+
+* **Query ownership:** `BookingQueryService` lives in `@motanos/booking` (`packages/engines/booking/src/queries/`). Methods: `getBooking`, `listBookings`, `checkAvailability`.
+* **Command ownership:** `BookingService` retains create / confirm / cancel / reschedule / update / expireHolds only (mutations + events).
+* **Repository:** keep a **single** `BookingRepository` shared by command and query services for now. No `BookingQueryRepository` until a distinct read store is justified.
+* **Application:** Query use cases (Get / List / CheckAvailability) depend on `BookingQueryService`. Command use cases that need a pre-load use `bookingQuery.getBooking` then `BookingService` for the mutation. Application does not call Repository.
+* **Runtime:** wires the same repository into both services.
+* **Deferred:** full CQRS, read DB, projections, event sourcing, caches, replicas.
+
+**Rejected:** Queries mutating state or emitting events; Application → Repository; separate query repository without a concrete read-model need.

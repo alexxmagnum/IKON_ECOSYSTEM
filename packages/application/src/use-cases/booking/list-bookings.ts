@@ -1,5 +1,5 @@
 import type {
-  BookingService,
+  BookingQueryService,
   ListBookingsQuery,
 } from "@motanos/booking";
 import {
@@ -22,7 +22,7 @@ import {
 
 export interface ListBookingsUseCaseDeps {
   authorization: AuthorizationService;
-  booking: BookingService;
+  bookingQuery: BookingQueryService;
 }
 
 export type ListBookingsUseCase = UseCase<
@@ -111,10 +111,10 @@ export function createListBookingsUseCase(
       }
 
       const query = toListBookingsQuery(normalized);
-      const results = await deps.booking.list(query);
+      const results = await deps.bookingQuery.listBookings(query);
 
       return success({
-        bookings: results.map((item) => toBookingOutput(item.booking)),
+        bookings: results.map((item) => toBookingOutput(item)),
       });
     },
   };

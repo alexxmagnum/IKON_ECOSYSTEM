@@ -30,6 +30,7 @@ describe("@motanos/runtime composition", () => {
     assert.ok(composed.authorization);
     assert.ok(composed.bookingRepository);
     assert.ok(composed.booking);
+    assert.ok(composed.bookingQuery);
     assert.ok(composed.application);
     assert.ok(composed.api);
     assert.ok(composed.createBooking);
@@ -41,13 +42,16 @@ describe("@motanos/runtime composition", () => {
     assert.equal(registry.has(RUNTIME_SERVICE_TOKENS.cancelBooking), true);
   });
 
-  it("2b. Runtime wires BookingRepository → BookingService", async () => {
+  it("2b. Runtime wires BookingRepository → BookingService + BookingQueryService", async () => {
     const composed = createMotanOSRuntime({
       config: { environment: "test" },
     });
 
     assert.equal(typeof composed.bookingRepository.create, "function");
-    assert.equal(typeof composed.bookingRepository.findConflicts, "function");
+    assert.equal(typeof composed.booking.create, "function");
+    assert.equal(typeof composed.bookingQuery.getBooking, "function");
+    assert.equal(typeof composed.bookingQuery.listBookings, "function");
+    assert.equal(typeof composed.bookingQuery.checkAvailability, "function");
 
     const created = await composed.booking.create({
       resourceId: "resource-wire",
@@ -60,6 +64,10 @@ describe("@motanos/runtime composition", () => {
     );
     assert.ok(fromRepo);
     assert.equal(fromRepo.id, created.booking.id);
+
+    const fromQuery = await composed.bookingQuery.getBooking(created.booking.id);
+    assert.ok(fromQuery);
+    assert.equal(fromQuery.id, created.booking.id);
   });
 
   it("3. CreateBooking success — API → Application → Authorization → Booking", async () => {
@@ -175,6 +183,8 @@ describe("@motanos/runtime composition", () => {
     const denied = createMotanOSRuntime({
       config: { environment: "test" },
       booking: allowed.booking,
+      bookingQuery: allowed.bookingQuery,
+      bookingRepository: allowed.bookingRepository,
       deniedActors: ["actor-denied"],
     });
 
@@ -237,6 +247,8 @@ describe("@motanos/runtime composition", () => {
     const deniedRuntime = createMotanOSRuntime({
       config: { environment: "test" },
       booking: composed.booking,
+      bookingQuery: composed.bookingQuery,
+      bookingRepository: composed.bookingRepository,
       deniedActors: ["actor-denied"],
     });
     const forbidden = await deniedRuntime.checkAvailability.execute(
@@ -326,6 +338,8 @@ describe("@motanos/runtime composition", () => {
     const denied = createMotanOSRuntime({
       config: { environment: "test" },
       booking: composed.booking,
+      bookingQuery: composed.bookingQuery,
+      bookingRepository: composed.bookingRepository,
       deniedActors: ["actor-denied"],
     });
     const forbiddenRead = await denied.getBooking.execute(
@@ -392,6 +406,8 @@ describe("@motanos/runtime composition", () => {
     const denied = createMotanOSRuntime({
       config: { environment: "test" },
       booking: composed.booking,
+      bookingQuery: composed.bookingQuery,
+      bookingRepository: composed.bookingRepository,
       deniedActors: ["actor-denied"],
     });
     const forbidden = await denied.rescheduleBooking.execute(
@@ -449,6 +465,8 @@ describe("@motanos/runtime composition", () => {
     const denied = createMotanOSRuntime({
       config: { environment: "test" },
       booking: composed.booking,
+      bookingQuery: composed.bookingQuery,
+      bookingRepository: composed.bookingRepository,
       deniedActors: ["actor-denied"],
     });
     const forbidden = await denied.expireBookingHolds.execute(

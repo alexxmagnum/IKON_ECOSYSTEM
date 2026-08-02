@@ -1,17 +1,14 @@
 import type {
-  AvailabilityCheckInput,
-  AvailabilityCheckResult,
   BookingResult,
   CancelBookingInput,
   ConfirmBookingInput,
   CreateBookingInput,
   ExpireBookingHoldsInput,
   ExpireBookingHoldsResult,
-  ListBookingsQuery,
   RescheduleBookingInput,
   UpdateBookingInput,
 } from "../contracts";
-import type { Booking, BookingId } from "../domain/booking";
+import type { Booking } from "../domain/booking";
 import {
   canRescheduleBooking,
   canTransitionBooking,
@@ -213,16 +210,6 @@ export function createBookingService(
       );
     },
 
-    async getById(bookingId: BookingId): Promise<BookingResult | null> {
-      const booking = await repository.getById(bookingId);
-      return booking ? { booking } : null;
-    },
-
-    async list(query: ListBookingsQuery): Promise<BookingResult[]> {
-      const rows = await repository.list(query);
-      return rows.map((booking) => ({ booking }));
-    },
-
     async expireHolds(
       input: ExpireBookingHoldsInput,
     ): Promise<ExpireBookingHoldsResult> {
@@ -262,30 +249,6 @@ export function createBookingService(
         expiredBookingIds,
         processedCount: candidates.length,
         ...(events.length > 0 ? { events } : {}),
-      };
-    },
-
-    async checkAvailability(
-      input: AvailabilityCheckInput,
-    ): Promise<AvailabilityCheckResult> {
-      const conflicts = await repository.findConflicts({
-        resourceId: input.resourceId,
-        range: { startsAt: input.startsAt, endsAt: input.endsAt },
-      });
-      if (conflicts.length > 0) {
-        return {
-          available: false,
-          reason: `overlap:${conflicts[0]!.id}`,
-          resourceId: input.resourceId,
-          startsAt: input.startsAt,
-          endsAt: input.endsAt,
-        };
-      }
-      return {
-        available: true,
-        resourceId: input.resourceId,
-        startsAt: input.startsAt,
-        endsAt: input.endsAt,
       };
     },
   };

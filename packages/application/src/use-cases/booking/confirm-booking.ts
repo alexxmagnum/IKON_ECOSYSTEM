@@ -1,4 +1,7 @@
-import type { BookingService } from "@motanos/booking";
+import type {
+  BookingQueryService,
+  BookingService,
+} from "@motanos/booking";
 import { canTransitionBooking } from "@motanos/booking";
 import {
   isDenied,
@@ -16,6 +19,7 @@ import {
 export interface ConfirmBookingUseCaseDeps {
   authorization: AuthorizationService;
   booking: BookingService;
+  bookingQuery: BookingQueryService;
 }
 
 export type ConfirmBookingUseCase = UseCase<
@@ -46,7 +50,9 @@ export function createConfirmBookingUseCase(
         });
       }
 
-      const current = await deps.booking.getById(input.bookingReference);
+      const current = await deps.bookingQuery.getBooking(
+        input.bookingReference,
+      );
       if (!current) {
         return failure({
           code: "NotFoundError",
@@ -60,7 +66,7 @@ export function createConfirmBookingUseCase(
         action: CONFIRM_BOOKING_ACTION,
         resource: {
           resourceType: "booking",
-          resourceReference: current.booking.id,
+          resourceReference: current.id,
         },
         ...(input.metadata !== undefined
           ? { metadata: input.metadata }
@@ -82,16 +88,16 @@ export function createConfirmBookingUseCase(
 
       if (
         !canTransitionBooking(
-          current.booking.status,
+          current.status,
           "Confirmed",
           "booking.confirmed_without_payment",
         )
       ) {
         return failure({
           code: "FailedPreconditionError",
-          message: `Cannot confirm booking from status ${current.booking.status}`,
+          message: `Cannot confirm booking from status ${current.status}`,
           details: {
-            from: current.booking.status,
+            from: current.status,
             to: "Confirmed",
             event: "booking.confirmed_without_payment",
           },

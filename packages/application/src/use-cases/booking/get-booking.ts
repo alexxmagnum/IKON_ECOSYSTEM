@@ -1,4 +1,4 @@
-import type { BookingService } from "@motanos/booking";
+import type { BookingQueryService } from "@motanos/booking";
 import {
   isDenied,
   type AuthorizationService,
@@ -15,7 +15,7 @@ import {
 
 export interface GetBookingUseCaseDeps {
   authorization: AuthorizationService;
-  booking: BookingService;
+  bookingQuery: BookingQueryService;
 }
 
 export type GetBookingUseCase = UseCase<GetBookingInput, GetBookingOutput>;
@@ -80,7 +80,7 @@ export function createGetBookingUseCase(
         });
       }
 
-      const current = await deps.booking.getById(bookingReference);
+      const current = await deps.bookingQuery.getBooking(bookingReference);
       if (!current) {
         return failure({
           code: "NotFoundError",
@@ -89,7 +89,7 @@ export function createGetBookingUseCase(
         });
       }
 
-      return success(toBookingOutput(current.booking));
+      return success(toBookingOutput(current));
     },
   };
 }

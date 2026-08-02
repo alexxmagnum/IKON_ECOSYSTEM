@@ -1,4 +1,7 @@
-import type { BookingService } from "@motanos/booking";
+import type {
+  BookingQueryService,
+  BookingService,
+} from "@motanos/booking";
 import { canTransitionBooking } from "@motanos/booking";
 import {
   isDenied,
@@ -16,6 +19,7 @@ import {
 export interface CancelBookingUseCaseDeps {
   authorization: AuthorizationService;
   booking: BookingService;
+  bookingQuery: BookingQueryService;
 }
 
 export type CancelBookingUseCase = UseCase<
@@ -46,7 +50,9 @@ export function createCancelBookingUseCase(
         });
       }
 
-      const current = await deps.booking.getById(input.bookingReference);
+      const current = await deps.bookingQuery.getBooking(
+        input.bookingReference,
+      );
       if (!current) {
         return failure({
           code: "NotFoundError",
@@ -60,7 +66,7 @@ export function createCancelBookingUseCase(
         action: CANCEL_BOOKING_ACTION,
         resource: {
           resourceType: "booking",
-          resourceReference: current.booking.id,
+          resourceReference: current.id,
         },
         ...(input.metadata !== undefined
           ? { metadata: input.metadata }
@@ -82,16 +88,16 @@ export function createCancelBookingUseCase(
 
       if (
         !canTransitionBooking(
-          current.booking.status,
+          current.status,
           "Cancelled",
           "booking.cancelled_by_user",
         )
       ) {
         return failure({
           code: "FailedPreconditionError",
-          message: `Cannot cancel booking from status ${current.booking.status}`,
+          message: `Cannot cancel booking from status ${current.status}`,
           details: {
-            from: current.booking.status,
+            from: current.status,
             to: "Cancelled",
             event: "booking.cancelled_by_user",
           },

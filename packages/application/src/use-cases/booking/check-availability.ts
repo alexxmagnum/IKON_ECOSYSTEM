@@ -1,4 +1,4 @@
-import type { BookingService } from "@motanos/booking";
+import type { BookingQueryService } from "@motanos/booking";
 import {
   isDenied,
   type AuthorizationService,
@@ -24,7 +24,7 @@ export interface CheckAvailabilityOutput {
 
 export interface CheckAvailabilityUseCaseDeps {
   authorization: AuthorizationService;
-  booking: BookingService;
+  bookingQuery: BookingQueryService;
 }
 
 export type CheckAvailabilityUseCase = UseCase<
@@ -33,7 +33,7 @@ export type CheckAvailabilityUseCase = UseCase<
 >;
 
 /**
- * CheckAvailability — asks Booking Engine whether a resource interval is free.
+ * CheckAvailability — asks Booking Query side whether a resource interval is free.
  */
 export function createCheckAvailabilityUseCase(
   deps: CheckAvailabilityUseCaseDeps,
@@ -79,7 +79,7 @@ export function createCheckAvailabilityUseCase(
         });
       }
 
-      const result = await deps.booking.checkAvailability({
+      const result = await deps.bookingQuery.checkAvailability({
         resourceId: input.resourceReference,
         startsAt: input.startAt,
         endsAt: input.endAt,

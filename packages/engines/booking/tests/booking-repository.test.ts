@@ -8,6 +8,7 @@ import type { Booking } from "../src/index.js";
 import {
   BOOKING_DOMAIN_EVENT_TYPES,
   createBookingService,
+  createBookingQueryService,
   createInMemoryBookingRepository,
   patchInMemoryHoldExpiresAt,
 } from "../src/index.js";
@@ -151,14 +152,14 @@ describe("InMemory BookingService via repository", () => {
       endsAt: "2026-08-02T11:00:00.000Z",
     });
 
-    const free = await booking.checkAvailability({
+    const free = await createBookingQueryService(repository).checkAvailability({
       resourceId: "resource-1",
       startsAt: "2026-08-02T12:00:00.000Z",
       endsAt: "2026-08-02T13:00:00.000Z",
     });
     assert.equal(free.available, true);
 
-    const busy = await booking.checkAvailability({
+    const busy = await createBookingQueryService(repository).checkAvailability({
       resourceId: "resource-1",
       startsAt: "2026-08-02T10:30:00.000Z",
       endsAt: "2026-08-02T11:30:00.000Z",

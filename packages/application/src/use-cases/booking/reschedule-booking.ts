@@ -1,4 +1,7 @@
-import type { BookingService } from "@motanos/booking";
+import type {
+  BookingQueryService,
+  BookingService,
+} from "@motanos/booking";
 import { canRescheduleBooking } from "@motanos/booking";
 import {
   isDenied,
@@ -17,6 +20,7 @@ import {
 export interface RescheduleBookingUseCaseDeps {
   authorization: AuthorizationService;
   booking: BookingService;
+  bookingQuery: BookingQueryService;
 }
 
 export type RescheduleBookingUseCase = UseCase<
@@ -83,7 +87,7 @@ export function createRescheduleBookingUseCase(
         });
       }
 
-      const current = await deps.booking.getById(bookingReference);
+      const current = await deps.bookingQuery.getBooking(bookingReference);
       if (!current) {
         return failure({
           code: "NotFoundError",
@@ -92,13 +96,13 @@ export function createRescheduleBookingUseCase(
         });
       }
 
-      if (!canRescheduleBooking(current.booking.status)) {
+      if (!canRescheduleBooking(current.status)) {
         return failure({
           code: "FailedPreconditionError",
-          message: `Cannot reschedule booking from status ${current.booking.status}`,
+          message: `Cannot reschedule booking from status ${current.status}`,
           details: {
             bookingReference,
-            status: current.booking.status,
+            status: current.status,
           },
         });
       }

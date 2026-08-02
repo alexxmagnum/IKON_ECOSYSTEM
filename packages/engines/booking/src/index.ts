@@ -99,6 +99,9 @@ export {
   type BookingMutationPhase,
 } from "./services/booking-mutation-boundary";
 
+export type { BookingQueryService } from "./queries";
+export { createBookingQueryService } from "./queries";
+
 export type {
   BookingRepository,
   FindBookingConflictsQuery,
