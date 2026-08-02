@@ -311,6 +311,18 @@ importers:
 
   packages/permissions: {}
 
+  packages/runtime:
+    dependencies:
+      '@motanos/api':
+        specifier: workspace:*
+        version: link:../api
+      '@motanos/application':
+        specifier: workspace:*
+        version: link:../application
+      '@motanos/permissions':
+        specifier: workspace:*
+        version: link:../permissions
+
   packages/ui:
     devDependencies:
       '@types/react':
