@@ -983,3 +983,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Settlement with Payment/Balance/Accounting; Application → Settlement Provider; embedding bank secrets; implementing real accounting in this phase.
 
 ---
+
+## DEC-BOOKING-INVOICE-001 — Booking Invoice Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 51 introduces an Invoice Boundary so Booking can express economic document context for a reservation without billing engines, legal invoicing, PDF generation, fiscal numbering, Hacienda/ERP providers, or document storage. Aligns with `22_PAYMENT_ARCHITECT`: Payment = charge movement; Settlement = liquidation state; Invoice = document/context association.
+
+**Decision:**
+
+* **Ownership:** `BookingInvoice`, factories, and `BookingInvoicePort` live in `@motanos/booking` (`packages/engines/booking/src/invoices/`). Invoice belongs to the Booking Engine as a conceptual boundary — not Payment, Billing, Accounting, or Runtime.
+* **Pipeline relation:** Discount → Pricing → Fee → Tax → Balance → Payment → Settlement → Invoice. Invoice consumes economic context; it must not calculate, charge, settle, or substitute Tax/Balance/Settlement/Payment.
+* **Separations:** Tax = fiscal impact; Balance = pending amount; Payment = external capture; Settlement = finalized liquidation; Invoice = whether document context exists. Invoice ≠ Billing.
+* **Kinds (foundation):** `booking.invoice`, `booking.receipt`, `booking.credit_note`, `booking.adjustment`.
+* **Statuses (foundation):** `pending`, `generated`, `issued`, `cancelled`, `failed`.
+* **Contract shape:** Opaque `invoiceReference`, `tenantReference`, `amountReference`, `invoiceKind`, `invoiceStatus`; optional `bookingReference`, `actorReference`, controlled `metadata`. No DNI/NIF, fiscal address, bank/card data, API keys, or tokens.
+* **Tenant isolation:** Invoice may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Booking lifecycle:** May relate to created/confirmed/completed/cancelled bookings without mutating aggregate state machines (DEC-BOOKING / state-machines).
+* **Relation to Workflow:** Workflows may consult Invoice Boundary then Booking flow (DEC-BOOKING-WORKFLOW-001). Workflows must not call Billing providers.
+* **Application:** Forbidden `Application → Invoice Service`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No `booking.invoice_created` / `booking.invoice_issued` events in this foundation. Existing Booking domain events remain intact. Invoice Boundary does not emit events.
+* **Runtime:** Composition root for future `Invoice Port → Adapter`. No PDF generators, ERP connectors, fiscal APIs, or billing SDKs in this foundation.
+* **Deferred:** legal invoicing, PDF generation, fiscal numbering, document storage, Hacienda integration, accounting logic.
+
+**Rejected:** Mixing Invoice with Billing/Payment/Settlement; Application → Invoice Provider; embedding PII/fiscal identity/secrets; implementing real billing in this phase.
+
+---
