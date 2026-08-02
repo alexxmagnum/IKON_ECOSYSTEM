@@ -303,11 +303,7 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
-  packages/permissions:
-    dependencies:
-      '@motanos/contracts':
-        specifier: workspace:*
-        version: link:../contracts
+  packages/permissions: {}
 
   packages/ui:
     devDependencies:
