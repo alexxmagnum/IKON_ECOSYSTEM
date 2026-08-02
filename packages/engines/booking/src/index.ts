@@ -130,6 +130,20 @@ export {
 } from "./policies";
 
 export type {
+  BookingAuditAction,
+  BookingAuditRecord,
+  CreateBookingAuditRecordInput,
+} from "./audit";
+export {
+  BOOKING_AUDIT_ACTIONS,
+  BOOKING_AUDIT_ACTION_VALUES,
+  createBookingAuditRecord,
+  isBookingAuditAction,
+  isBookingAuditRecord,
+  resetBookingAuditReferenceSequence,
+} from "./audit";
+
+export type {
   BookingRepository,
   FindBookingConflictsQuery,
 } from "./repositories";
