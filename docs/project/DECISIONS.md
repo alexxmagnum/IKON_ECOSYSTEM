@@ -1122,3 +1122,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Cancellation with Domain mutation/Refund/Payment/Notification/Workflow; Application → Cancellation Provider; embedding PII/payment secrets; implementing cancel aggregate transitions in this phase.
 
 ---
+
+## DEC-BOOKING-RESCHEDULE-001 — Booking Reschedule Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 56 introduces a Reschedule Boundary so Booking can express reschedule intent/context for a reservation without mutating the Booking aggregate, checking real availability, recalculating price, adjusting payment, sending notifications, or coordinating workflows. Distinct from Cancellation (remove intent vs move intent), Availability Policy, Booking Policy, Domain transition, Pricing, and Payment.
+
+**Decision:**
+
+* **Ownership:** `BookingReschedule`, factories, and `BookingReschedulePort` live in `@motanos/booking` (`packages/engines/booking/src/reschedules/`). Reschedule belongs to the Booking Engine as a conceptual boundary — not Domain state machine, Availability provider, Pricing, Payment, Notification, or Runtime.
+* **Pipeline relation:** Actor → Reschedule Boundary → Availability Policy → Booking Policy → Domain Transition → Future Pricing / Payment / Notification. Reschedule answers “is there an intent to change the scheduling of this booking?”
+* **Separations:** Reschedule ≠ Cancellation (move vs remove). Reschedule ≠ Availability (may consult Availability later). Reschedule ≠ Policy. Reschedule ≠ Domain Transition. Reschedule ≠ Pricing / Payment / Refund. Reschedule ≠ Notification. Reschedule ≠ Workflow.
+* **Kinds (foundation):** `booking.customer_requested`, `booking.operator_requested`, `booking.availability_required`, `booking.policy_required`, `booking.operational`. `operational` is a Booking-process initiation — not a technical infrastructure error.
+* **Statuses (foundation):** `requested`, `approved`, `rejected`, `completed`, `cancelled` — intent statuses, not aggregate lifecycle states.
+* **Contract shape:** Opaque `rescheduleReference`, required `tenantReference`, `bookingReference`, `currentStartReference`, `requestedStartReference`, `rescheduleKind`, `rescheduleStatus`; optional `actorReference`, opaque `reasonReference`, controlled `metadata`. Start fields are opaque references — not live external calendar datetimes. No PII, tokens, payment data, or credentials.
+* **Tenant isolation:** Reschedule may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Application:** Forbidden `Application → Reschedule Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No new `booking.rescheduled` intent events from this boundary. Existing domain-emitted reschedule facts remain intact. Boundary intent ≠ Domain Event fact.
+* **Runtime:** Composition root for future `Reschedule Port → Adapter` (`requestReschedule` / `completeReschedule`). No persist, availability providers, pricing engines, payment adjustments, or notification adapters in this foundation.
+* **Deferred:** real reschedule orchestration, availability integration, price/payment adjustment, notification dispatch.
+
+**Rejected:** Mixing Reschedule with Cancellation/Domain mutation/Availability/Pricing/Payment/Notification/Workflow; Application → Reschedule Provider; embedding PII/payment secrets; implementing aggregate window changes in this phase.
+
+---
