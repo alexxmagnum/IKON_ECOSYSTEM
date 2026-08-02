@@ -195,6 +195,28 @@ export {
 } from "./taxes";
 
 export type {
+  BookingFee,
+  BookingFeeKind,
+  BookingFeePort,
+  BookingFeeRequest,
+  CreateBookingFeeOptions,
+  CreateBookingFeeRequestInput,
+  FeeDecision,
+} from "./fees";
+export {
+  BOOKING_FEE_KINDS,
+  BOOKING_FEE_KIND_VALUES,
+  createBookingFee,
+  createBookingFeeRequest,
+  isBookingFee,
+  isBookingFeeKind,
+  isBookingFeePort,
+  isBookingFeeRequest,
+  isFeeDecision,
+  resetBookingFeeReferenceSequence,
+} from "./fees";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,

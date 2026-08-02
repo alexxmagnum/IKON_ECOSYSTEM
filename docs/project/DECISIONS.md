@@ -903,3 +903,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Tax with Pricing/Discount/Payment; Application → Tax Provider; embedding fiscal PII/secrets; implementing legal tax engines in this phase.
 
 ---
+
+## DEC-BOOKING-FEE-001 — Booking Fee Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 48 introduces a Fee Boundary so Booking can express additional-charge intents (service/platform/booking/convenience fees) without implementing commercial fee math, Billing, or Payment capture. Aligns with `22_PAYMENT_ARCHITECT`: Fee = “is there an additional charge?”; Payment = “how the charge is processed”.
+
+**Decision:**
+
+* **Ownership:** `BookingFee`, `BookingFeeRequest`, `FeeDecision`, factories, and `BookingFeePort` live in `@motanos/booking` (`packages/engines/booking/src/fees/`). Fee belongs to the Booking Engine — not Pricing, Discount, Tax, Payment, Billing, or a new top-level layer.
+* **Pipeline relation:** Policy → Discount → Pricing → Fee → Tax → Payment. Fee must not mutate Pricing, substitute Discount, call Payment, or decide permissions.
+* **Separations:** Discount = reduction; Pricing = base/resulting price; Fee = additional charges; Tax = fiscal impact (DEC-BOOKING-TAX-001); Payment = how to charge (DEC-BOOKING-PAYMENT-001).
+* **Kinds (foundation):** `booking.service_fee`, `booking.platform_fee`, `booking.booking_fee`, `booking.convenience_fee`. Internal kinds only — not billing line catalogs.
+* **Contract shape:** Opaque `feeReference`, `tenantReference`, `amountReference`, `feeKind`; optional `bookingReference`, `actorReference`, controlled `metadata`. Decision: `feeApplicable`, `feeReference`, `amountReference`, optional `reason`. No cards, invoices, bank data, PII, or credentials.
+* **Tenant isolation:** Fee may be bound to a tenant; cross-tenant evaluation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Workflow:** Workflows may consult Fee Boundary then Booking flow (DEC-BOOKING-WORKFLOW-001). Workflows must not call fee providers/SDKs.
+* **Application:** Forbidden `Application → Fee Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No `booking.fee_calculated` / `booking.fee_created` events in this foundation. Existing Booking domain events remain intact.
+* **Runtime:** Composition root for future `Fee Port → Adapter`. No billing systems, fee SDKs, or env-driven fee catalogs in this foundation.
+* **Deferred:** commercial commission engines, billing line generation, real fee math, provider integrations.
+
+**Rejected:** Mixing Fee with Pricing/Discount/Tax/Payment; Application → Fee Provider; embedding secrets/PII; implementing billing fee engines in this phase.
+
+---
