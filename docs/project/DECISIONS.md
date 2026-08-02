@@ -405,3 +405,22 @@ They are **provisional** until real execution workflows exist. A later phase may
 * Overrides: `createMotanOSRuntime({ authorization, booking })`.
 * Public surface: bootstrap + contracts only — not provider factories.
 * No vendor clients in Runtime.
+
+---
+
+## DEC-BOOKING-QUERY-001 — ListBookings customer scope vs internal filters
+
+**Status:** DECISION REQUIRED
+
+**Date:** 2026-08-02
+
+**Context:** Fase 26 Fix introduces ListBookings with auth-first `booking.list` and reference normalization. Cross-customer list is a tenancy/authorization concern (Security Architect).
+
+**Open question:** May a caller with `booking.list` supply an explicit `customerReference` different from `actorReference` (admin / staff internal filters), or must list always be scoped to the actor unless a separate elevated action exists?
+
+**Interim (non-binding):**
+
+* When `customerReference` is omitted, Application defaults it to `actorReference` (user-scoped list).
+* Explicit `customerReference` remains accepted for internal filter support pending this decision.
+* Authorization metadata includes normalized filters and `customerScopeDefaulted`.
+* No new permission actions in this foundation.

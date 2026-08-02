@@ -5,7 +5,9 @@ export {
   createConfirmBookingHandler,
   createCreateBookingHandler,
   createDefaultApiService,
-} from "./create-booking-handler";
+  createGetBookingHandler,
+  createListBookingsHandler,
+} from "./booking-handlers";
 export { createInMemoryAuthorizationService } from "./in-memory-authorization";
 export type { InMemoryAuthorizationOptions } from "./in-memory-authorization";
 export { createInMemoryBookingService } from "./in-memory-booking";

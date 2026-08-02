@@ -15,6 +15,7 @@ import {
   canTransitionBooking,
   checkRangeAvailability,
   DEFAULT_HOLD_TTL_MINUTES,
+  intervalsOverlap,
 } from "@motanos/booking";
 import {
   allow,
@@ -27,6 +28,8 @@ import {
   createCheckAvailabilityUseCase,
   createConfirmBookingUseCase,
   createCreateBookingUseCase,
+  createGetBookingUseCase,
+  createListBookingsUseCase,
   isFailure,
   isSuccess,
   type CreateBookingInput,
@@ -96,8 +99,29 @@ function memoryBookingService(): BookingService {
       const booking = store.get(id);
       return booking ? { booking } : null;
     },
-    async list() {
-      return [];
+    async list(query) {
+      return [...store.values()]
+        .filter((booking) => {
+          if (query.resourceId && booking.resourceId !== query.resourceId) {
+            return false;
+          }
+          if (query.ownerUserId && booking.ownerUserId !== query.ownerUserId) {
+            return false;
+          }
+          if (query.status) {
+            const statuses = Array.isArray(query.status)
+              ? query.status
+              : [query.status];
+            if (!statuses.includes(booking.status)) {
+              return false;
+            }
+          }
+          if (query.range && !intervalsOverlap(booking, query.range)) {
+            return false;
+          }
+          return true;
+        })
+        .map((booking) => ({ booking }));
     },
     async checkAvailability(input) {
       const check = checkRangeAvailability(
@@ -342,6 +366,190 @@ describe("CheckAvailability", () => {
       authorization: denyAllAuthorization(),
       booking: memoryBookingService(),
     }).execute(range, { actorReference: "actor-denied" });
+
+    assert.equal(isFailure(result), true);
+    if (!isFailure(result)) return;
+    assert.equal(result.error.code, "ForbiddenError");
+  });
+});
+
+describe("GetBooking / ListBookings", () => {
+  it("Get booking success", async () => {
+    const booking = memoryBookingService();
+    const auth = allowAllAuthorization();
+    const created = await createCreateBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(validInput, { actorReference: "actor-1" });
+    assert.equal(isSuccess(created), true);
+    if (!isSuccess(created)) return;
+
+    const got = await createGetBookingUseCase({
+      authorization: auth,
+      booking,
+    }).execute(
+      { bookingReference: `  ${created.data.bookingReference}  ` },
+      { actorReference: " actor-1 " },
+    );
+    assert.equal(isSuccess(got), true);
+    if (!isSuccess(got)) return;
+    assert.equal(got.data.bookingReference, created.data.bookingReference);
+    assert.equal(got.data.status, "Draft");
+  });
+
+  it("Get booking not found after authorize", async () => {
+    const result = await createGetBookingUseCase({
+      authorization: allowAllAuthorization(),
+      booking: memoryBookingService(),
+    }).execute(
+      { bookingReference: "missing-booking" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isFailure(result), true);
+    if (!isFailure(result)) return;
+    assert.equal(result.error.code, "NotFoundError");
+  });
+
+  it("Forbidden read — denied before existence check", async () => {
+    const booking = memoryBookingService();
+    const created = await createCreateBookingUseCase({
+      authorization: allowAllAuthorization(),
+      booking,
+    }).execute(validInput, { actorReference: "actor-1" });
+    assert.equal(isSuccess(created), true);
+    if (!isSuccess(created)) return;
+
+    const deniedExisting = await createGetBookingUseCase({
+      authorization: denyAllAuthorization(),
+      booking,
+    }).execute(
+      { bookingReference: created.data.bookingReference },
+      { actorReference: "actor-denied" },
+    );
+    assert.equal(isFailure(deniedExisting), true);
+    if (!isFailure(deniedExisting)) return;
+    assert.equal(deniedExisting.error.code, "ForbiddenError");
+
+    const deniedMissing = await createGetBookingUseCase({
+      authorization: denyAllAuthorization(),
+      booking,
+    }).execute(
+      { bookingReference: "does-not-exist" },
+      { actorReference: "actor-denied" },
+    );
+    assert.equal(isFailure(deniedMissing), true);
+    if (!isFailure(deniedMissing)) return;
+    assert.equal(deniedMissing.error.code, "ForbiddenError");
+  });
+
+  it("List bookings filters — resource, customer, status, range", async () => {
+    const booking = memoryBookingService();
+    const auth = allowAllAuthorization();
+    const create = createCreateBookingUseCase({ authorization: auth, booking });
+
+    await create.execute(
+      {
+        ...validInput,
+        customerReference: "actor-1",
+        resourceReference: "resource-1",
+        startAt: "2026-08-02T10:00:00.000Z",
+        endAt: "2026-08-02T11:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    await create.execute(
+      {
+        ...validInput,
+        customerReference: "actor-1",
+        resourceReference: "resource-2",
+        startAt: "2026-08-02T12:00:00.000Z",
+        endAt: "2026-08-02T13:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    await create.execute(
+      {
+        ...validInput,
+        customerReference: "other-customer",
+        resourceReference: "resource-1",
+        startAt: "2026-08-02T14:00:00.000Z",
+        endAt: "2026-08-02T15:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+
+    const list = createListBookingsUseCase({ authorization: auth, booking });
+
+    const byResource = await list.execute(
+      { resourceReference: "  resource-1  " },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isSuccess(byResource), true);
+    if (!isSuccess(byResource)) return;
+    assert.equal(byResource.data.bookings.length, 1);
+    assert.equal(byResource.data.bookings[0]?.resourceReference, "resource-1");
+
+    const byCustomer = await list.execute(
+      { customerReference: "other-customer" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isSuccess(byCustomer), true);
+    if (!isSuccess(byCustomer)) return;
+    assert.equal(byCustomer.data.bookings.length, 1);
+    assert.equal(
+      byCustomer.data.bookings[0]?.customerReference,
+      "other-customer",
+    );
+
+    const byStatus = await list.execute(
+      { status: "Draft" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isSuccess(byStatus), true);
+    if (!isSuccess(byStatus)) return;
+    assert.equal(byStatus.data.bookings.length, 2);
+
+    const byRange = await list.execute(
+      {
+        startAt: "2026-08-02T11:30:00.000Z",
+        endAt: "2026-08-02T12:30:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isSuccess(byRange), true);
+    if (!isSuccess(byRange)) return;
+    assert.equal(byRange.data.bookings.length, 1);
+    assert.equal(byRange.data.bookings[0]?.resourceReference, "resource-2");
+  });
+
+  it("List validation — startAt/endAt must be together", async () => {
+    const list = createListBookingsUseCase({
+      authorization: allowAllAuthorization(),
+      booking: memoryBookingService(),
+    });
+
+    const startOnly = await list.execute(
+      { startAt: "2026-08-02T10:00:00.000Z" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isFailure(startOnly), true);
+    if (!isFailure(startOnly)) return;
+    assert.equal(startOnly.error.code, "ValidationError");
+
+    const endOnly = await list.execute(
+      { endAt: "2026-08-02T11:00:00.000Z" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isFailure(endOnly), true);
+    if (!isFailure(endOnly)) return;
+    assert.equal(endOnly.error.code, "ValidationError");
+  });
+
+  it("Forbidden list", async () => {
+    const result = await createListBookingsUseCase({
+      authorization: denyAllAuthorization(),
+      booking: memoryBookingService(),
+    }).execute({}, { actorReference: "actor-denied" });
 
     assert.equal(isFailure(result), true);
     if (!isFailure(result)) return;

@@ -7,6 +7,8 @@ export type {
   CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
+  GetBookingHandler,
+  ListBookingsHandler,
 } from "./create-booking-handler";
 export type { RuntimeServices } from "./service-tokens";
 export { RUNTIME_SERVICE_TOKENS } from "./service-tokens";

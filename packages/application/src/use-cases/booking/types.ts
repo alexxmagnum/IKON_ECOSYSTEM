@@ -13,7 +13,7 @@ export interface CreateBookingInput {
 }
 
 /**
- * Shared booking view for create / confirm / cancel outputs.
+ * Shared booking view for create / confirm / cancel / get / list outputs.
  */
 export interface BookingOutput {
   bookingReference: string;
@@ -43,6 +43,26 @@ export interface CancelBookingInput {
 }
 
 export type CancelBookingOutput = BookingOutput;
+
+export interface GetBookingInput {
+  bookingReference: string;
+  metadata?: Record<string, unknown>;
+}
+
+export type GetBookingOutput = BookingOutput;
+
+export interface ListBookingsInput {
+  resourceReference?: string;
+  customerReference?: string;
+  startAt?: string;
+  endAt?: string;
+  status?: BookingStatus | BookingStatus[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface ListBookingsOutput {
+  bookings: BookingOutput[];
+}
 
 export function toBookingOutput(booking: Booking): BookingOutput {
   return {

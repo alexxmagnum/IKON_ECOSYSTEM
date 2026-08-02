@@ -4,11 +4,15 @@ import {
   createCheckAvailabilityUseCase,
   createConfirmBookingUseCase,
   createCreateBookingUseCase,
+  createGetBookingUseCase,
+  createListBookingsUseCase,
   type ApplicationService,
   type CancelBookingUseCase,
   type CheckAvailabilityUseCase,
   type ConfirmBookingUseCase,
   type CreateBookingUseCase,
+  type GetBookingUseCase,
+  type ListBookingsUseCase,
 } from "@motanos/application";
 import type { BookingService } from "@motanos/booking";
 import type { AuthorizationService } from "@motanos/permissions";
@@ -18,6 +22,8 @@ import type {
   CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
+  GetBookingHandler,
+  ListBookingsHandler,
 } from "../contracts/create-booking-handler";
 import type { MotanOSRuntime } from "../contracts/runtime";
 import {
@@ -27,8 +33,10 @@ import {
   createCreateBookingHandler,
   createDefaultApiService,
   createDefaultApplicationService,
+  createGetBookingHandler,
   createInMemoryAuthorizationService,
   createInMemoryBookingService,
+  createListBookingsHandler,
 } from "../providers";
 import { createRuntime, type CreateRuntimeOptions } from "./create-runtime";
 
@@ -50,14 +58,18 @@ export interface MotanOSComposedRuntime {
   confirmBooking: ConfirmBookingUseCase;
   cancelBooking: CancelBookingUseCase;
   checkAvailability: CheckAvailabilityUseCase;
+  getBooking: GetBookingUseCase;
+  listBookings: ListBookingsUseCase;
   createBookingHandler: CreateBookingHandler;
   confirmBookingHandler: ConfirmBookingHandler;
   cancelBookingHandler: CancelBookingHandler;
   checkAvailabilityHandler: CheckAvailabilityHandler;
+  getBookingHandler: GetBookingHandler;
+  listBookingsHandler: ListBookingsHandler;
 }
 
 /**
- * Official MotanOS bootstrap — Booking create/confirm/cancel/availability.
+ * Official MotanOS bootstrap — Booking write/read/availability composition.
  */
 export function createMotanOSRuntime(
   options: CreateMotanOSRuntimeOptions = {},
@@ -84,9 +96,12 @@ export function createMotanOSRuntime(
     authorization,
     booking,
   });
+  const getBooking = createGetBookingUseCase({ authorization, booking });
+  const listBookings = createListBookingsUseCase({ authorization, booking });
 
   const application = createDefaultApplicationService();
   const api = createDefaultApiService();
+
   const createBookingHandler = createCreateBookingHandler({
     useCase: createBooking,
   });
@@ -98,6 +113,10 @@ export function createMotanOSRuntime(
   });
   const checkAvailabilityHandler = createCheckAvailabilityHandler({
     useCase: checkAvailability,
+  });
+  const getBookingHandler = createGetBookingHandler({ useCase: getBooking });
+  const listBookingsHandler = createListBookingsHandler({
+    useCase: listBookings,
   });
 
   const runtime = createRuntime({
@@ -111,10 +130,14 @@ export function createMotanOSRuntime(
       confirmBooking,
       cancelBooking,
       checkAvailability,
+      getBooking,
+      listBookings,
       createBookingHandler,
       confirmBookingHandler,
       cancelBookingHandler,
       checkAvailabilityHandler,
+      getBookingHandler,
+      listBookingsHandler,
     },
     register: options.register,
   });
@@ -129,9 +152,13 @@ export function createMotanOSRuntime(
     confirmBooking,
     cancelBooking,
     checkAvailability,
+    getBooking,
+    listBookings,
     createBookingHandler,
     confirmBookingHandler,
     cancelBookingHandler,
     checkAvailabilityHandler,
+    getBookingHandler,
+    listBookingsHandler,
   };
 }

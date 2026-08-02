@@ -11,6 +11,8 @@ export type {
   CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
+  GetBookingHandler,
+  ListBookingsHandler,
   MotanOSRuntime,
   RuntimeContext,
   RuntimeServices,

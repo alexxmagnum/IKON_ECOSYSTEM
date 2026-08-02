@@ -229,4 +229,105 @@ describe("@motanos/runtime composition", () => {
     if (!isFailure(forbidden)) return;
     assert.equal(forbidden.error.code, "ForbiddenError");
   });
+
+  it("9. Get / List booking success, not found, forbidden, filters", async () => {
+    const composed = createMotanOSRuntime({
+      config: { environment: "test" },
+    });
+
+    const created = await composed.createBookingHandler.handle(
+      {
+        resourceReference: "resource-query",
+        customerReference: "actor-1",
+        startAt: "2026-08-02T10:00:00.000Z",
+        endAt: "2026-08-02T11:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(created), true);
+    if (!isApiSuccess(created)) return;
+
+    await composed.createBookingHandler.handle(
+      {
+        resourceReference: "resource-other",
+        customerReference: "actor-1",
+        startAt: "2026-08-02T12:00:00.000Z",
+        endAt: "2026-08-02T13:00:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+
+    const got = await composed.getBookingHandler.handle(
+      { bookingReference: `  ${created.data.bookingReference}  ` },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(got), true);
+    if (!isApiSuccess(got)) return;
+    assert.equal(got.data.bookingReference, created.data.bookingReference);
+
+    const missing = await composed.getBooking.execute(
+      { bookingReference: "does-not-exist" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isFailure(missing), true);
+    if (!isFailure(missing)) return;
+    assert.equal(missing.error.code, "NotFoundError");
+
+    const listed = await composed.listBookingsHandler.handle(
+      { resourceReference: "  resource-query  " },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(listed), true);
+    if (!isApiSuccess(listed)) return;
+    assert.equal(listed.data.bookings.length, 1);
+    assert.equal(listed.data.bookings[0]?.resourceReference, "resource-query");
+
+    const byStatus = await composed.listBookingsHandler.handle(
+      { status: "Draft" },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(byStatus), true);
+    if (!isApiSuccess(byStatus)) return;
+    assert.equal(byStatus.data.bookings.length, 2);
+
+    const byRange = await composed.listBookingsHandler.handle(
+      {
+        startAt: "2026-08-02T11:30:00.000Z",
+        endAt: "2026-08-02T12:30:00.000Z",
+      },
+      { actorReference: "actor-1" },
+    );
+    assert.equal(isApiSuccess(byRange), true);
+    if (!isApiSuccess(byRange)) return;
+    assert.equal(byRange.data.bookings.length, 1);
+
+    const denied = createMotanOSRuntime({
+      config: { environment: "test" },
+      booking: composed.booking,
+      deniedActors: ["actor-denied"],
+    });
+    const forbiddenRead = await denied.getBooking.execute(
+      { bookingReference: created.data.bookingReference },
+      { actorReference: "actor-denied" },
+    );
+    assert.equal(isFailure(forbiddenRead), true);
+    if (!isFailure(forbiddenRead)) return;
+    assert.equal(forbiddenRead.error.code, "ForbiddenError");
+
+    const forbiddenMissing = await denied.getBooking.execute(
+      { bookingReference: "missing-id" },
+      { actorReference: "actor-denied" },
+    );
+    assert.equal(isFailure(forbiddenMissing), true);
+    if (!isFailure(forbiddenMissing)) return;
+    assert.equal(forbiddenMissing.error.code, "ForbiddenError");
+
+    const forbiddenList = await denied.listBookings.execute(
+      {},
+      { actorReference: "actor-denied" },
+    );
+    assert.equal(isFailure(forbiddenList), true);
+    if (!isFailure(forbiddenList)) return;
+    assert.equal(forbiddenList.error.code, "ForbiddenError");
+  });
 });

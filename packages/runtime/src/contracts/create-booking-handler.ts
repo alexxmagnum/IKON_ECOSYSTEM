@@ -1,5 +1,5 @@
 /**
- * API handler contracts for booking lifecycle / availability — not HTTP routes.
+ * API handler contracts for booking operations — not HTTP routes.
  */
 import type {
   ApiContext,
@@ -11,6 +11,10 @@ import type {
   ConfirmBookingResponse,
   CreateBookingRequest,
   CreateBookingResponse,
+  GetBookingRequest,
+  GetBookingResponse,
+  ListBookingsRequest,
+  ListBookingsResponse,
 } from "@motanos/api";
 
 export interface CreateBookingHandler {
@@ -39,4 +43,18 @@ export interface CheckAvailabilityHandler {
     request: CheckAvailabilityRequest,
     context?: ApiContext,
   ): Promise<CheckAvailabilityResponse>;
+}
+
+export interface GetBookingHandler {
+  handle(
+    request: GetBookingRequest,
+    context?: ApiContext,
+  ): Promise<GetBookingResponse>;
+}
+
+export interface ListBookingsHandler {
+  handle(
+    request: ListBookingsRequest,
+    context?: ApiContext,
+  ): Promise<ListBookingsResponse>;
 }

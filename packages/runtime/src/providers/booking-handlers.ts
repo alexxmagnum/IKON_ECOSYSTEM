@@ -10,6 +10,10 @@ import {
   toCreateBookingInput,
   toCreateBookingResponse,
   toExecutionContext,
+  toGetBookingInput,
+  toGetBookingResponse,
+  toListBookingsInput,
+  toListBookingsResponse,
   type ApiRequest,
   type ApiService,
 } from "@motanos/api";
@@ -18,12 +22,16 @@ import type {
   CheckAvailabilityUseCase,
   ConfirmBookingUseCase,
   CreateBookingUseCase,
+  GetBookingUseCase,
+  ListBookingsUseCase,
 } from "@motanos/application";
 import type {
   CancelBookingHandler,
   CheckAvailabilityHandler,
   ConfirmBookingHandler,
   CreateBookingHandler,
+  GetBookingHandler,
+  ListBookingsHandler,
 } from "../contracts/create-booking-handler";
 
 function responseMeta(
@@ -91,6 +99,32 @@ export function createCheckAvailabilityHandler(deps: {
         result,
         responseMeta(request, context),
       );
+    },
+  };
+}
+
+export function createGetBookingHandler(deps: {
+  useCase: GetBookingUseCase;
+}): GetBookingHandler {
+  return {
+    async handle(request, context) {
+      const input = toGetBookingInput(request);
+      const executionContext = toExecutionContext(context, request);
+      const result = await deps.useCase.execute(input, executionContext);
+      return toGetBookingResponse(result, responseMeta(request, context));
+    },
+  };
+}
+
+export function createListBookingsHandler(deps: {
+  useCase: ListBookingsUseCase;
+}): ListBookingsHandler {
+  return {
+    async handle(request, context) {
+      const input = toListBookingsInput(request);
+      const executionContext = toExecutionContext(context, request);
+      const result = await deps.useCase.execute(input, executionContext);
+      return toListBookingsResponse(result, responseMeta(request, context));
     },
   };
 }

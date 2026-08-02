@@ -16,10 +16,16 @@ import {
   toConfirmBookingResponse,
   toCreateBookingInput,
   toCreateBookingResponse,
+  toGetBookingInput,
+  toGetBookingResponse,
+  toListBookingsInput,
+  toListBookingsResponse,
   type CancelBookingRequest,
   type CheckAvailabilityRequest,
   type ConfirmBookingRequest,
   type CreateBookingRequest,
+  type GetBookingRequest,
+  type ListBookingsRequest,
 } from "../src/index.js";
 
 describe("CreateBooking API contracts", () => {
@@ -140,5 +146,86 @@ describe("CheckAvailability API contracts", () => {
     assert.equal(isApiSuccess(response), true);
     if (!isApiSuccess(response)) return;
     assert.equal(response.data.available, true);
+  });
+});
+
+describe("Get / List booking API contracts", () => {
+  it("maps GetBookingRequest and success response", () => {
+    const request: GetBookingRequest = {
+      bookingReference: "  b1  ",
+    };
+    assert.equal(toGetBookingInput(request).bookingReference, "b1");
+
+    const response = toGetBookingResponse(
+      success({
+        bookingReference: "b1",
+        resourceReference: "r1",
+        customerReference: "c1",
+        startAt: "2026-08-02T10:00:00.000Z",
+        endAt: "2026-08-02T11:00:00.000Z",
+        status: "Draft",
+      }),
+    );
+    assert.equal(isApiSuccess(response), true);
+    if (!isApiSuccess(response)) return;
+    assert.equal(response.data.bookingReference, "b1");
+    assert.equal(response.error, undefined);
+  });
+
+  it("maps GetBooking failure to error envelope", () => {
+    const response = toGetBookingResponse(
+      failure({
+        code: "NotFoundError",
+        message: "Booking not found",
+      }),
+    );
+    assert.equal(isApiFailure(response), true);
+    if (!isApiFailure(response)) return;
+    assert.equal(response.error.code, "NotFoundError");
+    assert.equal(response.data, undefined);
+  });
+
+  it("maps ListBookingsRequest and list response", () => {
+    const request: ListBookingsRequest = {
+      resourceReference: "  r1  ",
+      customerReference: "  c1  ",
+      status: "Draft",
+    };
+    const input = toListBookingsInput(request);
+    assert.equal(input.resourceReference, "r1");
+    assert.equal(input.customerReference, "c1");
+    assert.equal(input.status, "Draft");
+
+    const response = toListBookingsResponse(
+      success({
+        bookings: [
+          {
+            bookingReference: "b1",
+            resourceReference: "r1",
+            customerReference: "c1",
+            startAt: "2026-08-02T10:00:00.000Z",
+            endAt: "2026-08-02T11:00:00.000Z",
+            status: "Draft",
+          },
+        ],
+      }),
+    );
+    assert.equal(isApiSuccess(response), true);
+    if (!isApiSuccess(response)) return;
+    assert.equal(response.data.bookings.length, 1);
+    assert.equal(response.error, undefined);
+  });
+
+  it("maps ListBookings failure to error envelope", () => {
+    const response = toListBookingsResponse(
+      failure({
+        code: "ForbiddenError",
+        message: "Booking list denied",
+      }),
+    );
+    assert.equal(isApiFailure(response), true);
+    if (!isApiFailure(response)) return;
+    assert.equal(response.error.code, "ForbiddenError");
+    assert.equal(response.data, undefined);
   });
 });

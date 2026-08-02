@@ -56,6 +56,12 @@ export type {
   CreateBookingRequest,
   CreateBookingResponse,
   CreateBookingResponseData,
+  GetBookingRequest,
+  GetBookingResponse,
+  GetBookingResponseData,
+  ListBookingsRequest,
+  ListBookingsResponse,
+  ListBookingsResponseData,
 } from "./contracts/booking";
 export {
   toCancelBookingInput,
@@ -66,4 +72,8 @@ export {
   toConfirmBookingResponse,
   toCreateBookingInput,
   toCreateBookingResponse,
+  toGetBookingInput,
+  toGetBookingResponse,
+  toListBookingsInput,
+  toListBookingsResponse,
 } from "./contracts/booking";

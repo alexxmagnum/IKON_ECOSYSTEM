@@ -24,61 +24,32 @@ export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
   }
 
   const registry = createServiceRegistry();
+  const tokenMap = RUNTIME_SERVICE_TOKENS;
   const entries: Array<readonly [string, unknown]> = [];
 
-  if (services?.application) {
-    entries.push([RUNTIME_SERVICE_TOKENS.application, services.application]);
-  }
-  if (services?.api) {
-    entries.push([RUNTIME_SERVICE_TOKENS.api, services.api]);
-  }
-  if (services?.authorization) {
-    entries.push([RUNTIME_SERVICE_TOKENS.authorization, services.authorization]);
-  }
-  if (services?.booking) {
-    entries.push([RUNTIME_SERVICE_TOKENS.booking, services.booking]);
-  }
-  if (services?.createBooking) {
-    entries.push([RUNTIME_SERVICE_TOKENS.createBooking, services.createBooking]);
-  }
-  if (services?.confirmBooking) {
-    entries.push([
-      RUNTIME_SERVICE_TOKENS.confirmBooking,
-      services.confirmBooking,
-    ]);
-  }
-  if (services?.cancelBooking) {
-    entries.push([RUNTIME_SERVICE_TOKENS.cancelBooking, services.cancelBooking]);
-  }
-  if (services?.checkAvailability) {
-    entries.push([
-      RUNTIME_SERVICE_TOKENS.checkAvailability,
-      services.checkAvailability,
-    ]);
-  }
-  if (services?.createBookingHandler) {
-    entries.push([
-      RUNTIME_SERVICE_TOKENS.createBookingHandler,
-      services.createBookingHandler,
-    ]);
-  }
-  if (services?.confirmBookingHandler) {
-    entries.push([
-      RUNTIME_SERVICE_TOKENS.confirmBookingHandler,
-      services.confirmBookingHandler,
-    ]);
-  }
-  if (services?.cancelBookingHandler) {
-    entries.push([
-      RUNTIME_SERVICE_TOKENS.cancelBookingHandler,
-      services.cancelBookingHandler,
-    ]);
-  }
-  if (services?.checkAvailabilityHandler) {
-    entries.push([
-      RUNTIME_SERVICE_TOKENS.checkAvailabilityHandler,
-      services.checkAvailabilityHandler,
-    ]);
+  const push = (token: string, value: unknown | undefined) => {
+    if (value !== undefined) {
+      entries.push([token, value]);
+    }
+  };
+
+  if (services) {
+    push(tokenMap.application, services.application);
+    push(tokenMap.api, services.api);
+    push(tokenMap.authorization, services.authorization);
+    push(tokenMap.booking, services.booking);
+    push(tokenMap.createBooking, services.createBooking);
+    push(tokenMap.confirmBooking, services.confirmBooking);
+    push(tokenMap.cancelBooking, services.cancelBooking);
+    push(tokenMap.checkAvailability, services.checkAvailability);
+    push(tokenMap.getBooking, services.getBooking);
+    push(tokenMap.listBookings, services.listBookings);
+    push(tokenMap.createBookingHandler, services.createBookingHandler);
+    push(tokenMap.confirmBookingHandler, services.confirmBookingHandler);
+    push(tokenMap.cancelBookingHandler, services.cancelBookingHandler);
+    push(tokenMap.checkAvailabilityHandler, services.checkAvailabilityHandler);
+    push(tokenMap.getBookingHandler, services.getBookingHandler);
+    push(tokenMap.listBookingsHandler, services.listBookingsHandler);
   }
 
   for (const [token, instance] of entries) {

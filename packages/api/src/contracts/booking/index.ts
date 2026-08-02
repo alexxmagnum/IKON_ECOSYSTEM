@@ -26,9 +26,25 @@ export type {
 } from "./check-availability";
 export { toCheckAvailabilityInput } from "./check-availability";
 
+export type {
+  GetBookingRequest,
+  GetBookingResponse,
+  GetBookingResponseData,
+} from "./get-booking";
+export { toGetBookingInput } from "./get-booking";
+
+export type {
+  ListBookingsRequest,
+  ListBookingsResponse,
+  ListBookingsResponseData,
+} from "./list-bookings";
+export { toListBookingsInput } from "./list-bookings";
+
 export {
   toCancelBookingResponse,
   toCheckAvailabilityResponse,
   toConfirmBookingResponse,
   toCreateBookingResponse,
+  toGetBookingResponse,
+  toListBookingsResponse,
 } from "./map-response";

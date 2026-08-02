@@ -3,6 +3,7 @@ import {
   canTransitionBooking,
   checkRangeAvailability,
   DEFAULT_HOLD_TTL_MINUTES,
+  intervalsOverlap,
 } from "@motanos/booking";
 
 /**
@@ -118,6 +119,11 @@ export function createInMemoryBookingService(): BookingService {
               ? query.status
               : [query.status];
             if (!statuses.includes(booking.status)) {
+              return false;
+            }
+          }
+          if (query.range) {
+            if (!intervalsOverlap(booking, query.range)) {
               return false;
             }
           }
