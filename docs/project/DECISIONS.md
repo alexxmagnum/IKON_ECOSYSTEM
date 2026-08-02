@@ -1356,3 +1356,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Building Calendar/Availability/Resource/Membership/Community/Identity/Payment-rails engines inside `@motanos/booking`; Application → Provider shortcuts; treating Booking commercial context as a full billing system; adding further Booking Boundaries without revising this freeze.
 
 ---
+
+## DEC-RESOURCE-BOUNDARY-001 — Resource Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 65 introduces the Resource Engine so MotanOS can define usable/reservable capacity independently of Booking. Resource = usable capacity; Booking = usage intent. Per DEC-BOOKING-FREEZE-001, physical resource ownership must not live inside `@motanos/booking`. Booking only consumes opaque `resourceReference`.
+
+**Decision:**
+
+* **Ownership:** `Resource`, factories, and `ResourcePort` live in `@motanos/resource` (`packages/engines/resource`). Resource Engine is independent of Booking, Availability, Experience, Payment, and Runtime adapters.
+* **Pipeline relation:** Resource Definition → Resource Availability (future) → Booking Intent → Booking Lifecycle. Resource answers “what usable capacity exists?”
+* **Separations:** Resource ≠ Availability (free/busy). Resource ≠ Booking (who wants to use it). Resource ≠ Experience (product/offering). Resource ≠ Payment. Resource Engine ≠ Booking Resource Boundary (Booking-side opaque context/policy only).
+* **Kinds (foundation):** `resource.facility`, `resource.table`, `resource.court`, `resource.course`, `resource.room`, `resource.space`, `resource.equipment`, `resource.operational`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `maintenance`, `archived` (e.g. draft → active ↔ maintenance, or active → archived).
+* **Contract shape:** Opaque `resourceReference`, required `tenantReference`, `resourceKind`, `resourceStatus`; optional opaque `nameReference`, `descriptionReference`, `parentResourceReference`, `ownerReference`, controlled `metadata`. No PII, payment data, or credentials.
+* **Tenant isolation:** Resource may be bound to a tenant; cross-tenant creation is denied.
+* **Booking integration:** Booking consumes `resourceReference` only — never a full Resource object graph.
+* **Runtime:** Composition root for future `Resource Port → Adapter` (`createResource` / `resolveResource`). No CRUD store, availability engine, booking creation, or vendor SDKs in this foundation.
+* **Dependencies:** `@motanos/resource` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** hierarchy queries, inventory sync, availability linkage, Booking Runtime wiring.
+
+**Rejected:** Embedding Resource Engine inside Booking; Resource → Booking/Availability/Payment imports; Application → Resource Provider; implementing availability slots, reservations, or persistence adapters in this phase.
+
+---
