@@ -956,3 +956,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Balance with Payment/Accounting; Application → Accounting Provider; embedding bank/card secrets; implementing ledgers in this phase.
 
 ---
+
+## DEC-BOOKING-SETTLEMENT-001 — Booking Settlement Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 50 introduces a Settlement Boundary so Booking can express final economic liquidation state for a reservation without bank reconciliation, accounting ledgers, invoicing, or Payment capture. Aligns with `22_PAYMENT_ARCHITECT`: Balance = pending state; Payment = external charge movement; Settlement = whether liquidation is finalized.
+
+**Decision:**
+
+* **Ownership:** `BookingSettlement`, `BookingSettlementRequest`, `SettlementDecision`, factories, and `BookingSettlementPort` live in `@motanos/booking` (`packages/engines/booking/src/settlements/`). Settlement belongs to the Booking Engine — not Pricing, Fee, Tax, Balance, Payment, Accounting, or a new top-level layer.
+* **Pipeline relation:** Discount → Pricing → Fee → Tax → Balance → Payment → Settlement. Settlement must not charge, substitute Payment, create a ledger, or mutate Balance.
+* **Separations:** Pricing = calculated amount; Discount = reductions; Fee = additional charges; Tax = fiscal impact; Balance = pending amount; Payment = external capture; Settlement = finalized/liquidated state.
+* **Kinds (foundation):** `booking.full_settlement`, `booking.partial_settlement`, `booking.deposit_settlement`, `booking.refund_settlement`.
+* **Statuses (foundation):** `pending`, `processing`, `settled`, `failed`, `cancelled`.
+* **Contract shape:** Opaque `settlementReference`, `tenantReference`, `amountReference`, `settlementKind`; optional `bookingReference`, `actorReference`, controlled `metadata`. Decision: `settlementReference`, `amountReference`, `settlementStatus`, optional `reason`. No bank accounts, cards, real invoices, PII, or credentials.
+* **Tenant isolation:** Settlement may be bound to a tenant; cross-tenant evaluation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Workflow:** Workflows may consult Settlement Boundary then Booking flow (DEC-BOOKING-WORKFLOW-001). Workflows must not call accounting providers.
+* **Application:** Forbidden `Application → Settlement Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No `booking.settlement_created` / `booking.settlement_completed` events in this foundation. Existing Booking domain events remain intact.
+* **Runtime:** Composition root for future `Settlement Port → Adapter`. No banks, ledgers, billing, or accounting SDKs in this foundation.
+* **Deferred:** bank reconciliation, financial ledgers, real settlement engines, provider webhooks.
+
+**Rejected:** Mixing Settlement with Payment/Balance/Accounting; Application → Settlement Provider; embedding bank secrets; implementing real accounting in this phase.
+
+---

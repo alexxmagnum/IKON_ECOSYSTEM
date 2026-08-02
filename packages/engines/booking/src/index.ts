@@ -243,6 +243,32 @@ export {
 } from "./balances";
 
 export type {
+  BookingSettlement,
+  BookingSettlementKind,
+  BookingSettlementPort,
+  BookingSettlementRequest,
+  BookingSettlementStatus,
+  CreateBookingSettlementOptions,
+  CreateBookingSettlementRequestInput,
+  SettlementDecision,
+} from "./settlements";
+export {
+  BOOKING_SETTLEMENT_KINDS,
+  BOOKING_SETTLEMENT_KIND_VALUES,
+  BOOKING_SETTLEMENT_STATUSES,
+  BOOKING_SETTLEMENT_STATUS_VALUES,
+  createBookingSettlement,
+  createBookingSettlementRequest,
+  isBookingSettlement,
+  isBookingSettlementKind,
+  isBookingSettlementPort,
+  isBookingSettlementRequest,
+  isBookingSettlementStatus,
+  isSettlementDecision,
+  resetBookingSettlementReferenceSequence,
+} from "./settlements";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,
