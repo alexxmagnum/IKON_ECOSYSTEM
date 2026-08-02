@@ -1490,3 +1490,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Membership into Billing or RBAC; embedding Identity/User objects; Membership → Identity/Booking/Commerce/Auth package imports; Application → Membership Provider; implementing charge/plan/permission adapters in this phase.
 
 ---
+
+## DEC-AVAILABILITY-BOUNDARY-001 — Availability Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 70 introduces the Availability Engine so MotanOS can define temporal usability and capacity rules independently of Booking (usage intent), Calendar (what events exist), and Resource (what physical/logical assets exist). Availability must not absorb Booking and must not become a Calendar product. Distinct from the Booking Availability Policy Boundary (opaque policy context inside `@motanos/booking`).
+
+**Decision:**
+
+* **Ownership:** `Availability`, factories, and `AvailabilityPort` live in `@motanos/availability` (`packages/engines/availability`). Availability is an independent bounded context — not Booking, Resource, Experience, Calendar, Commerce, Auth, or Runtime adapters.
+* **Pipeline relation:** Resource Definition → Availability Boundary → Booking Intent → Booking Lifecycle. Availability answers “when may something be used?”
+* **Separations:** Availability ≠ Booking (does not know bookings; Booking may consume availability later). Availability ≠ Calendar (events vs usable windows). Availability ≠ Resource (asset vs temporal rule). Availability Engine ≠ Booking Availability Policy Boundary.
+* **Kinds (foundation):** `availability.schedule`, `availability.window`, `availability.capacity`, `availability.operational`.
+* **Statuses (foundation):** `draft`, `active`, `paused`, `expired`, `archived`, `cancelled` (e.g. draft → active ↔ paused → archived).
+* **Contract shape:** Opaque `availabilityReference`, required `tenantReference`, `availabilityKind`, `availabilityStatus`; optional opaque `resourceReference`, `experienceReference`, `scheduleReference`, `ownerReference`, controlled `metadata`. No secrets, credentials, or payment data.
+* **Tenant isolation:** Availability may be bound to a tenant; cross-tenant creation is denied.
+* **Future refs:** May later hold opaque `bookingReference` and richer schedule links — never full foreign aggregates.
+* **Port surface:** `createAvailability` / `resolveAvailability` only. No `checkAvailability`, slot generation, resource blocking, or capacity calculators in this foundation.
+* **Runtime:** Composition root for future `Availability Port → Adapter`. No database, scheduler, cron, or vendor SDKs in this foundation.
+* **Dependencies:** `@motanos/availability` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** free/busy evaluation, slot materialization, Booking Runtime wiring, Calendar integration.
+
+**Rejected:** Absorbing Booking into Availability; turning Availability into Calendar; Availability → Booking/Resource/Calendar/Payment imports; Application → Availability Provider; implementing check/generate/block/calculate adapters in this phase.
+
+---
