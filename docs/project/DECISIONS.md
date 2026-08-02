@@ -1883,3 +1883,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Localization into an i18n library or auto-translate product; Localization → Google/DeepL/AI/database imports; Application → Translation Provider; implementing real translation or language detection in this phase.
 
 ---
+
+## DEC-CURRENCY-BOUNDARY-001 — Currency Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 85 introduces the Currency Engine so MotanOS can represent monetary units, monetary context, and regional money references independently of payment, commerce pricing, billing, tax, exchange providers, banks, and Stripe. Currency answers “what currency and monetary context applies?” — not how money is charged, converted, or invoiced.
+
+**Decision:**
+
+* **Ownership:** `Currency`, factories, and `CurrencyPort` live in `@motanos/currency` (`packages/engines/currency`). Currency is an independent bounded context — not Payment, Commerce, Billing, Tax, Exchange Providers, or regional configuration engines.
+* **Pipeline relation:** Tenant / Commerce Context → Currency Boundary → Future Exchange / Billing / Payment Providers. Commerce owns what is sold; Currency owns in which money unit it is expressed; Payment owns how payment is attempted; Billing owns fiscal recording.
+* **Separations:** Currency ≠ Payment. Currency ≠ Exchange Rate. Currency ≠ Billing. Currency ≠ Tax. Currency ≠ Bank Provider. Currency ≠ Stripe. No EUR/USD conversion, prices, payments, taxes, invoices, or banks in this foundation.
+* **Kinds (foundation):** `currency.primary`, `currency.supported`, `currency.operational`, `currency.display`, `currency.settlement`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled` (e.g. draft → active → inactive → archived).
+* **Contract shape:** Opaque `currencyReference`, required `tenantReference`, `currencyKind`, `currencyStatus`; optional opaque `codeReference`, `symbolReference`, `localeReference`, `regionReference`, `nameReference`, controlled `metadata`. No passwords, tokens, credentials, or secrets. Future opaque links to tenant/commerce/payment/billing — never engine imports.
+* **Tenant isolation:** Currency may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createCurrency` / `resolveCurrency` only. No convertCurrency, calculateExchange, updateRate, fetchRates, or syncBank methods in this foundation.
+* **Runtime:** Composition root for future `Currency Port → Adapter`. No database, FX APIs, or payment SDKs in this foundation.
+* **Dependencies:** `@motanos/currency` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** exchange adapters, settlement policies, display formatting bridges, multi-currency catalogs.
+
+**Rejected:** Absorbing Payment/Billing/Tax into Currency; Currency → Stripe/bank/exchange/database imports; Application → Exchange Provider; implementing conversion or rate sync in this phase.
+
+---
