@@ -39,6 +39,7 @@ export function createRescheduleBookingUseCase(
         return failure(validationError);
       }
 
+      const tenantReference = normalizeReference(input.tenantReference);
       const bookingReference = normalizeReference(input.bookingReference);
       const newStartAt = normalizeReference(input.newStartAt);
       const newEndAt = normalizeReference(input.newEndAt);
@@ -60,6 +61,7 @@ export function createRescheduleBookingUseCase(
 
       const decision = await deps.bookingAuthorizationPolicy.decide({
         actorReference,
+        tenantReference,
         operation: "reschedule",
         resourceType: "booking",
         resourceReference: bookingReference,
@@ -75,7 +77,10 @@ export function createRescheduleBookingUseCase(
         );
       }
 
-      const current = await deps.bookingQuery.getBooking(bookingReference);
+      const current = await deps.bookingQuery.getBooking(
+        tenantReference,
+        bookingReference,
+      );
       if (!current) {
         return failure({
           code: "NotFoundError",
@@ -97,6 +102,7 @@ export function createRescheduleBookingUseCase(
 
       try {
         const result = await deps.booking.reschedule({
+          tenantReference,
           bookingId: bookingReference,
           startsAt: newStartAt,
           endsAt: newEndAt,
@@ -119,6 +125,12 @@ function validateRescheduleInput(input: RescheduleBookingInput): {
   message: string;
   details?: Record<string, unknown>;
 } | null {
+  if (!input.tenantReference?.trim()) {
+    return {
+      code: "ValidationError",
+      message: "tenantReference is required",
+    };
+  }
   if (!input.bookingReference?.trim()) {
     return {
       code: "ValidationError",

@@ -10,6 +10,7 @@ import type { ApiResponse } from "../response";
  * API maps this to Application CreateBookingInput — no Booking engine types here.
  */
 export interface CreateBookingRequest extends ApiRequest {
+  tenantReference: string;
   resourceReference: string;
   customerReference: string;
   startAt: string;
@@ -29,6 +30,7 @@ export function toCreateBookingInput(
   request: CreateBookingRequest,
 ): CreateBookingInput {
   return {
+    tenantReference: request.tenantReference.trim(),
     resourceReference: request.resourceReference,
     customerReference: request.customerReference,
     startAt: request.startAt,

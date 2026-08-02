@@ -14,12 +14,15 @@ import {
   isDomainEvent,
 } from "../src/index.js";
 
+const TENANT = "tenant-1";
+
 describe("DomainEvent base", () => {
   it("exposes eventType, aggregateReference, occurredAt", () => {
     const event = createBookingCreatedEvent({
       bookingReference: "booking-1",
       resourceReference: "resource-1",
       customerReference: "customer-1",
+      tenantReference: TENANT,
       occurredAt: "2026-08-02T10:00:00.000Z",
     });
 
@@ -36,6 +39,7 @@ describe("BookingCreatedEvent", () => {
       bookingReference: "booking-1",
       resourceReference: "resource-1",
       customerReference: "customer-1",
+      tenantReference: TENANT,
       occurredAt: "2026-08-02T10:00:00.000Z",
     });
 
@@ -51,6 +55,7 @@ describe("BookingConfirmedEvent", () => {
   it("builds a valid confirmed structure", () => {
     const event = createBookingConfirmedEvent({
       bookingReference: "booking-1",
+      tenantReference: TENANT,
       occurredAt: "2026-08-02T10:05:00.000Z",
     });
 
@@ -65,6 +70,7 @@ describe("BookingCancelledEvent", () => {
   it("builds a valid cancelled structure with optional metadata", () => {
     const event = createBookingCancelledEvent({
       bookingReference: "booking-1",
+      tenantReference: TENANT,
       occurredAt: "2026-08-02T10:10:00.000Z",
       metadata: { reason: "user_request" },
     });
@@ -80,6 +86,7 @@ describe("BookingRescheduledEvent", () => {
   it("includes previous and new windows", () => {
     const event = createBookingRescheduledEvent({
       bookingReference: "booking-1",
+      tenantReference: TENANT,
       previousStartAt: "2026-08-02T10:00:00.000Z",
       previousEndAt: "2026-08-02T11:00:00.000Z",
       newStartAt: "2026-08-02T14:00:00.000Z",
@@ -100,6 +107,7 @@ describe("BookingHoldExpiredEvent", () => {
   it("includes bookingReference and timestamp", () => {
     const event = createBookingHoldExpiredEvent({
       bookingReference: "booking-1",
+      tenantReference: TENANT,
       occurredAt: "2026-08-02T10:20:00.000Z",
     });
 

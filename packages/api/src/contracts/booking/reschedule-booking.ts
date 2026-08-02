@@ -6,6 +6,7 @@ import type { ApiRequest } from "../request";
 import type { ApiResponse } from "../response";
 
 export interface RescheduleBookingRequest extends ApiRequest {
+  tenantReference: string;
   bookingReference: string;
   newStartAt: string;
   newEndAt: string;
@@ -20,6 +21,7 @@ export function toRescheduleBookingInput(
   request: RescheduleBookingRequest,
 ): RescheduleBookingInput {
   return {
+    tenantReference: request.tenantReference.trim(),
     bookingReference: request.bookingReference.trim(),
     newStartAt: request.newStartAt.trim(),
     newEndAt: request.newEndAt.trim(),

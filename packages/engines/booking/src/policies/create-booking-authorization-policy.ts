@@ -11,9 +11,8 @@ import {
 
 /**
  * Default BookingAuthorizationPolicy.
- * 1) Validates booking auth request shape.
- * 2) Asks the Authorization gateway (platform AuthorizationService).
- * 3) Does not evaluate lifecycle / state-machine rules.
+ * Actor + tenant scope → gateway AuthorizationService.
+ * Does not evaluate lifecycle / state-machine rules.
  */
 export function createBookingAuthorizationPolicy(
   gateway: BookingAuthorizationGateway,
@@ -25,6 +24,9 @@ export function createBookingAuthorizationPolicy(
       if (!request.actorReference?.trim()) {
         return denied(request, "actorReference is required");
       }
+      if (!request.tenantReference?.trim()) {
+        return denied(request, "tenantReference is required");
+      }
       if (!isBookingAuthOperation(request.operation)) {
         return denied(request, `Unknown booking operation: ${request.operation}`);
       }
@@ -33,18 +35,26 @@ export function createBookingAuthorizationPolicy(
       }
 
       const action = bookingAuthActionFor(request.operation);
+      const tenantReference = request.tenantReference.trim();
 
-      // Resource-scoped presence check only — not ownership RBAC / not status transitions.
       if (
         requiresBookingContext(request.operation) &&
-        request.booking !== undefined &&
-        request.booking.bookingReference !== request.resourceReference
+        request.booking !== undefined
       ) {
-        return denied(
-          request,
-          "booking context does not match resourceReference",
-          action,
-        );
+        if (request.booking.bookingReference !== request.resourceReference) {
+          return denied(
+            request,
+            "booking context does not match resourceReference",
+            action,
+          );
+        }
+        if (request.booking.tenantReference !== tenantReference) {
+          return denied(
+            request,
+            "booking does not belong to tenant context",
+            action,
+          );
+        }
       }
 
       const result = await gateway.authorize({
@@ -52,9 +62,10 @@ export function createBookingAuthorizationPolicy(
         action,
         resourceType: request.resourceType,
         resourceReference: request.resourceReference,
-        ...(request.metadata !== undefined
-          ? { metadata: request.metadata }
-          : {}),
+        metadata: {
+          ...(request.metadata ?? {}),
+          tenantReference,
+        },
       });
 
       if (!result.allowed) {

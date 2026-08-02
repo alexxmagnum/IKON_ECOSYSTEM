@@ -33,6 +33,8 @@ import {
   type CreateBookingInput,
 } from "../src/index.js";
 
+const TENANT = "tenant-1";
+
 function memoryBookingStack(): {
   booking: BookingService;
   bookingQuery: BookingQueryService;
@@ -71,6 +73,7 @@ function denyAllAuthorization(): AuthorizationService {
 }
 
 const validInput: CreateBookingInput = {
+  tenantReference: TENANT,
   resourceReference: "resource-1",
   customerReference: "customer-1",
   startAt: "2026-08-02T10:00:00.000Z",
@@ -153,7 +156,7 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
     if (!isSuccess(created)) return;
 
     const confirmed = await confirm.execute(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-1" },
     );
     assert.equal(isSuccess(confirmed), true);
@@ -179,7 +182,7 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
     if (!isSuccess(created)) return;
 
     const cancelled = await cancel.execute(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-1" },
     );
     assert.equal(isSuccess(cancelled), true);
@@ -201,7 +204,7 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
       booking,
       bookingQuery,
     }).execute(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-denied" },
     );
 
@@ -224,7 +227,7 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
       booking,
       bookingQuery,
     }).execute(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-denied" },
     );
 
@@ -236,6 +239,7 @@ describe("ConfirmBooking / CancelBooking lifecycle", () => {
 
 describe("CheckAvailability", () => {
   const range = {
+    tenantReference: TENANT,
     resourceReference: "resource-1",
     startAt: "2026-08-02T10:00:00.000Z",
     endAt: "2026-08-02T11:00:00.000Z",
@@ -260,6 +264,7 @@ describe("CheckAvailability", () => {
     const auth = allowAllAuthorization();
     await createCreateBookingUseCase({ bookingAuthorizationPolicy: policyFromAuth(auth), booking }).execute(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-1",
         customerReference: "customer-1",
         startAt: range.startAt,
@@ -306,7 +311,10 @@ describe("GetBooking / ListBookings", () => {
       bookingAuthorizationPolicy: policyFromAuth(auth),
       bookingQuery,
     }).execute(
-      { bookingReference: `  ${created.data.bookingReference}  ` },
+      {
+        tenantReference: TENANT,
+        bookingReference: `  ${created.data.bookingReference}  `,
+      },
       { actorReference: " actor-1 " },
     );
     assert.equal(isSuccess(got), true);
@@ -320,7 +328,7 @@ describe("GetBooking / ListBookings", () => {
       bookingAuthorizationPolicy: policyFromAuth(allowAllAuthorization()),
       bookingQuery: memoryBookingStack().bookingQuery,
     }).execute(
-      { bookingReference: "missing-booking" },
+      { tenantReference: TENANT, bookingReference: "missing-booking" },
       { actorReference: "actor-1" },
     );
     assert.equal(isFailure(result), true);
@@ -341,7 +349,7 @@ describe("GetBooking / ListBookings", () => {
       bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       bookingQuery,
     }).execute(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-denied" },
     );
     assert.equal(isFailure(deniedExisting), true);
@@ -352,7 +360,7 @@ describe("GetBooking / ListBookings", () => {
       bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       bookingQuery,
     }).execute(
-      { bookingReference: "does-not-exist" },
+      { tenantReference: TENANT, bookingReference: "does-not-exist" },
       { actorReference: "actor-denied" },
     );
     assert.equal(isFailure(deniedMissing), true);
@@ -399,7 +407,7 @@ describe("GetBooking / ListBookings", () => {
     const list = createListBookingsUseCase({ bookingAuthorizationPolicy: policyFromAuth(auth), bookingQuery });
 
     const byResource = await list.execute(
-      { resourceReference: "  resource-1  " },
+      { tenantReference: TENANT, resourceReference: "  resource-1  " },
       { actorReference: "actor-1" },
     );
     assert.equal(isSuccess(byResource), true);
@@ -408,7 +416,7 @@ describe("GetBooking / ListBookings", () => {
     assert.equal(byResource.data.bookings[0]?.resourceReference, "resource-1");
 
     const byCustomer = await list.execute(
-      { customerReference: "other-customer" },
+      { tenantReference: TENANT, customerReference: "other-customer" },
       { actorReference: "actor-1" },
     );
     assert.equal(isSuccess(byCustomer), true);
@@ -420,7 +428,7 @@ describe("GetBooking / ListBookings", () => {
     );
 
     const byStatus = await list.execute(
-      { status: "Draft" },
+      { tenantReference: TENANT, status: "Draft" },
       { actorReference: "actor-1" },
     );
     assert.equal(isSuccess(byStatus), true);
@@ -429,6 +437,7 @@ describe("GetBooking / ListBookings", () => {
 
     const byRange = await list.execute(
       {
+        tenantReference: TENANT,
         startAt: "2026-08-02T11:30:00.000Z",
         endAt: "2026-08-02T12:30:00.000Z",
       },
@@ -447,7 +456,7 @@ describe("GetBooking / ListBookings", () => {
     });
 
     const startOnly = await list.execute(
-      { startAt: "2026-08-02T10:00:00.000Z" },
+      { tenantReference: TENANT, startAt: "2026-08-02T10:00:00.000Z" },
       { actorReference: "actor-1" },
     );
     assert.equal(isFailure(startOnly), true);
@@ -455,7 +464,7 @@ describe("GetBooking / ListBookings", () => {
     assert.equal(startOnly.error.code, "ValidationError");
 
     const endOnly = await list.execute(
-      { endAt: "2026-08-02T11:00:00.000Z" },
+      { tenantReference: TENANT, endAt: "2026-08-02T11:00:00.000Z" },
       { actorReference: "actor-1" },
     );
     assert.equal(isFailure(endOnly), true);
@@ -467,7 +476,7 @@ describe("GetBooking / ListBookings", () => {
     const result = await createListBookingsUseCase({
       bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       bookingQuery: memoryBookingStack().bookingQuery,
-    }).execute({}, { actorReference: "actor-denied" });
+    }).execute({ tenantReference: TENANT }, { actorReference: "actor-denied" });
 
     assert.equal(isFailure(result), true);
     if (!isFailure(result)) return;
@@ -492,6 +501,7 @@ describe("RescheduleBooking", () => {
       bookingQuery,
     }).execute(
       {
+        tenantReference: TENANT,
         bookingReference: created.data.bookingReference,
         newStartAt: "2026-08-02T14:00:00.000Z",
         newEndAt: "2026-08-02T15:00:00.000Z",
@@ -530,6 +540,7 @@ describe("RescheduleBooking", () => {
       bookingQuery,
     }).execute(
       {
+        tenantReference: TENANT,
         bookingReference: first.data.bookingReference,
         newStartAt: "2026-08-02T12:00:00.000Z",
         newEndAt: "2026-08-02T13:00:00.000Z",
@@ -556,6 +567,7 @@ describe("RescheduleBooking", () => {
       bookingQuery,
     }).execute(
       {
+        tenantReference: TENANT,
         bookingReference: created.data.bookingReference,
         newStartAt: "2026-08-02T14:00:00.000Z",
         newEndAt: "2026-08-02T15:00:00.000Z",
@@ -582,7 +594,7 @@ describe("RescheduleBooking", () => {
       booking,
       bookingQuery,
     }).execute(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-1" },
     );
     assert.equal(isSuccess(cancelled), true);
@@ -593,6 +605,7 @@ describe("RescheduleBooking", () => {
       bookingQuery,
     }).execute(
       {
+        tenantReference: TENANT,
         bookingReference: created.data.bookingReference,
         newStartAt: "2026-08-02T14:00:00.000Z",
         newEndAt: "2026-08-02T15:00:00.000Z",
@@ -617,6 +630,7 @@ describe("ExpireBookingHolds", () => {
     if (!isSuccess(created)) return;
 
     await booking.update({
+      tenantReference: TENANT,
       bookingId: created.data.bookingReference,
       metadata: { __holdExpiresAt: "2020-01-01T00:00:00.000Z" },
     });
@@ -625,7 +639,7 @@ describe("ExpireBookingHolds", () => {
       bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(
-      { now: "2026-08-02T12:00:00.000Z" },
+      { tenantReference: TENANT, now: "2026-08-02T12:00:00.000Z" },
       { actorReference: "actor-1" },
     );
     assert.equal(isSuccess(result), true);
@@ -646,6 +660,7 @@ describe("ExpireBookingHolds", () => {
     if (!isSuccess(created)) return;
 
     await booking.update({
+      tenantReference: TENANT,
       bookingId: created.data.bookingReference,
       metadata: { __holdExpiresAt: "2099-01-01T00:00:00.000Z" },
     });
@@ -654,7 +669,7 @@ describe("ExpireBookingHolds", () => {
       bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(
-      { now: "2026-08-02T12:00:00.000Z" },
+      { tenantReference: TENANT, now: "2026-08-02T12:00:00.000Z" },
       { actorReference: "actor-1" },
     );
     assert.equal(isSuccess(result), true);
@@ -662,7 +677,7 @@ describe("ExpireBookingHolds", () => {
     assert.equal(result.data.expiredBookingReferences.length, 0);
     assert.equal(result.data.processedCount, 1);
 
-    const still = await bookingQuery.getBooking(created.data.bookingReference);
+    const still = await bookingQuery.getBooking(TENANT, created.data.bookingReference);
     assert.equal(still?.status, "Draft");
   });
 
@@ -681,12 +696,13 @@ describe("ExpireBookingHolds", () => {
       booking,
       bookingQuery,
     }).execute(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-1" },
     );
     assert.equal(isSuccess(confirmed), true);
 
     await booking.update({
+      tenantReference: TENANT,
       bookingId: created.data.bookingReference,
       metadata: { __holdExpiresAt: "2020-01-01T00:00:00.000Z" },
     });
@@ -695,14 +711,14 @@ describe("ExpireBookingHolds", () => {
       bookingAuthorizationPolicy: policyFromAuth(auth),
       booking,
     }).execute(
-      { now: "2026-08-02T12:00:00.000Z" },
+      { tenantReference: TENANT, now: "2026-08-02T12:00:00.000Z" },
       { actorReference: "actor-1" },
     );
     assert.equal(isSuccess(result), true);
     if (!isSuccess(result)) return;
     assert.equal(result.data.expiredBookingReferences.length, 0);
 
-    const still = await bookingQuery.getBooking(created.data.bookingReference);
+    const still = await bookingQuery.getBooking(TENANT, created.data.bookingReference);
     assert.equal(still?.status, "Confirmed");
   });
 
@@ -711,7 +727,7 @@ describe("ExpireBookingHolds", () => {
       bookingAuthorizationPolicy: policyFromAuth(denyAllAuthorization()),
       booking: memoryBookingStack().booking,
     }).execute(
-      { now: "2026-08-02T12:00:00.000Z" },
+      { tenantReference: TENANT, now: "2026-08-02T12:00:00.000Z" },
       { actorReference: "actor-denied" },
     );
     assert.equal(isFailure(result), true);

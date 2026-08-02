@@ -11,5 +11,7 @@ export type ActorReference = string;
 export interface ExecutionContext {
   requestReference?: RequestReference;
   actorReference?: ActorReference;
+  /** Explicit tenant scope for Booking (and future domains). */
+  tenantReference?: string;
   metadata?: Record<string, unknown>;
 }

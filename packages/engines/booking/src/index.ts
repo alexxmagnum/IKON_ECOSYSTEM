@@ -103,6 +103,16 @@ export type { BookingQueryService } from "./queries";
 export { createBookingQueryService } from "./queries";
 
 export type {
+  BookingTenantContext,
+  TenantReference,
+} from "./context";
+export {
+  createBookingTenantContext,
+  requireTenantReference,
+  sameTenant,
+} from "./context";
+
+export type {
   BookingAuthAction,
   BookingAuthOperation,
   BookingAuthorizationDecision,

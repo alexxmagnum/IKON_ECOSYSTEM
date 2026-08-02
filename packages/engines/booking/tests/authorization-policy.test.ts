@@ -10,6 +10,8 @@ import {
   type BookingAuthorizationGateway,
 } from "../src/index.js";
 
+const TENANT = "tenant-1";
+
 function gatewayAllow(): BookingAuthorizationGateway {
   return {
     async authorize() {
@@ -44,6 +46,7 @@ describe("BookingAuthorizationPolicy", () => {
     const policy = createBookingAuthorizationPolicy(gatewayAllow());
     const decision = await policy.decide({
       actorReference: "actor-1",
+      tenantReference: TENANT,
       operation: "confirm",
       resourceType: "booking",
       resourceReference: "booking-1",
@@ -57,6 +60,7 @@ describe("BookingAuthorizationPolicy", () => {
     const policy = createBookingAuthorizationPolicy(gatewayDeny());
     const decision = await policy.decide({
       actorReference: "actor-denied",
+      tenantReference: TENANT,
       operation: "create",
       resourceType: "booking.resource",
       resourceReference: "resource-1",
@@ -72,6 +76,7 @@ describe("BookingAuthorizationPolicy", () => {
     );
     const denied = await policy.decide({
       actorReference: "actor-1",
+      tenantReference: TENANT,
       operation: "read",
       resourceType: "booking",
       resourceReference: "booking-secret",
@@ -81,6 +86,7 @@ describe("BookingAuthorizationPolicy", () => {
 
     const allowed = await policy.decide({
       actorReference: "actor-1",
+      tenantReference: TENANT,
       operation: "read",
       resourceType: "booking",
       resourceReference: "booking-public",
@@ -92,11 +98,13 @@ describe("BookingAuthorizationPolicy", () => {
     const policy = createBookingAuthorizationPolicy(gatewayAllow());
     const decision = await policy.decide({
       actorReference: "actor-1",
+      tenantReference: TENANT,
       operation: "confirm",
       resourceType: "booking",
       resourceReference: "booking-1",
       booking: {
         bookingReference: "booking-1",
+        tenantReference: TENANT,
         ownerUserId: "customer-1",
         resourceId: "resource-1",
         status: "Cancelled",
@@ -110,11 +118,13 @@ describe("BookingAuthorizationPolicy", () => {
     const policy = createBookingAuthorizationPolicy(gatewayAllow());
     const decision = await policy.decide({
       actorReference: "actor-1",
+      tenantReference: TENANT,
       operation: "confirm",
       resourceType: "booking",
       resourceReference: "booking-1",
       booking: {
         bookingReference: "booking-OTHER",
+        tenantReference: TENANT,
         ownerUserId: "customer-1",
         resourceId: "resource-1",
         status: "Draft",
@@ -128,6 +138,7 @@ describe("BookingAuthorizationPolicy", () => {
     const policy = createBookingAuthorizationPolicy(gatewayAllow());
     const noActor = await policy.decide({
       actorReference: "  ",
+      tenantReference: TENANT,
       operation: "list",
       resourceType: "booking.list",
       resourceReference: "bookings",
@@ -136,6 +147,7 @@ describe("BookingAuthorizationPolicy", () => {
 
     const noResource = await policy.decide({
       actorReference: "actor-1",
+      tenantReference: TENANT,
       operation: "list",
       resourceType: "",
       resourceReference: "",

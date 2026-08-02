@@ -20,6 +20,8 @@ export interface TimeInterval {
  */
 export interface Booking extends TimeInterval {
   id: BookingId;
+  /** Opaque tenant scope (DEC-BOOKING-TENANT-001 — Option A: on aggregate). */
+  tenantReference: string;
   resourceId: ResourceId;
   /** Owner of the booking (BR-0016). */
   ownerUserId: UserId;

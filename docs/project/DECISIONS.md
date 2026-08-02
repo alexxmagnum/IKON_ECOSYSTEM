@@ -575,3 +575,25 @@ They are **provisional** until real execution workflows exist. A later phase may
 * **Deferred:** full RBAC, memberships, dynamic roles, tenant permissions, ABAC, IdP.
 
 **Rejected:** Mixing lifecycle eligibility into authorization; Booking → Runtime; API exposing policies.
+
+---
+
+## DEC-BOOKING-TENANT-001 — Booking Tenant Context boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 35 prepares MotanOS Booking for multi-tenant isolation without implementing SaaS tenancy infrastructure. Note: DEC-001 (IKON Single-Tenant v1 deployment) remains for club deployment model; this DEC scopes the **Booking engine contract** for portable tenant context.
+
+**Decision:**
+
+* **Ownership:** `BookingTenantContext` (`tenantReference` only) lives in `@motanos/booking` (`packages/engines/booking/src/context/`).
+* **Entity (Option A):** `Booking` includes `tenantReference` on the aggregate so persisted facts and events carry scope.
+* **Propagation:** Tenant is an **explicit** argument on Repository methods and Application/API inputs — never from Runtime globals, JWT, or hostname in this foundation.
+* **Repository:** `create|getById|list|update|findConflicts(tenant, …)` isolate by tenant; wrong-tenant reads return null / empty.
+* **Authorization:** `BookingAuthorizationPolicy` requires `tenantReference` and rejects booking context whose tenant mismatches the request.
+* **Events:** Booking domain events include `tenantReference` for future consumers (no EventBus).
+* **Deferred:** RLS, organizations, memberships, billing, plans, tenant roles, resolvers.
+
+**Rejected:** Hidden tenant resolution; Option B-only (context without entity field) for this foundation; Application → Database.

@@ -39,6 +39,7 @@ export type BookingAuthAction =
  */
 export interface BookingAuthorizationResourceContext {
   bookingReference: string;
+  tenantReference: string;
   ownerUserId: string;
   resourceId: string;
   /** Present for documentation / future ABAC — not used for domain transitions. */
@@ -47,6 +48,8 @@ export interface BookingAuthorizationResourceContext {
 
 export interface BookingAuthorizationRequest {
   actorReference: string;
+  /** Explicit tenant scope — required (DEC-BOOKING-TENANT-001). */
+  tenantReference: string;
   operation: BookingAuthOperation;
   resourceType: string;
   resourceReference: string;

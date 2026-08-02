@@ -34,9 +34,12 @@ import {
   type RescheduleBookingRequest,
 } from "../src/index.js";
 
+const TENANT = "tenant-1";
+
 describe("CreateBooking API contracts", () => {
   it("maps CreateBookingRequest to Application input", () => {
     const request: CreateBookingRequest = {
+      tenantReference: TENANT,
       requestReference: "req-api-1",
       resourceReference: "resource-1",
       customerReference: "customer-1",
@@ -46,6 +49,7 @@ describe("CreateBooking API contracts", () => {
     };
 
     const input = toCreateBookingInput(request);
+    assert.equal(input.tenantReference, TENANT);
     assert.equal(input.resourceReference, "resource-1");
     assert.equal(input.customerReference, "customer-1");
     assert.equal(input.metadata?.source, "test");
@@ -87,6 +91,7 @@ describe("CreateBooking API contracts", () => {
 describe("Confirm / Cancel API contracts", () => {
   it("maps ConfirmBookingRequest and success response", () => {
     const request: ConfirmBookingRequest = {
+      tenantReference: TENANT,
       bookingReference: "b1",
     };
     assert.equal(toConfirmBookingInput(request).bookingReference, "b1");
@@ -108,6 +113,7 @@ describe("Confirm / Cancel API contracts", () => {
 
   it("maps CancelBookingRequest and success response", () => {
     const request: CancelBookingRequest = {
+      tenantReference: TENANT,
       bookingReference: "b1",
       reason: "changed plans",
     };
@@ -134,6 +140,7 @@ describe("Confirm / Cancel API contracts", () => {
 describe("CheckAvailability API contracts", () => {
   it("maps request and available response", () => {
     const request: CheckAvailabilityRequest = {
+      tenantReference: TENANT,
       resourceReference: "r1",
       startAt: "2026-08-02T10:00:00.000Z",
       endAt: "2026-08-02T11:00:00.000Z",
@@ -158,6 +165,7 @@ describe("CheckAvailability API contracts", () => {
 describe("Get / List booking API contracts", () => {
   it("maps GetBookingRequest and success response", () => {
     const request: GetBookingRequest = {
+      tenantReference: TENANT,
       bookingReference: "  b1  ",
     };
     assert.equal(toGetBookingInput(request).bookingReference, "b1");
@@ -193,6 +201,7 @@ describe("Get / List booking API contracts", () => {
 
   it("maps ListBookingsRequest and list response", () => {
     const request: ListBookingsRequest = {
+      tenantReference: TENANT,
       resourceReference: "  r1  ",
       customerReference: "  c1  ",
       status: "Draft",
@@ -239,6 +248,7 @@ describe("Get / List booking API contracts", () => {
 describe("RescheduleBooking API contracts", () => {
   it("maps RescheduleBookingRequest and success response", () => {
     const request: RescheduleBookingRequest = {
+      tenantReference: TENANT,
       bookingReference: "  b1  ",
       newStartAt: "  2026-08-02T14:00:00.000Z  ",
       newEndAt: "2026-08-02T15:00:00.000Z",
@@ -281,6 +291,7 @@ describe("RescheduleBooking API contracts", () => {
 describe("ExpireBookingHolds API contracts", () => {
   it("maps ExpireBookingHoldsRequest and success response", () => {
     const request: ExpireBookingHoldsRequest = {
+      tenantReference: TENANT,
       now: "  2026-08-02T12:00:00.000Z  ",
       bookingReferences: ["  b1  "],
     };

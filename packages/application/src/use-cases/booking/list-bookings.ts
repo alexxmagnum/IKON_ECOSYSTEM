@@ -37,6 +37,13 @@ export function createListBookingsUseCase(
   return {
     name: "ListBookings",
     async execute(input, context) {
+      if (!input.tenantReference?.trim()) {
+        return failure({
+          code: "ValidationError",
+          message: "tenantReference is required",
+        });
+      }
+
       if (!context.actorReference) {
         return failure({
           code: "UnauthorizedError",
@@ -52,6 +59,7 @@ export function createListBookingsUseCase(
         });
       }
 
+      const tenantReference = normalizeReference(input.tenantReference);
       const normalized = normalizeListBookingsInput(input, actorReference);
       const validationError = validateNormalizedListInput(normalized);
       if (validationError) {
@@ -60,6 +68,7 @@ export function createListBookingsUseCase(
 
       const decision = await deps.bookingAuthorizationPolicy.decide({
         actorReference,
+        tenantReference,
         operation: "list",
         resourceType: "booking.list",
         resourceReference:
@@ -94,7 +103,10 @@ export function createListBookingsUseCase(
       }
 
       const query = toListBookingsQuery(normalized);
-      const results = await deps.bookingQuery.listBookings(query);
+      const results = await deps.bookingQuery.listBookings(
+        tenantReference,
+        query,
+      );
 
       return success({
         bookings: results.map((item) => toBookingOutput(item)),

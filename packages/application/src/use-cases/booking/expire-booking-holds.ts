@@ -51,6 +51,7 @@ export function createExpireBookingHoldsUseCase(
         });
       }
 
+      const tenantReference = normalizeReference(input.tenantReference);
       const now = normalizeReference(input.now!);
       const bookingReferences = (input.bookingReferences ?? [])
         .map((ref) => normalizeOptionalReference(ref))
@@ -58,6 +59,7 @@ export function createExpireBookingHoldsUseCase(
 
       const decision = await deps.bookingAuthorizationPolicy.decide({
         actorReference,
+        tenantReference,
         operation: "expire",
         resourceType: "booking.holds",
         resourceReference: "holds",
@@ -78,6 +80,7 @@ export function createExpireBookingHoldsUseCase(
       }
 
       const result = await deps.booking.expireHolds({
+        tenantReference,
         now,
         ...(bookingReferences.length > 0
           ? { bookingIds: bookingReferences }
@@ -105,6 +108,12 @@ function validateExpireInput(input: ExpireBookingHoldsInput): {
   message: string;
   details?: Record<string, unknown>;
 } | null {
+  if (!input.tenantReference?.trim()) {
+    return {
+      code: "ValidationError",
+      message: "tenantReference is required",
+    };
+  }
   if (!input.now?.trim()) {
     return {
       code: "ValidationError",

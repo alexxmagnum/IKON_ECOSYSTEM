@@ -25,6 +25,14 @@ export function createGetBookingUseCase(
   return {
     name: "GetBooking",
     async execute(input, context) {
+      if (!input.tenantReference?.trim()) {
+        return failure({
+          code: "ValidationError",
+          message: "tenantReference is required",
+        });
+      }
+
+      const tenantReference = normalizeReference(input.tenantReference);
       const bookingReference = input.bookingReference
         ? normalizeReference(input.bookingReference)
         : "";
@@ -53,6 +61,7 @@ export function createGetBookingUseCase(
 
       const decision = await deps.bookingAuthorizationPolicy.decide({
         actorReference,
+        tenantReference,
         operation: "read",
         resourceType: "booking",
         resourceReference: bookingReference,
@@ -65,7 +74,10 @@ export function createGetBookingUseCase(
         return forbiddenFromBookingPolicy(decision, "Booking read denied");
       }
 
-      const current = await deps.bookingQuery.getBooking(bookingReference);
+      const current = await deps.bookingQuery.getBooking(
+        tenantReference,
+        bookingReference,
+      );
       if (!current) {
         return failure({
           code: "NotFoundError",

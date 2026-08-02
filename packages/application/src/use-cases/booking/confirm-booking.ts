@@ -33,12 +33,21 @@ export function createConfirmBookingUseCase(
   return {
     name: "ConfirmBooking",
     async execute(input, context) {
+      if (!input.tenantReference?.trim()) {
+        return failure({
+          code: "ValidationError",
+          message: "tenantReference is required",
+        });
+      }
+
       if (!input.bookingReference?.trim()) {
         return failure({
           code: "ValidationError",
           message: "bookingReference is required",
         });
       }
+
+      const tenantReference = input.tenantReference.trim();
 
       if (!context.actorReference) {
         return failure({
@@ -48,6 +57,7 @@ export function createConfirmBookingUseCase(
       }
 
       const current = await deps.bookingQuery.getBooking(
+        tenantReference,
         input.bookingReference,
       );
       if (!current) {
@@ -60,11 +70,13 @@ export function createConfirmBookingUseCase(
 
       const decision = await deps.bookingAuthorizationPolicy.decide({
         actorReference: context.actorReference,
+        tenantReference,
         operation: "confirm",
         resourceType: "booking",
         resourceReference: current.id,
         booking: {
           bookingReference: current.id,
+          tenantReference: current.tenantReference,
           ownerUserId: current.ownerUserId,
           resourceId: current.resourceId,
           status: current.status,
@@ -98,6 +110,7 @@ export function createConfirmBookingUseCase(
       }
 
       const result = await deps.booking.confirm({
+        tenantReference,
         bookingId: input.bookingReference,
         ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
       });

@@ -6,6 +6,7 @@ import type { ApiRequest } from "../request";
 import type { ApiResponse } from "../response";
 
 export interface CheckAvailabilityRequest extends ApiRequest {
+  tenantReference: string;
   resourceReference: string;
   startAt: string;
   endAt: string;
@@ -20,6 +21,7 @@ export function toCheckAvailabilityInput(
   request: CheckAvailabilityRequest,
 ): CheckAvailabilityInput {
   return {
+    tenantReference: request.tenantReference.trim(),
     resourceReference: request.resourceReference,
     startAt: request.startAt,
     endAt: request.endAt,

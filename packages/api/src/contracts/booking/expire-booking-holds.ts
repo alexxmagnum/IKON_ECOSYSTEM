@@ -6,6 +6,7 @@ import type { ApiRequest } from "../request";
 import type { ApiResponse } from "../response";
 
 export interface ExpireBookingHoldsRequest extends ApiRequest {
+  tenantReference: string;
   now: string;
   bookingReferences?: string[];
   metadata?: Record<string, unknown>;
@@ -23,6 +24,7 @@ export function toExpireBookingHoldsInput(
     .filter((ref) => ref.length > 0);
 
   return {
+    tenantReference: request.tenantReference.trim(),
     now: request.now.trim(),
     ...(bookingReferences !== undefined && bookingReferences.length > 0
       ? { bookingReferences }

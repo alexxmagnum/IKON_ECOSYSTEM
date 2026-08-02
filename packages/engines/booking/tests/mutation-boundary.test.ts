@@ -9,19 +9,33 @@ import {
   BOOKING_DOMAIN_EVENT_TYPES,
   commitBookingMutation,
   createBookingService,
+  createBookingTenantContext,
   createInMemoryBookingRepository,
   patchInMemoryHoldExpiresAt,
 } from "../src/index.js";
+
+const TENANT = "tenant-1";
+
+function createInput(overrides: Record<string, string> = {}) {
+  return {
+    tenantReference: TENANT,
+    resourceId: "resource-1",
+    ownerUserId: "customer-1",
+    startsAt: "2026-08-02T10:00:00.000Z",
+    endsAt: "2026-08-02T11:00:00.000Z",
+    ...overrides,
+  };
+}
 
 function failingOnUpdate(
   base: BookingRepository,
   message = "REPO_UPDATE_FAILED",
 ): BookingRepository {
   return {
-    create: (b) => base.create(b),
-    getById: (id) => base.getById(id),
-    list: (q) => base.list(q),
-    findConflicts: (q) => base.findConflicts(q),
+    create: (tenant, b) => base.create(tenant, b),
+    getById: (tenant, id) => base.getById(tenant, id),
+    list: (tenant, q) => base.list(tenant, q),
+    findConflicts: (tenant, q) => base.findConflicts(tenant, q),
     update: async () => {
       throw new Error(message);
     },
@@ -43,20 +57,17 @@ function failingOnCreate(
 describe("Booking mutation boundary — success consistency", () => {
   it("Confirm: state Confirmed, repository updated, BookingConfirmedEvent", async () => {
     const repository = createInMemoryBookingRepository();
+    const tenant = createBookingTenantContext(TENANT);
     const booking = createBookingService(repository);
-    const created = await booking.create({
-      resourceId: "resource-1",
-      ownerUserId: "customer-1",
-      startsAt: "2026-08-02T10:00:00.000Z",
-      endsAt: "2026-08-02T11:00:00.000Z",
-    });
+    const created = await booking.create(createInput());
 
     const confirmed = await booking.confirm({
+      tenantReference: TENANT,
       bookingId: created.booking.id,
     });
 
     assert.equal(confirmed.booking.status, "Confirmed");
-    const stored = await repository.getById(created.booking.id);
+    const stored = await repository.getById(tenant, created.booking.id);
     assert.equal(stored?.status, "Confirmed");
     assert.equal(
       confirmed.events?.[0]?.eventType,
@@ -66,21 +77,18 @@ describe("Booking mutation boundary — success consistency", () => {
 
   it("Cancel: persists Cancelled and produces BookingCancelledEvent", async () => {
     const repository = createInMemoryBookingRepository();
+    const tenant = createBookingTenantContext(TENANT);
     const booking = createBookingService(repository);
-    const created = await booking.create({
-      resourceId: "resource-1",
-      ownerUserId: "customer-1",
-      startsAt: "2026-08-02T10:00:00.000Z",
-      endsAt: "2026-08-02T11:00:00.000Z",
-    });
+    const created = await booking.create(createInput());
 
     const cancelled = await booking.cancel({
+      tenantReference: TENANT,
       bookingId: created.booking.id,
     });
 
     assert.equal(cancelled.booking.status, "Cancelled");
     assert.equal(
-      (await repository.getById(created.booking.id))?.status,
+      (await repository.getById(tenant, created.booking.id))?.status,
       "Cancelled",
     );
     assert.equal(
@@ -91,15 +99,12 @@ describe("Booking mutation boundary — success consistency", () => {
 
   it("Reschedule: updates window, keeps status, produces BookingRescheduledEvent", async () => {
     const repository = createInMemoryBookingRepository();
+    const tenant = createBookingTenantContext(TENANT);
     const booking = createBookingService(repository);
-    const created = await booking.create({
-      resourceId: "resource-1",
-      ownerUserId: "customer-1",
-      startsAt: "2026-08-02T10:00:00.000Z",
-      endsAt: "2026-08-02T11:00:00.000Z",
-    });
+    const created = await booking.create(createInput());
 
     const rescheduled = await booking.reschedule({
+      tenantReference: TENANT,
       bookingId: created.booking.id,
       startsAt: "2026-08-02T14:00:00.000Z",
       endsAt: "2026-08-02T15:00:00.000Z",
@@ -108,7 +113,7 @@ describe("Booking mutation boundary — success consistency", () => {
     assert.equal(rescheduled.booking.status, "Draft");
     assert.equal(rescheduled.booking.startsAt, "2026-08-02T14:00:00.000Z");
     assert.equal(rescheduled.booking.endsAt, "2026-08-02T15:00:00.000Z");
-    const stored = await repository.getById(created.booking.id);
+    const stored = await repository.getById(tenant, created.booking.id);
     assert.equal(stored?.startsAt, "2026-08-02T14:00:00.000Z");
     assert.equal(
       rescheduled.events?.[0]?.eventType,
@@ -118,26 +123,24 @@ describe("Booking mutation boundary — success consistency", () => {
 
   it("Expire: persists Expired and produces BookingHoldExpiredEvent", async () => {
     const repository = createInMemoryBookingRepository();
+    const tenant = createBookingTenantContext(TENANT);
     const booking = createBookingService(repository);
-    const created = await booking.create({
-      resourceId: "resource-1",
-      ownerUserId: "customer-1",
-      startsAt: "2026-08-02T10:00:00.000Z",
-      endsAt: "2026-08-02T11:00:00.000Z",
-    });
+    const created = await booking.create(createInput());
     await patchInMemoryHoldExpiresAt(
       repository,
+      tenant,
       created.booking.id,
       "2020-01-01T00:00:00.000Z",
     );
 
     const expired = await booking.expireHolds({
+      tenantReference: TENANT,
       now: "2026-08-02T12:00:00.000Z",
     });
 
     assert.equal(expired.expiredBookingIds.length, 1);
     assert.equal(
-      (await repository.getById(created.booking.id))?.status,
+      (await repository.getById(tenant, created.booking.id))?.status,
       "Expired",
     );
     assert.equal(
@@ -150,74 +153,72 @@ describe("Booking mutation boundary — success consistency", () => {
 describe("Booking mutation boundary — failure scenarios", () => {
   it("Repository update failure → no successful event (confirm)", async () => {
     const base = createInMemoryBookingRepository();
+    const tenant = createBookingTenantContext(TENANT);
     const booking = createBookingService(base);
-    const created = await booking.create({
-      resourceId: "resource-1",
-      ownerUserId: "customer-1",
-      startsAt: "2026-08-02T10:00:00.000Z",
-      endsAt: "2026-08-02T11:00:00.000Z",
-    });
+    const created = await booking.create(createInput());
 
     const failing = createBookingService(failingOnUpdate(base));
     await assert.rejects(
-      () => failing.confirm({ bookingId: created.booking.id }),
+      () =>
+        failing.confirm({
+          tenantReference: TENANT,
+          bookingId: created.booking.id,
+        }),
       /REPO_UPDATE_FAILED/,
     );
 
-    const stored = await base.getById(created.booking.id);
+    const stored = await base.getById(tenant, created.booking.id);
     assert.equal(stored?.status, "Draft");
   });
 
   it("Repository create failure → no BookingCreatedEvent", async () => {
     const base = createInMemoryBookingRepository();
+    const tenant = createBookingTenantContext(TENANT);
     const booking = createBookingService(failingOnCreate(base));
     await assert.rejects(
-      () =>
-        booking.create({
-          resourceId: "resource-1",
-          ownerUserId: "customer-1",
-          startsAt: "2026-08-02T10:00:00.000Z",
-          endsAt: "2026-08-02T11:00:00.000Z",
-        }),
+      () => booking.create(createInput()),
       /REPO_CREATE_FAILED/,
     );
-    assert.equal((await base.list({})).length, 0);
+    assert.equal((await base.list(tenant, {})).length, 0);
   });
 
   it("Validation failure → no persistence and no event (confirm Cancelled)", async () => {
     const repository = createInMemoryBookingRepository();
+    const tenant = createBookingTenantContext(TENANT);
     const booking = createBookingService(repository);
-    const created = await booking.create({
-      resourceId: "resource-1",
-      ownerUserId: "customer-1",
-      startsAt: "2026-08-02T10:00:00.000Z",
-      endsAt: "2026-08-02T11:00:00.000Z",
+    const created = await booking.create(createInput());
+    await booking.cancel({
+      tenantReference: TENANT,
+      bookingId: created.booking.id,
     });
-    await booking.cancel({ bookingId: created.booking.id });
 
     await assert.rejects(
-      () => booking.confirm({ bookingId: created.booking.id }),
+      () =>
+        booking.confirm({
+          tenantReference: TENANT,
+          bookingId: created.booking.id,
+        }),
       /Invalid confirm transition/,
     );
 
-    const stored = await repository.getById(created.booking.id);
+    const stored = await repository.getById(tenant, created.booking.id);
     assert.equal(stored?.status, "Cancelled");
   });
 
   it("Transition failure → no event (reschedule Cancelled)", async () => {
     const repository = createInMemoryBookingRepository();
+    const tenant = createBookingTenantContext(TENANT);
     const booking = createBookingService(repository);
-    const created = await booking.create({
-      resourceId: "resource-1",
-      ownerUserId: "customer-1",
-      startsAt: "2026-08-02T10:00:00.000Z",
-      endsAt: "2026-08-02T11:00:00.000Z",
+    const created = await booking.create(createInput());
+    await booking.cancel({
+      tenantReference: TENANT,
+      bookingId: created.booking.id,
     });
-    await booking.cancel({ bookingId: created.booking.id });
 
     await assert.rejects(
       () =>
         booking.reschedule({
+          tenantReference: TENANT,
           bookingId: created.booking.id,
           startsAt: "2026-08-02T14:00:00.000Z",
           endsAt: "2026-08-02T15:00:00.000Z",
@@ -225,7 +226,7 @@ describe("Booking mutation boundary — failure scenarios", () => {
       /PRECONDITION/,
     );
 
-    const stored = await repository.getById(created.booking.id);
+    const stored = await repository.getById(tenant, created.booking.id);
     assert.equal(stored?.startsAt, "2026-08-02T10:00:00.000Z");
   });
 
@@ -244,6 +245,7 @@ describe("Booking mutation boundary — failure scenarios", () => {
               eventType: BOOKING_DOMAIN_EVENT_TYPES.BookingConfirmed,
               occurredAt: "2026-08-02T00:00:00.000Z",
               bookingReference: "b",
+              tenantReference: TENANT,
             };
           },
         ),

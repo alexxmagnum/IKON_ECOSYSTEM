@@ -85,6 +85,7 @@ export function checkRangeAvailability(
 ): { available: boolean; reason?: string } {
   const probe: Booking = {
     id: options?.excludeBookingId ?? "__availability-probe__",
+    tenantReference: "__probe-tenant__",
     resourceId,
     ownerUserId: "__probe__",
     startsAt: range.startsAt,

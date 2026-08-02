@@ -5,6 +5,7 @@ import type { Booking, BookingStatus } from "@motanos/booking";
  * Maps onto @motanos/booking CreateBookingInput at the engine boundary.
  */
 export interface CreateBookingInput {
+  tenantReference: string;
   resourceReference: string;
   customerReference: string;
   startAt: string;
@@ -17,6 +18,7 @@ export interface CreateBookingInput {
  */
 export interface BookingOutput {
   bookingReference: string;
+  tenantReference: string;
   resourceReference: string;
   customerReference: string;
   startAt: string;
@@ -30,6 +32,7 @@ export interface BookingOutput {
 export type CreateBookingOutput = BookingOutput;
 
 export interface ConfirmBookingInput {
+  tenantReference: string;
   bookingReference: string;
   metadata?: Record<string, unknown>;
 }
@@ -37,6 +40,7 @@ export interface ConfirmBookingInput {
 export type ConfirmBookingOutput = BookingOutput;
 
 export interface CancelBookingInput {
+  tenantReference: string;
   bookingReference: string;
   reason?: string;
   metadata?: Record<string, unknown>;
@@ -45,6 +49,7 @@ export interface CancelBookingInput {
 export type CancelBookingOutput = BookingOutput;
 
 export interface GetBookingInput {
+  tenantReference: string;
   bookingReference: string;
   metadata?: Record<string, unknown>;
 }
@@ -52,6 +57,7 @@ export interface GetBookingInput {
 export type GetBookingOutput = BookingOutput;
 
 export interface ListBookingsInput {
+  tenantReference: string;
   resourceReference?: string;
   customerReference?: string;
   startAt?: string;
@@ -65,6 +71,7 @@ export interface ListBookingsOutput {
 }
 
 export interface RescheduleBookingInput {
+  tenantReference: string;
   bookingReference: string;
   newStartAt: string;
   newEndAt: string;
@@ -74,6 +81,7 @@ export interface RescheduleBookingInput {
 export type RescheduleBookingOutput = BookingOutput;
 
 export interface ExpireBookingHoldsInput {
+  tenantReference: string;
   /** Evaluation instant (ISO-8601). */
   now: string;
   /** Optional candidate opaque references; omit = all known bookings. */
@@ -90,6 +98,7 @@ export interface ExpireBookingHoldsOutput {
 export function toBookingOutput(booking: Booking): BookingOutput {
   return {
     bookingReference: booking.id,
+    tenantReference: booking.tenantReference,
     resourceReference: booking.resourceId,
     customerReference: booking.ownerUserId,
     startAt: booking.startsAt,

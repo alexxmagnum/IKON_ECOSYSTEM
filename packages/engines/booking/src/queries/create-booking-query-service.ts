@@ -4,29 +4,35 @@ import type {
   ListBookingsQuery,
 } from "../contracts";
 import type { BookingId } from "../domain/booking";
+import { createBookingTenantContext } from "../context/booking-tenant-context";
 import type { BookingRepository } from "../repositories/booking-repository";
 import type { BookingQueryService } from "./booking-query-service";
 
 /**
- * BookingQueryService over the shared BookingRepository.
- * Same store as commands for now — no separate query repository (DEC-BOOKING-QUERY-002).
+ * BookingQueryService over the shared BookingRepository (tenant-scoped).
  */
 export function createBookingQueryService(
   repository: BookingRepository,
 ): BookingQueryService {
   return {
-    async getBooking(bookingId: BookingId) {
-      return repository.getById(bookingId);
+    async getBooking(tenantReference: string, bookingId: BookingId) {
+      const tenant = createBookingTenantContext(tenantReference);
+      return repository.getById(tenant, bookingId);
     },
 
-    async listBookings(query: ListBookingsQuery = {}) {
-      return repository.list(query);
+    async listBookings(
+      tenantReference: string,
+      query: ListBookingsQuery = {},
+    ) {
+      const tenant = createBookingTenantContext(tenantReference);
+      return repository.list(tenant, query);
     },
 
     async checkAvailability(
       input: AvailabilityCheckInput,
     ): Promise<AvailabilityCheckResult> {
-      const conflicts = await repository.findConflicts({
+      const tenant = createBookingTenantContext(input.tenantReference);
+      const conflicts = await repository.findConflicts(tenant, {
         resourceId: input.resourceId,
         range: { startsAt: input.startsAt, endsAt: input.endsAt },
       });

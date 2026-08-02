@@ -6,6 +6,7 @@ import type { ApiRequest } from "../request";
 import type { ApiResponse } from "../response";
 
 export interface CancelBookingRequest extends ApiRequest {
+  tenantReference: string;
   bookingReference: string;
   reason?: string;
   metadata?: Record<string, unknown>;
@@ -18,6 +19,7 @@ export function toCancelBookingInput(
   request: CancelBookingRequest,
 ): CancelBookingInput {
   return {
+    tenantReference: request.tenantReference.trim(),
     bookingReference: request.bookingReference,
     ...(request.reason !== undefined ? { reason: request.reason } : {}),
     ...(request.metadata !== undefined ? { metadata: request.metadata } : {}),

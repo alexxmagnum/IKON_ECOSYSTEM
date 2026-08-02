@@ -1,5 +1,10 @@
 import type { Booking, BookingId } from "../domain/booking";
 import type { ListBookingsQuery } from "../contracts";
+import type { BookingTenantContext } from "../context/booking-tenant-context";
+import {
+  requireTenantReference,
+  sameTenant,
+} from "../context/booking-tenant-context";
 import {
   bookingsConflict,
   intervalsOverlap,
@@ -10,14 +15,17 @@ import type {
 } from "./booking-repository";
 
 /**
- * In-memory BookingRepository — foundation adapter for tests / composition.
- * Not a production persistence technology.
+ * In-memory BookingRepository — tenant-scoped foundation adapter.
  */
 export function createInMemoryBookingRepository(): BookingRepository {
   const bookings = new Map<string, Booking>();
 
   return {
-    async create(booking) {
+    async create(tenant, booking) {
+      const tenantReference = requireTenantReference(tenant);
+      if (booking.tenantReference !== tenantReference) {
+        throw new Error("Booking tenantReference does not match tenant context");
+      }
       if (bookings.has(booking.id)) {
         throw new Error(`Booking already exists: ${booking.id}`);
       }
@@ -26,19 +34,30 @@ export function createInMemoryBookingRepository(): BookingRepository {
       return { ...stored };
     },
 
-    async getById(bookingId) {
+    async getById(tenant, bookingId) {
+      const tenantReference = requireTenantReference(tenant);
       const booking = bookings.get(bookingId);
-      return booking ? { ...booking } : null;
+      if (!booking || booking.tenantReference !== tenantReference) {
+        return null;
+      }
+      return { ...booking };
     },
 
-    async list(query: ListBookingsQuery = {}) {
+    async list(tenant, query: ListBookingsQuery = {}) {
+      const tenantReference = requireTenantReference(tenant);
       return [...bookings.values()]
+        .filter((booking) => booking.tenantReference === tenantReference)
         .filter((booking) => matchesListQuery(booking, query))
         .map((booking) => ({ ...booking }));
     },
 
-    async update(booking) {
-      if (!bookings.has(booking.id)) {
+    async update(tenant, booking) {
+      const tenantReference = requireTenantReference(tenant);
+      if (booking.tenantReference !== tenantReference) {
+        throw new Error("Booking tenantReference does not match tenant context");
+      }
+      const existing = bookings.get(booking.id);
+      if (!existing || existing.tenantReference !== tenantReference) {
         throw new Error(`Booking not found: ${booking.id}`);
       }
       const stored: Booking = { ...booking };
@@ -46,9 +65,11 @@ export function createInMemoryBookingRepository(): BookingRepository {
       return { ...stored };
     },
 
-    async findConflicts(query: FindBookingConflictsQuery) {
+    async findConflicts(tenant, query: FindBookingConflictsQuery) {
+      const tenantReference = requireTenantReference(tenant);
       const probe: Booking = {
         id: query.excludeBookingId ?? "__conflict-probe__",
+        tenantReference,
         resourceId: query.resourceId,
         ownerUserId: "__probe__",
         startsAt: query.range.startsAt,
@@ -57,6 +78,7 @@ export function createInMemoryBookingRepository(): BookingRepository {
       };
 
       return [...bookings.values()]
+        .filter((booking) => booking.tenantReference === tenantReference)
         .filter((booking) => {
           if (
             query.excludeBookingId !== undefined &&
@@ -95,14 +117,16 @@ function matchesListQuery(
   return true;
 }
 
-/** Test helper — mutate holdExpiresAt on a stored aggregate by id. */
+/** Test helper — mutate holdExpiresAt within a tenant scope. */
 export function patchInMemoryHoldExpiresAt(
   repository: BookingRepository,
+  tenant: BookingTenantContext,
   bookingId: BookingId,
   holdExpiresAt: string,
 ): Promise<Booking | null> {
-  return repository.getById(bookingId).then(async (booking) => {
+  return repository.getById(tenant, bookingId).then(async (booking) => {
     if (!booking) return null;
-    return repository.update({ ...booking, holdExpiresAt });
+    if (!sameTenant(tenant, booking)) return null;
+    return repository.update(tenant, { ...booking, holdExpiresAt });
   });
 }

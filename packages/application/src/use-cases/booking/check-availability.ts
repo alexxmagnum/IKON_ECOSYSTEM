@@ -7,6 +7,7 @@ import { failure, success } from "../../contracts/result";
 import { forbiddenFromBookingPolicy } from "./booking-auth";
 
 export interface CheckAvailabilityInput {
+  tenantReference: string;
   resourceReference: string;
   startAt: string;
   endAt: string;
@@ -52,8 +53,11 @@ export function createCheckAvailabilityUseCase(
         });
       }
 
+      const tenantReference = input.tenantReference.trim();
+
       const decision = await deps.bookingAuthorizationPolicy.decide({
         actorReference: context.actorReference,
+        tenantReference,
         operation: "checkAvailability",
         resourceType: "booking.resource",
         resourceReference: input.resourceReference,
@@ -70,6 +74,7 @@ export function createCheckAvailabilityUseCase(
       }
 
       const result = await deps.bookingQuery.checkAvailability({
+        tenantReference,
         resourceId: input.resourceReference,
         startsAt: input.startAt,
         endsAt: input.endAt,
@@ -93,6 +98,12 @@ function validateCheckAvailabilityInput(
   message: string;
   details?: Record<string, unknown>;
 } | null {
+  if (!input.tenantReference?.trim()) {
+    return {
+      code: "ValidationError",
+      message: "tenantReference is required",
+    };
+  }
   if (!input.resourceReference?.trim()) {
     return {
       code: "ValidationError",

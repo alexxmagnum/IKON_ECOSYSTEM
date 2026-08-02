@@ -11,6 +11,8 @@ import {
   RUNTIME_SERVICE_TOKENS,
 } from "../src/index.js";
 
+const TENANT = "tenant-1";
+
 describe("@motanos/runtime composition", () => {
   it("1. Runtime boot — runtime created", () => {
     const composed = createMotanOSRuntime({
@@ -55,18 +57,20 @@ describe("@motanos/runtime composition", () => {
     assert.equal(typeof composed.bookingQuery.checkAvailability, "function");
 
     const created = await composed.booking.create({
+      tenantReference: TENANT,
       resourceId: "resource-wire",
       ownerUserId: "customer-wire",
       startsAt: "2026-08-02T10:00:00.000Z",
       endsAt: "2026-08-02T11:00:00.000Z",
     });
     const fromRepo = await composed.bookingRepository.getById(
+      { tenantReference: TENANT },
       created.booking.id,
     );
     assert.ok(fromRepo);
     assert.equal(fromRepo.id, created.booking.id);
 
-    const fromQuery = await composed.bookingQuery.getBooking(created.booking.id);
+    const fromQuery = await composed.bookingQuery.getBooking(TENANT, created.booking.id);
     assert.ok(fromQuery);
     assert.equal(fromQuery.id, created.booking.id);
   });
@@ -78,6 +82,7 @@ describe("@motanos/runtime composition", () => {
 
     const response = await createBookingHandler.handle(
       {
+        tenantReference: TENANT,
         requestReference: "req-1",
         resourceReference: "resource-1",
         customerReference: "customer-1",
@@ -103,6 +108,7 @@ describe("@motanos/runtime composition", () => {
 
     const result = await createBooking.execute(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-1",
         customerReference: "customer-1",
         startAt: "2026-08-02T10:00:00.000Z",
@@ -122,6 +128,7 @@ describe("@motanos/runtime composition", () => {
 
     const created = await createBookingHandler.handle(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-1",
         customerReference: "customer-1",
         startAt: "2026-08-02T10:00:00.000Z",
@@ -133,7 +140,7 @@ describe("@motanos/runtime composition", () => {
     if (!isApiSuccess(created)) return;
 
     const confirmed = await confirmBookingHandler.handle(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-1" },
     );
     assert.equal(isApiSuccess(confirmed), true);
@@ -148,6 +155,7 @@ describe("@motanos/runtime composition", () => {
 
     const created = await createBookingHandler.handle(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-1",
         customerReference: "customer-1",
         startAt: "2026-08-02T10:00:00.000Z",
@@ -159,7 +167,7 @@ describe("@motanos/runtime composition", () => {
     if (!isApiSuccess(created)) return;
 
     const cancelled = await cancelBookingHandler.handle(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-1" },
     );
     assert.equal(isApiSuccess(cancelled), true);
@@ -171,6 +179,7 @@ describe("@motanos/runtime composition", () => {
     const allowed = createMotanOSRuntime({ config: { environment: "test" } });
     const created = await allowed.createBooking.execute(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-1",
         customerReference: "customer-1",
         startAt: "2026-08-02T10:00:00.000Z",
@@ -190,7 +199,7 @@ describe("@motanos/runtime composition", () => {
     });
 
     const confirmDenied = await denied.confirmBooking.execute(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-denied" },
     );
     assert.equal(isFailure(confirmDenied), true);
@@ -198,7 +207,7 @@ describe("@motanos/runtime composition", () => {
     assert.equal(confirmDenied.error.code, "ForbiddenError");
 
     const cancelDenied = await denied.cancelBooking.execute(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-denied" },
     );
     assert.equal(isFailure(cancelDenied), true);
@@ -213,6 +222,7 @@ describe("@motanos/runtime composition", () => {
 
     const free = await composed.checkAvailabilityHandler.handle(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-avail",
         startAt: "2026-08-02T10:00:00.000Z",
         endAt: "2026-08-02T11:00:00.000Z",
@@ -225,6 +235,7 @@ describe("@motanos/runtime composition", () => {
 
     await composed.createBookingHandler.handle(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-avail",
         customerReference: "customer-1",
         startAt: "2026-08-02T10:00:00.000Z",
@@ -235,6 +246,7 @@ describe("@motanos/runtime composition", () => {
 
     const blocked = await composed.checkAvailabilityHandler.handle(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-avail",
         startAt: "2026-08-02T10:30:00.000Z",
         endAt: "2026-08-02T11:30:00.000Z",
@@ -254,6 +266,7 @@ describe("@motanos/runtime composition", () => {
     });
     const forbidden = await deniedRuntime.checkAvailability.execute(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-avail",
         startAt: "2026-08-02T14:00:00.000Z",
         endAt: "2026-08-02T15:00:00.000Z",
@@ -272,6 +285,7 @@ describe("@motanos/runtime composition", () => {
 
     const created = await composed.createBookingHandler.handle(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-query",
         customerReference: "actor-1",
         startAt: "2026-08-02T10:00:00.000Z",
@@ -284,6 +298,7 @@ describe("@motanos/runtime composition", () => {
 
     await composed.createBookingHandler.handle(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-other",
         customerReference: "actor-1",
         startAt: "2026-08-02T12:00:00.000Z",
@@ -293,7 +308,10 @@ describe("@motanos/runtime composition", () => {
     );
 
     const got = await composed.getBookingHandler.handle(
-      { bookingReference: `  ${created.data.bookingReference}  ` },
+      {
+        tenantReference: TENANT,
+        bookingReference: `  ${created.data.bookingReference}  `,
+      },
       { actorReference: "actor-1" },
     );
     assert.equal(isApiSuccess(got), true);
@@ -301,7 +319,7 @@ describe("@motanos/runtime composition", () => {
     assert.equal(got.data.bookingReference, created.data.bookingReference);
 
     const missing = await composed.getBooking.execute(
-      { bookingReference: "does-not-exist" },
+      { tenantReference: TENANT, bookingReference: "does-not-exist" },
       { actorReference: "actor-1" },
     );
     assert.equal(isFailure(missing), true);
@@ -309,7 +327,7 @@ describe("@motanos/runtime composition", () => {
     assert.equal(missing.error.code, "NotFoundError");
 
     const listed = await composed.listBookingsHandler.handle(
-      { resourceReference: "  resource-query  " },
+      { tenantReference: TENANT, resourceReference: "  resource-query  " },
       { actorReference: "actor-1" },
     );
     assert.equal(isApiSuccess(listed), true);
@@ -318,7 +336,7 @@ describe("@motanos/runtime composition", () => {
     assert.equal(listed.data.bookings[0]?.resourceReference, "resource-query");
 
     const byStatus = await composed.listBookingsHandler.handle(
-      { status: "Draft" },
+      { tenantReference: TENANT, status: "Draft" },
       { actorReference: "actor-1" },
     );
     assert.equal(isApiSuccess(byStatus), true);
@@ -327,6 +345,7 @@ describe("@motanos/runtime composition", () => {
 
     const byRange = await composed.listBookingsHandler.handle(
       {
+        tenantReference: TENANT,
         startAt: "2026-08-02T11:30:00.000Z",
         endAt: "2026-08-02T12:30:00.000Z",
       },
@@ -344,7 +363,7 @@ describe("@motanos/runtime composition", () => {
       deniedActors: ["actor-denied"],
     });
     const forbiddenRead = await denied.getBooking.execute(
-      { bookingReference: created.data.bookingReference },
+      { tenantReference: TENANT, bookingReference: created.data.bookingReference },
       { actorReference: "actor-denied" },
     );
     assert.equal(isFailure(forbiddenRead), true);
@@ -352,7 +371,7 @@ describe("@motanos/runtime composition", () => {
     assert.equal(forbiddenRead.error.code, "ForbiddenError");
 
     const forbiddenMissing = await denied.getBooking.execute(
-      { bookingReference: "missing-id" },
+      { tenantReference: TENANT, bookingReference: "missing-id" },
       { actorReference: "actor-denied" },
     );
     assert.equal(isFailure(forbiddenMissing), true);
@@ -360,7 +379,7 @@ describe("@motanos/runtime composition", () => {
     assert.equal(forbiddenMissing.error.code, "ForbiddenError");
 
     const forbiddenList = await denied.listBookings.execute(
-      {},
+      { tenantReference: TENANT },
       { actorReference: "actor-denied" },
     );
     assert.equal(isFailure(forbiddenList), true);
@@ -381,6 +400,7 @@ describe("@motanos/runtime composition", () => {
 
     const created = await composed.createBookingHandler.handle(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-reschedule",
         customerReference: "actor-1",
         startAt: "2026-08-02T10:00:00.000Z",
@@ -393,6 +413,7 @@ describe("@motanos/runtime composition", () => {
 
     const rescheduled = await composed.rescheduleBookingHandler.handle(
       {
+        tenantReference: TENANT,
         bookingReference: created.data.bookingReference,
         newStartAt: "2026-08-02T16:00:00.000Z",
         newEndAt: "2026-08-02T17:00:00.000Z",
@@ -413,6 +434,7 @@ describe("@motanos/runtime composition", () => {
     });
     const forbidden = await denied.rescheduleBooking.execute(
       {
+        tenantReference: TENANT,
         bookingReference: created.data.bookingReference,
         newStartAt: "2026-08-02T18:00:00.000Z",
         newEndAt: "2026-08-02T19:00:00.000Z",
@@ -439,6 +461,7 @@ describe("@motanos/runtime composition", () => {
 
     const created = await composed.createBookingHandler.handle(
       {
+        tenantReference: TENANT,
         resourceReference: "resource-hold",
         customerReference: "actor-1",
         startAt: "2026-08-02T10:00:00.000Z",
@@ -450,12 +473,13 @@ describe("@motanos/runtime composition", () => {
     if (!isApiSuccess(created)) return;
 
     await composed.booking.update({
+      tenantReference: TENANT,
       bookingId: created.data.bookingReference,
       metadata: { __holdExpiresAt: "2020-01-01T00:00:00.000Z" },
     });
 
     const expired = await composed.expireBookingHoldsHandler.handle(
-      { now: "2026-08-02T12:00:00.000Z" },
+      { tenantReference: TENANT, now: "2026-08-02T12:00:00.000Z" },
       { actorReference: "actor-1" },
     );
     assert.equal(isApiSuccess(expired), true);
@@ -471,7 +495,7 @@ describe("@motanos/runtime composition", () => {
       deniedActors: ["actor-denied"],
     });
     const forbidden = await denied.expireBookingHolds.execute(
-      { now: "2026-08-02T12:00:00.000Z" },
+      { tenantReference: TENANT, now: "2026-08-02T12:00:00.000Z" },
       { actorReference: "actor-denied" },
     );
     assert.equal(isFailure(forbidden), true);

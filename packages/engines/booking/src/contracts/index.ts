@@ -20,6 +20,7 @@ import type {
  */
 
 export interface CreateBookingInput {
+  tenantReference: string;
   resourceId: ResourceId;
   ownerUserId: UserId;
   startsAt: string;
@@ -31,6 +32,7 @@ export interface CreateBookingInput {
 }
 
 export interface UpdateBookingInput {
+  tenantReference: string;
   bookingId: BookingId;
   startsAt?: string;
   endsAt?: string;
@@ -40,6 +42,7 @@ export interface UpdateBookingInput {
 }
 
 export interface CancelBookingInput {
+  tenantReference: string;
   bookingId: BookingId;
   reason?: string;
 }
@@ -50,6 +53,7 @@ export interface CancelBookingInput {
  * Payment-required confirmation remains a future composition decision.
  */
 export interface ConfirmBookingInput {
+  tenantReference: string;
   bookingId: BookingId;
   metadata?: Record<string, unknown>;
 }
@@ -60,6 +64,7 @@ export interface ConfirmBookingInput {
  * Engine uses bookingId / startsAt / endsAt (Application maps opaque refs).
  */
 export interface RescheduleBookingInput {
+  tenantReference: string;
   bookingId: BookingId;
   startsAt: string;
   endsAt: string;
@@ -71,6 +76,7 @@ export interface RescheduleBookingInput {
  * Adapters evaluate known bookings; optional bookingIds narrows candidates.
  */
 export interface ExpireBookingHoldsInput {
+  tenantReference: string;
   /** Evaluation instant (ISO-8601). */
   now: string;
   /** Optional candidate ids; omit = evaluate all bookings known to the adapter. */
@@ -98,6 +104,7 @@ export interface BookingResult {
  * Foundation only — no calendar providers or persistence adapters.
  */
 export interface AvailabilityCheckInput {
+  tenantReference: string;
   resourceId: ResourceId;
   startsAt: string;
   endsAt: string;

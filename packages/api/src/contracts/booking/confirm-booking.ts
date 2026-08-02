@@ -6,6 +6,7 @@ import type { ApiRequest } from "../request";
 import type { ApiResponse } from "../response";
 
 export interface ConfirmBookingRequest extends ApiRequest {
+  tenantReference: string;
   bookingReference: string;
   metadata?: Record<string, unknown>;
 }
@@ -17,6 +18,7 @@ export function toConfirmBookingInput(
   request: ConfirmBookingRequest,
 ): ConfirmBookingInput {
   return {
+    tenantReference: request.tenantReference.trim(),
     bookingReference: request.bookingReference,
     ...(request.metadata !== undefined ? { metadata: request.metadata } : {}),
   };

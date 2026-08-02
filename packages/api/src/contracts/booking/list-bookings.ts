@@ -7,6 +7,7 @@ import type { ApiRequest } from "../request";
 import type { ApiResponse } from "../response";
 
 export interface ListBookingsRequest extends ApiRequest {
+  tenantReference: string;
   resourceReference?: string;
   customerReference?: string;
   startAt?: string;
@@ -33,6 +34,7 @@ export function toListBookingsInput(
   const endAt = trimOptional(request.endAt);
 
   return {
+    tenantReference: request.tenantReference.trim(),
     ...(resourceReference !== undefined ? { resourceReference } : {}),
     ...(customerReference !== undefined ? { customerReference } : {}),
     ...(startAt !== undefined ? { startAt } : {}),

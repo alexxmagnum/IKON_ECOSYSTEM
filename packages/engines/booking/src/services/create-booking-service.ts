@@ -9,6 +9,7 @@ import type {
   UpdateBookingInput,
 } from "../contracts";
 import type { Booking } from "../domain/booking";
+import { createBookingTenantContext } from "../context/booking-tenant-context";
 import {
   canRescheduleBooking,
   canTransitionBooking,
@@ -36,7 +37,7 @@ export interface CreateBookingServiceOptions {
 /**
  * BookingService implementation over BookingRepository.
  * Owns the Booking Mutation Boundary: validate → mutate → persist → emit.
- * @see DEC-BOOKING-TRANSACTION-001
+ * Tenant scope is required on every operation (DEC-BOOKING-TENANT-001).
  */
 export function createBookingService(
   repository: BookingRepository,
@@ -53,12 +54,13 @@ export function createBookingService(
 
   return {
     async create(input: CreateBookingInput): Promise<BookingResult> {
-      // 1–2. Build Draft aggregate (create has no prior transition check)
+      const tenant = createBookingTenantContext(input.tenantReference);
       const holdExpiresAt = new Date(
         now().getTime() + DEFAULT_HOLD_TTL_MINUTES * 60_000,
       ).toISOString();
       const booking: Booking = {
         id: generateId(),
+        tenantReference: tenant.tenantReference,
         resourceId: input.resourceId,
         ownerUserId: input.ownerUserId,
         startsAt: input.startsAt,
@@ -67,19 +69,18 @@ export function createBookingService(
         holdExpiresAt,
         ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
       };
-      // 3–4. Persist then emit
       return commitBookingMutation(
-        () => repository.create(booking),
+        () => repository.create(tenant, booking),
         (stored) => emitBookingCreated(stored),
       );
     },
 
     async confirm(input: ConfirmBookingInput): Promise<BookingResult> {
-      const existing = await repository.getById(input.bookingId);
+      const tenant = createBookingTenantContext(input.tenantReference);
+      const existing = await repository.getById(tenant, input.bookingId);
       if (!existing) {
         throw new Error(`Booking not found: ${input.bookingId}`);
       }
-      // 1. Validate transition
       if (
         !canTransitionBooking(
           existing.status,
@@ -91,7 +92,6 @@ export function createBookingService(
           `Invalid confirm transition from ${existing.status}`,
         );
       }
-      // 2. Mutate aggregate
       const { holdExpiresAt: _hold, ...rest } = existing;
       const next: Booking = {
         ...rest,
@@ -105,15 +105,15 @@ export function createBookingService(
             }
           : {}),
       };
-      // 3–4. Persist then emit
       return commitBookingMutation(
-        () => repository.update(next),
+        () => repository.update(tenant, next),
         (stored) => emitBookingConfirmed(stored),
       );
     },
 
     async update(input: UpdateBookingInput): Promise<BookingResult> {
-      const existing = await repository.getById(input.bookingId);
+      const tenant = createBookingTenantContext(input.tenantReference);
+      const existing = await repository.getById(tenant, input.bookingId);
       if (!existing) {
         throw new Error(`Booking not found: ${input.bookingId}`);
       }
@@ -130,23 +130,22 @@ export function createBookingService(
           next.holdExpiresAt = hold;
         }
       }
-      // Patch path: persist only (no domain event)
-      const stored = await repository.update(next);
+      const stored = await repository.update(tenant, next);
       return { booking: stored };
     },
 
     async reschedule(input: RescheduleBookingInput): Promise<BookingResult> {
-      const existing = await repository.getById(input.bookingId);
+      const tenant = createBookingTenantContext(input.tenantReference);
+      const existing = await repository.getById(tenant, input.bookingId);
       if (!existing) {
         throw new Error(`NOT_FOUND:${input.bookingId}`);
       }
-      // 1. Validate eligibility + availability
       if (!canRescheduleBooking(existing.status)) {
         throw new Error(
           `PRECONDITION:Cannot reschedule booking from status ${existing.status}`,
         );
       }
-      const conflicts = await repository.findConflicts({
+      const conflicts = await repository.findConflicts(tenant, {
         resourceId: existing.resourceId,
         range: { startsAt: input.startsAt, endsAt: input.endsAt },
         excludeBookingId: existing.id,
@@ -158,7 +157,6 @@ export function createBookingService(
         startsAt: existing.startsAt,
         endsAt: existing.endsAt,
       };
-      // 2. Mutate window (status unchanged)
       const next: Booking = {
         ...existing,
         startsAt: input.startsAt,
@@ -172,19 +170,18 @@ export function createBookingService(
             }
           : {}),
       };
-      // 3–4. Persist then emit
       return commitBookingMutation(
-        () => repository.update(next),
+        () => repository.update(tenant, next),
         (stored) => emitBookingRescheduled(stored, previous),
       );
     },
 
     async cancel(input: CancelBookingInput): Promise<BookingResult> {
-      const existing = await repository.getById(input.bookingId);
+      const tenant = createBookingTenantContext(input.tenantReference);
+      const existing = await repository.getById(tenant, input.bookingId);
       if (!existing) {
         throw new Error(`Booking not found: ${input.bookingId}`);
       }
-      // 1. Validate transition
       if (
         !canTransitionBooking(
           existing.status,
@@ -196,11 +193,9 @@ export function createBookingService(
           `Invalid cancel transition from ${existing.status}`,
         );
       }
-      // 2. Mutate
       const next: Booking = { ...existing, status: "Cancelled" };
-      // 3–4. Persist then emit
       return commitBookingMutation(
-        () => repository.update(next),
+        () => repository.update(tenant, next),
         (stored) =>
           emitBookingCancelled(
             stored,
@@ -213,30 +208,28 @@ export function createBookingService(
     async expireHolds(
       input: ExpireBookingHoldsInput,
     ): Promise<ExpireBookingHoldsResult> {
+      const tenant = createBookingTenantContext(input.tenantReference);
       const candidates =
         input.bookingIds !== undefined
           ? (
               await Promise.all(
-                input.bookingIds.map((id) => repository.getById(id)),
+                input.bookingIds.map((id) => repository.getById(tenant, id)),
               )
             ).filter((b): b is Booking => b !== null)
-          : await repository.list({});
+          : await repository.list(tenant, {});
 
       const expired: BookingResult[] = [];
       const expiredBookingIds: string[] = [];
       const events: ReturnType<typeof emitBookingHoldExpired>[] = [];
 
       for (const booking of candidates) {
-        // 1. Validate eligibility per hold
         if (!shouldExpireBookingHold(booking, input.now)) {
           continue;
         }
-        // 2. Mutate
         const { holdExpiresAt: _hold, ...rest } = booking;
         const next: Booking = { ...rest, status: "Expired" };
-        // 3–4. Persist then emit (per hold; failure skips event for that hold)
         const committed = await commitBookingMutation(
-          () => repository.update(next),
+          () => repository.update(tenant, next),
           (stored) => emitBookingHoldExpired(stored, input.now),
         );
         expired.push({ booking: committed.booking });

@@ -61,6 +61,7 @@ export interface CreateBookingCreatedEventInput {
   bookingReference: string;
   resourceReference: string;
   customerReference: string;
+  tenantReference: string;
   occurredAt: string;
   metadata?: Record<string, unknown>;
 }
@@ -74,6 +75,7 @@ export function createBookingCreatedEvent(
     bookingReference: input.bookingReference,
     resourceReference: input.resourceReference,
     customerReference: input.customerReference,
+    tenantReference: input.tenantReference,
     occurredAt: input.occurredAt,
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };
@@ -81,6 +83,7 @@ export function createBookingCreatedEvent(
 
 export interface CreateBookingConfirmedEventInput {
   bookingReference: string;
+  tenantReference: string;
   occurredAt: string;
   metadata?: Record<string, unknown>;
 }
@@ -92,6 +95,7 @@ export function createBookingConfirmedEvent(
     eventType: BOOKING_DOMAIN_EVENT_TYPES.BookingConfirmed,
     aggregateReference: input.bookingReference,
     bookingReference: input.bookingReference,
+    tenantReference: input.tenantReference,
     occurredAt: input.occurredAt,
     lifecycleEvent: "booking.confirmed_without_payment",
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
@@ -100,6 +104,7 @@ export function createBookingConfirmedEvent(
 
 export interface CreateBookingCancelledEventInput {
   bookingReference: string;
+  tenantReference: string;
   occurredAt: string;
   metadata?: Record<string, unknown>;
 }
@@ -111,6 +116,7 @@ export function createBookingCancelledEvent(
     eventType: BOOKING_DOMAIN_EVENT_TYPES.BookingCancelled,
     aggregateReference: input.bookingReference,
     bookingReference: input.bookingReference,
+    tenantReference: input.tenantReference,
     occurredAt: input.occurredAt,
     lifecycleEvent: "booking.cancelled_by_user",
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
@@ -119,6 +125,7 @@ export function createBookingCancelledEvent(
 
 export interface CreateBookingRescheduledEventInput {
   bookingReference: string;
+  tenantReference: string;
   previousStartAt: string;
   previousEndAt: string;
   newStartAt: string;
@@ -134,6 +141,7 @@ export function createBookingRescheduledEvent(
     eventType: BOOKING_DOMAIN_EVENT_TYPES.BookingRescheduled,
     aggregateReference: input.bookingReference,
     bookingReference: input.bookingReference,
+    tenantReference: input.tenantReference,
     previousStartAt: input.previousStartAt,
     previousEndAt: input.previousEndAt,
     newStartAt: input.newStartAt,
@@ -145,6 +153,7 @@ export function createBookingRescheduledEvent(
 
 export interface CreateBookingHoldExpiredEventInput {
   bookingReference: string;
+  tenantReference: string;
   occurredAt: string;
   metadata?: Record<string, unknown>;
 }
@@ -156,6 +165,7 @@ export function createBookingHoldExpiredEvent(
     eventType: BOOKING_DOMAIN_EVENT_TYPES.BookingHoldExpired,
     aggregateReference: input.bookingReference,
     bookingReference: input.bookingReference,
+    tenantReference: input.tenantReference,
     occurredAt: input.occurredAt,
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

@@ -44,8 +44,11 @@ export function createCreateBookingUseCase(
         });
       }
 
+      const tenantReference = input.tenantReference.trim();
+
       const decision = await deps.bookingAuthorizationPolicy.decide({
         actorReference: context.actorReference,
+        tenantReference,
         operation: "create",
         resourceType: "booking.resource",
         resourceReference: input.resourceReference,
@@ -71,6 +74,12 @@ export function createCreateBookingUseCase(
 function validateCreateBookingInput(
   input: CreateBookingInput,
 ): { code: "ValidationError"; message: string; details?: Record<string, unknown> } | null {
+  if (!input.tenantReference?.trim()) {
+    return {
+      code: "ValidationError",
+      message: "tenantReference is required",
+    };
+  }
   if (!input.resourceReference?.trim()) {
     return {
       code: "ValidationError",
@@ -113,6 +122,7 @@ function toBookingEngineInput(
   input: CreateBookingInput,
 ): BookingEngineCreateInput {
   return {
+    tenantReference: input.tenantReference.trim(),
     resourceId: input.resourceReference,
     ownerUserId: input.customerReference,
     startsAt: input.startAt,

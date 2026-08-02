@@ -10,6 +10,8 @@ export interface DomainEvent {
   aggregateReference: string;
   /** When the fact occurred (ISO-8601). */
   occurredAt: string;
+  /** Opaque tenant scope for future consumers (DEC-BOOKING-TENANT-001). */
+  tenantReference?: string;
   /** Controlled optional metadata — never secrets or credentials. */
   metadata?: Record<string, unknown>;
 }

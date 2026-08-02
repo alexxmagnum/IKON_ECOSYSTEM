@@ -25,6 +25,7 @@ export function emitBookingCreated(
     bookingReference: booking.id,
     resourceReference: booking.resourceId,
     customerReference: booking.ownerUserId,
+    tenantReference: booking.tenantReference,
     occurredAt,
   });
 }
@@ -35,6 +36,7 @@ export function emitBookingConfirmed(
 ): BookingConfirmedEvent {
   return createBookingConfirmedEvent({
     bookingReference: booking.id,
+    tenantReference: booking.tenantReference,
     occurredAt,
   });
 }
@@ -46,6 +48,7 @@ export function emitBookingCancelled(
 ): BookingCancelledEvent {
   return createBookingCancelledEvent({
     bookingReference: booking.id,
+    tenantReference: booking.tenantReference,
     occurredAt,
     ...(metadata !== undefined ? { metadata } : {}),
   });
@@ -58,6 +61,7 @@ export function emitBookingRescheduled(
 ): BookingRescheduledEvent {
   return createBookingRescheduledEvent({
     bookingReference: booking.id,
+    tenantReference: booking.tenantReference,
     previousStartAt: previous.startsAt,
     previousEndAt: previous.endsAt,
     newStartAt: booking.startsAt,
@@ -72,6 +76,7 @@ export function emitBookingHoldExpired(
 ): BookingHoldExpiredEvent {
   return createBookingHoldExpiredEvent({
     bookingReference: booking.id,
+    tenantReference: booking.tenantReference,
     occurredAt,
   });
 }
