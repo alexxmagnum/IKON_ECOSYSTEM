@@ -1831,3 +1831,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Search into an external search product; absorbing Analytics or recommendations; Search → Elasticsearch/Algolia/database imports; Application → Search Provider; implementing real query/rank/index runtime in this phase.
 
 ---
+
+## DEC-RECOMMENDATION-BOUNDARY-001 — Recommendation Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 83 introduces the Recommendation Engine so MotanOS can express conceptual suggestions, recommendation context, and future personalization intent independently of artificial intelligence, machine learning, predictive models, algorithmic ranking, search, analytics, business rules, and external providers. Recommendation answers “what conceptual suggestion may exist for a context?” — not how that suggestion is calculated.
+
+**Decision:**
+
+* **Ownership:** `Recommendation`, factories, and `RecommendationPort` live in `@motanos/recommendation` (`packages/engines/recommendation`). Recommendation is an independent bounded context — not Search, Analytics, Identity, Community, Experience, Commerce, or Database.
+* **Pipeline relation:** Context / Signals / Preferences → Recommendation Boundary → Future Recommendation Provider. Search owns “what are you looking for?”; Recommendation owns “what might interest you?”; Analytics owns “what is happening?”; AI Provider owns how suggestions are computed.
+* **Separations:** Recommendation ≠ Search. Recommendation ≠ Analytics. Recommendation ≠ AI. Recommendation ≠ Ranking Engine. No machine learning, embeddings, vector databases, scoring, user profiling, or personalization engines in this foundation.
+* **Kinds (foundation):** `recommendation.experience`, `recommendation.community`, `recommendation.content`, `recommendation.resource`, `recommendation.operational`, `recommendation.business`.
+* **Statuses (foundation):** `draft`, `active`, `paused`, `accepted`, `dismissed`, `archived`, `cancelled` (e.g. draft → active → accepted/dismissed → archived).
+* **Contract shape:** Opaque `recommendationReference`, required `tenantReference`, `recommendationKind`, `recommendationStatus`; optional opaque `targetReference`, `targetKind`, `contextReference`, `sourceReference`, `ownerReference`, controlled `metadata`. No passwords, tokens, credentials, secrets, or API keys. Future opaque links to identity/community/experience/search/analytics — never engine imports.
+* **Tenant isolation:** Recommendation may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createRecommendation` / `resolveRecommendation` only. No recommend, rank, score, predict, generate, or personalize methods in this foundation.
+* **Runtime:** Composition root for future `Recommendation Port → Adapter`. No AI clients, ML libraries, database, or vector stores in this foundation.
+* **Dependencies:** `@motanos/recommendation` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** provider adapters, ranking/scoring policies, preference stores, personalization runtime.
+
+**Rejected:** Turning Recommendation into an AI product; absorbing Search, Analytics, or Preferences; Recommendation → ML/vector/database imports; Application → Recommendation Provider; implementing algorithms, models, or predictions in this phase.
+
+---
