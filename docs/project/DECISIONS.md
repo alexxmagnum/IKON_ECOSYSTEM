@@ -1011,3 +1011,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Invoice with Billing/Payment/Settlement; Application → Invoice Provider; embedding PII/fiscal identity/secrets; implementing real billing in this phase.
 
 ---
+
+## DEC-BOOKING-DOCUMENT-001 — Booking Document Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 52 introduces a Document Boundary so Booking can express associated document context without file storage, uploads, S3, PDFs, digital signatures, OCR, or a full DMS. Distinct from Invoice (economic/fiscal context), Payment, Settlement, Notification, and Integration providers.
+
+**Decision:**
+
+* **Ownership:** `BookingDocument`, factories, and `BookingDocumentPort` live in `@motanos/booking` (`packages/engines/booking/src/documents/`). Document belongs to the Booking Engine as a conceptual boundary — not Invoice, Payment, Runtime, or Storage.
+* **Pipeline relation:** Pricing → Tax → Balance → Payment → Settlement → Invoice → Document. Document answers “is there an associated document?” — not price, payment, tax, or settlement state.
+* **Separations:** Invoice = economic/fiscal document context; Document = associated document context (confirmation, contract, receipt, invoice_copy, attachment). Document ≠ Invoice; Document ≠ Payment.
+* **Kinds (foundation):** `booking.confirmation`, `booking.receipt`, `booking.invoice_copy`, `booking.contract`, `booking.attachment`.
+* **Statuses (foundation):** `pending`, `available`, `archived`, `expired`, `failed`.
+* **Contract shape:** Opaque `documentReference`, `tenantReference`, `documentKind`, `documentStatus`; optional `bookingReference`, `actorReference`, opaque `contentReference`, controlled `metadata`. No binary content, private URLs, tokens, API keys, personal documents, or identity data.
+* **Tenant isolation:** Document may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Booking lifecycle:** May relate to confirmation/completion/cancellation without mutating aggregate state machines.
+* **Relation to Workflow:** Workflows may consult Document Boundary then Booking flow (DEC-BOOKING-WORKFLOW-001). Workflows must not call Storage providers.
+* **Application:** Forbidden `Application → Document Service`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No `booking.document_created` / `booking.document_available` events in this foundation. Existing Booking domain events remain intact. Document Boundary does not emit events.
+* **Runtime:** Composition root for future `Document Port → Adapter`. No S3, filesystem, cloud SDKs, CDN, or DMS in this foundation.
+* **Deferred:** file storage, uploads, PDFs, digital signatures, OCR, full document management.
+
+**Rejected:** Mixing Document with Invoice/Payment/Storage; Application → Document Provider; embedding content/private URLs/secrets; implementing real storage in this phase.
+
+---

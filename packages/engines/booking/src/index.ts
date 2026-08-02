@@ -290,6 +290,27 @@ export {
 } from "./invoices";
 
 export type {
+  BookingDocument,
+  BookingDocumentKind,
+  BookingDocumentPort,
+  BookingDocumentStatus,
+  CreateBookingDocumentInput,
+  CreateBookingDocumentOptions,
+} from "./documents";
+export {
+  BOOKING_DOCUMENT_KINDS,
+  BOOKING_DOCUMENT_KIND_VALUES,
+  BOOKING_DOCUMENT_STATUSES,
+  BOOKING_DOCUMENT_STATUS_VALUES,
+  createBookingDocument,
+  isBookingDocument,
+  isBookingDocumentKind,
+  isBookingDocumentPort,
+  isBookingDocumentStatus,
+  resetBookingDocumentReferenceSequence,
+} from "./documents";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,
