@@ -1727,3 +1727,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Substituting Permissions with Policy; absorbing domain logic into Policy; Policy → Permissions/Auth/Database imports; Application → Policy Evaluation Runtime; implementing real evaluation or rule execution in this phase.
 
 ---
+
+## DEC-CONFIGURATION-BOUNDARY-001 — Configuration Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 79 introduces the Configuration Engine so MotanOS can express contextual / tenant-scoped configurable values, operational preferences, and future behaviour parameters independently of external feature-flag services, secrets, environment variables, deployment configuration, database settings, permissions, and business rules. Configuration answers “what configuration applies in this context?” — not what the system must do.
+
+**Decision:**
+
+* **Ownership:** `Configuration`, factories, and `ConfigurationPort` live in `@motanos/configuration` (`packages/engines/configuration`). Configuration is an independent bounded context — not Tenant Management, Permissions, Policy, Workflow, Database, or Deployment. Distinct from shared `@motanos/config` tooling.
+* **Pipeline relation:** Tenant / Context → Configuration Boundary → future Configuration Resolution → Domain Engines (Booking / Commerce / Community / Experience / Membership). Domain engines own behaviour; Feature Flag Provider owns technical activation; Environment owns how the system is deployed.
+* **Separations:** Configuration ≠ Feature Flags. Configuration ≠ Secrets. Configuration ≠ Environment. Configuration ≠ Policy. No LaunchDarkly, API keys, environment variables, roles, business rules, or database settings in this foundation.
+* **Kinds (foundation):** `configuration.tenant`, `configuration.feature`, `configuration.operational`, `configuration.experience`, `configuration.business`, `configuration.system`.
+* **Statuses (foundation):** `draft`, `active`, `paused`, `expired`, `archived`, `cancelled` (e.g. draft → active → expired).
+* **Contract shape:** Opaque `configurationReference`, required `tenantReference`, `configurationKind`, `configurationStatus`; optional opaque `nameReference`, `contextReference`, `valueReference`, `ownerReference`, `parentConfigurationReference`, controlled `metadata`. No passwords, tokens, credentials, secrets, or API keys. Future opaque links to tenant/feature/policy/experience/booking — never engine imports.
+* **Tenant isolation:** Configuration may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createConfiguration` / `resolveConfiguration` only. No getConfig, setFeatureFlag, resolveRuntimeConfig, loadEnvironment, or readSecret methods in this foundation.
+* **Runtime:** Composition root for future `Configuration Port → Adapter`. No database, external config services, or providers in this foundation.
+* **Dependencies:** `@motanos/configuration` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** value resolution runtime, storage adapters, flag-provider bridges, hierarchical override rules.
+
+**Rejected:** Turning Configuration into a feature-flag product; absorbing Policy or Tenant Management; Configuration → LaunchDarkly/secrets/database imports; Application → Configuration Provider; implementing runtime resolution or deployment config in this phase.
+
+---

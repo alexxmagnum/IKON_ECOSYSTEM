@@ -324,6 +324,15 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/engines/configuration:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/engines/discovery:
     dependencies:
       '@motanos/contracts':
