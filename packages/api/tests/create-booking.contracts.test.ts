@@ -1,5 +1,5 @@
 /**
- * API CreateBooking mapping contract tests.
+ * API booking lifecycle mapping contract tests.
  * Run: pnpm --filter @motanos/api test
  */
 import assert from "node:assert/strict";
@@ -8,8 +8,14 @@ import { failure, success } from "@motanos/application";
 import {
   isApiFailure,
   isApiSuccess,
+  toCancelBookingInput,
+  toCancelBookingResponse,
+  toConfirmBookingInput,
+  toConfirmBookingResponse,
   toCreateBookingInput,
   toCreateBookingResponse,
+  type CancelBookingRequest,
+  type ConfirmBookingRequest,
   type CreateBookingRequest,
 } from "../src/index.js";
 
@@ -60,5 +66,52 @@ describe("CreateBooking API contracts", () => {
     assert.equal(isApiFailure(response), true);
     if (!isApiFailure(response)) return;
     assert.equal(response.error.code, "ForbiddenError");
+  });
+});
+
+describe("Confirm / Cancel API contracts", () => {
+  it("maps ConfirmBookingRequest and success response", () => {
+    const request: ConfirmBookingRequest = {
+      bookingReference: "b1",
+    };
+    assert.equal(toConfirmBookingInput(request).bookingReference, "b1");
+
+    const response = toConfirmBookingResponse(
+      success({
+        bookingReference: "b1",
+        resourceReference: "r1",
+        customerReference: "c1",
+        startAt: "2026-08-02T10:00:00.000Z",
+        endAt: "2026-08-02T11:00:00.000Z",
+        status: "Confirmed",
+      }),
+    );
+    assert.equal(isApiSuccess(response), true);
+    if (!isApiSuccess(response)) return;
+    assert.equal(response.data.status, "Confirmed");
+  });
+
+  it("maps CancelBookingRequest and success response", () => {
+    const request: CancelBookingRequest = {
+      bookingReference: "b1",
+      reason: "changed plans",
+    };
+    const input = toCancelBookingInput(request);
+    assert.equal(input.bookingReference, "b1");
+    assert.equal(input.reason, "changed plans");
+
+    const response = toCancelBookingResponse(
+      success({
+        bookingReference: "b1",
+        resourceReference: "r1",
+        customerReference: "c1",
+        startAt: "2026-08-02T10:00:00.000Z",
+        endAt: "2026-08-02T11:00:00.000Z",
+        status: "Cancelled",
+      }),
+    );
+    assert.equal(isApiSuccess(response), true);
+    if (!isApiSuccess(response)) return;
+    assert.equal(response.data.status, "Cancelled");
   });
 });

@@ -1,15 +1,25 @@
 import type { ApiService } from "@motanos/api";
 import {
+  createCancelBookingUseCase,
+  createConfirmBookingUseCase,
   createCreateBookingUseCase,
   type ApplicationService,
+  type CancelBookingUseCase,
+  type ConfirmBookingUseCase,
   type CreateBookingUseCase,
 } from "@motanos/application";
 import type { BookingService } from "@motanos/booking";
 import type { AuthorizationService } from "@motanos/permissions";
 import type { RuntimeConfig } from "../config/runtime-config";
-import type { CreateBookingHandler } from "../contracts/create-booking-handler";
+import type {
+  CancelBookingHandler,
+  ConfirmBookingHandler,
+  CreateBookingHandler,
+} from "../contracts/create-booking-handler";
 import type { MotanOSRuntime } from "../contracts/runtime";
 import {
+  createCancelBookingHandler,
+  createConfirmBookingHandler,
   createCreateBookingHandler,
   createDefaultApiService,
   createDefaultApplicationService,
@@ -20,28 +30,12 @@ import { createRuntime, type CreateRuntimeOptions } from "./create-runtime";
 
 export interface CreateMotanOSRuntimeOptions {
   config?: RuntimeConfig;
-  /**
-   * Inject a concrete AuthorizationService.
-   * When omitted, a temporary in-memory provider is used (tests / local bootstrap).
-   */
   authorization?: AuthorizationService;
-  /**
-   * Actors denied by the temporary in-memory authorization provider.
-   * Ignored when `authorization` is supplied.
-   */
   deniedActors?: readonly string[];
-  /**
-   * Inject a concrete BookingService.
-   * When omitted, a temporary in-memory provider is used (tests / local bootstrap).
-   */
   booking?: BookingService;
-  /** Extra registry registrations after MotanOS defaults. */
   register?: CreateRuntimeOptions["register"];
 }
 
-/**
- * Official MotanOS composed runtime for the CreateBooking vertical slice.
- */
 export interface MotanOSComposedRuntime {
   runtime: MotanOSRuntime;
   api: ApiService;
@@ -49,16 +43,15 @@ export interface MotanOSComposedRuntime {
   authorization: AuthorizationService;
   booking: BookingService;
   createBooking: CreateBookingUseCase;
+  confirmBooking: ConfirmBookingUseCase;
+  cancelBooking: CancelBookingUseCase;
   createBookingHandler: CreateBookingHandler;
+  confirmBookingHandler: ConfirmBookingHandler;
+  cancelBookingHandler: CancelBookingHandler;
 }
 
 /**
- * Official MotanOS bootstrap — composition root.
- *
- * Builds Authorization + Booking + CreateBooking + Application + API,
- * then attaches them via createRuntime().
- *
- * Does NOT start HTTP, open connections, load credentials, or call vendors.
+ * Official MotanOS bootstrap — Create / Confirm / Cancel Booking composition.
  */
 export function createMotanOSRuntime(
   options: CreateMotanOSRuntimeOptions = {},
@@ -75,15 +68,23 @@ export function createMotanOSRuntime(
 
   const booking = options.booking ?? createInMemoryBookingService();
 
-  const createBooking = createCreateBookingUseCase({
+  const createBooking = createCreateBookingUseCase({ authorization, booking });
+  const confirmBooking = createConfirmBookingUseCase({
     authorization,
     booking,
   });
+  const cancelBooking = createCancelBookingUseCase({ authorization, booking });
 
   const application = createDefaultApplicationService();
   const api = createDefaultApiService();
   const createBookingHandler = createCreateBookingHandler({
     useCase: createBooking,
+  });
+  const confirmBookingHandler = createConfirmBookingHandler({
+    useCase: confirmBooking,
+  });
+  const cancelBookingHandler = createCancelBookingHandler({
+    useCase: cancelBooking,
   });
 
   const runtime = createRuntime({
@@ -94,7 +95,11 @@ export function createMotanOSRuntime(
       authorization,
       booking,
       createBooking,
+      confirmBooking,
+      cancelBooking,
       createBookingHandler,
+      confirmBookingHandler,
+      cancelBookingHandler,
     },
     register: options.register,
   });
@@ -106,6 +111,10 @@ export function createMotanOSRuntime(
     authorization,
     booking,
     createBooking,
+    confirmBooking,
+    cancelBooking,
     createBookingHandler,
+    confirmBookingHandler,
+    cancelBookingHandler,
   };
 }

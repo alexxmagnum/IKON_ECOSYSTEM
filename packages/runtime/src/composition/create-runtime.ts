@@ -9,23 +9,13 @@ import { createServiceRegistry } from "../registry/service-registry";
 
 export interface CreateRuntimeOptions {
   config: RuntimeConfig;
-  /** Optional pre-built service handles to register. */
   services?: RuntimeServices;
-  /** Extra registration hook after default service registration. */
   register?: (registry: ReturnType<typeof createServiceRegistry>) => void;
 }
 
 /**
- * Primitive runtime factory.
- *
- * Responsibilities only:
- * - validate base config
- * - create ServiceRegistry
- * - register supplied services under RUNTIME_SERVICE_TOKENS
- * - build RuntimeContext
- *
- * Does not construct Authorization, Booking, UseCases, or API handlers.
- * Prefer createMotanOSRuntime() for MotanOS product bootstrap.
+ * Primitive runtime factory: config + registry + context.
+ * Does not construct use cases or providers.
  */
 export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
   const { config, services, register } = options;
@@ -36,32 +26,52 @@ export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
 
   const registry = createServiceRegistry();
 
+  const entries: Array<readonly [string, unknown]> = [];
   if (services?.application) {
-    registry.register(RUNTIME_SERVICE_TOKENS.application, services.application);
+    entries.push([RUNTIME_SERVICE_TOKENS.application, services.application]);
   }
   if (services?.api) {
-    registry.register(RUNTIME_SERVICE_TOKENS.api, services.api);
+    entries.push([RUNTIME_SERVICE_TOKENS.api, services.api]);
   }
   if (services?.authorization) {
-    registry.register(
-      RUNTIME_SERVICE_TOKENS.authorization,
-      services.authorization,
-    );
+    entries.push([RUNTIME_SERVICE_TOKENS.authorization, services.authorization]);
   }
   if (services?.booking) {
-    registry.register(RUNTIME_SERVICE_TOKENS.booking, services.booking);
+    entries.push([RUNTIME_SERVICE_TOKENS.booking, services.booking]);
   }
   if (services?.createBooking) {
-    registry.register(
-      RUNTIME_SERVICE_TOKENS.createBooking,
-      services.createBooking,
-    );
+    entries.push([RUNTIME_SERVICE_TOKENS.createBooking, services.createBooking]);
+  }
+  if (services?.confirmBooking) {
+    entries.push([
+      RUNTIME_SERVICE_TOKENS.confirmBooking,
+      services.confirmBooking,
+    ]);
+  }
+  if (services?.cancelBooking) {
+    entries.push([RUNTIME_SERVICE_TOKENS.cancelBooking, services.cancelBooking]);
   }
   if (services?.createBookingHandler) {
-    registry.register(
+    entries.push([
       RUNTIME_SERVICE_TOKENS.createBookingHandler,
       services.createBookingHandler,
-    );
+    ]);
+  }
+  if (services?.confirmBookingHandler) {
+    entries.push([
+      RUNTIME_SERVICE_TOKENS.confirmBookingHandler,
+      services.confirmBookingHandler,
+    ]);
+  }
+  if (services?.cancelBookingHandler) {
+    entries.push([
+      RUNTIME_SERVICE_TOKENS.cancelBookingHandler,
+      services.cancelBookingHandler,
+    ]);
+  }
+
+  for (const [token, instance] of entries) {
+    registry.register(token, instance);
   }
 
   register?.(registry);

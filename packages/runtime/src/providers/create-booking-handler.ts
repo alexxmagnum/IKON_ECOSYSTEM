@@ -1,18 +1,41 @@
 import {
   defaultApiErrorMapper,
   toApiResponse,
+  toCancelBookingInput,
+  toCancelBookingResponse,
+  toConfirmBookingInput,
+  toConfirmBookingResponse,
   toCreateBookingInput,
   toCreateBookingResponse,
   toExecutionContext,
   type ApiRequest,
   type ApiService,
 } from "@motanos/api";
-import type { CreateBookingUseCase } from "@motanos/application";
-import type { CreateBookingHandler } from "../contracts/create-booking-handler";
+import type {
+  CancelBookingUseCase,
+  ConfirmBookingUseCase,
+  CreateBookingUseCase,
+} from "@motanos/application";
+import type {
+  CancelBookingHandler,
+  ConfirmBookingHandler,
+  CreateBookingHandler,
+} from "../contracts/create-booking-handler";
 
-/**
- * Internal: wires CreateBooking UseCase to the API handler contract.
- */
+function responseMeta(
+  request: { requestReference?: string },
+  context?: { requestReference?: string },
+) {
+  return {
+    ...(request.requestReference !== undefined
+      ? { requestReference: request.requestReference }
+      : context?.requestReference !== undefined
+        ? { requestReference: context.requestReference }
+        : {}),
+    version: "v1" as const,
+  };
+}
+
 export function createCreateBookingHandler(deps: {
   useCase: CreateBookingUseCase;
 }): CreateBookingHandler {
@@ -21,21 +44,37 @@ export function createCreateBookingHandler(deps: {
       const input = toCreateBookingInput(request);
       const executionContext = toExecutionContext(context, request);
       const result = await deps.useCase.execute(input, executionContext);
-      return toCreateBookingResponse(result, {
-        ...(request.requestReference !== undefined
-          ? { requestReference: request.requestReference }
-          : context?.requestReference !== undefined
-            ? { requestReference: context.requestReference }
-            : {}),
-        version: "v1",
-      });
+      return toCreateBookingResponse(result, responseMeta(request, context));
     },
   };
 }
 
-/**
- * Internal: generic ApiService executing any UseCase via the API pipeline shape.
- */
+export function createConfirmBookingHandler(deps: {
+  useCase: ConfirmBookingUseCase;
+}): ConfirmBookingHandler {
+  return {
+    async handle(request, context) {
+      const input = toConfirmBookingInput(request);
+      const executionContext = toExecutionContext(context, request);
+      const result = await deps.useCase.execute(input, executionContext);
+      return toConfirmBookingResponse(result, responseMeta(request, context));
+    },
+  };
+}
+
+export function createCancelBookingHandler(deps: {
+  useCase: CancelBookingUseCase;
+}): CancelBookingHandler {
+  return {
+    async handle(request, context) {
+      const input = toCancelBookingInput(request);
+      const executionContext = toExecutionContext(context, request);
+      const result = await deps.useCase.execute(input, executionContext);
+      return toCancelBookingResponse(result, responseMeta(request, context));
+    },
+  };
+}
+
 export function createDefaultApiService(): ApiService {
   return {
     async execute({ request, input, useCase, context }) {

@@ -3,7 +3,7 @@
  *
  * UI / API → Application Layer → Engines + Domains → Core
  *
- * Orchestrates use cases. First vertical slice: CreateBooking.
+ * Booking lifecycle slice: Create / Confirm / Cancel.
  */
 
 export const APPLICATION_LAYER = "@motanos/application" as const;
@@ -35,9 +35,25 @@ export type { UseCase } from "./contracts/use-case";
 export type { ApplicationService } from "./services/application-service";
 
 export {
+  CANCEL_BOOKING_ACTION,
+  CONFIRM_BOOKING_ACTION,
   CREATE_BOOKING_ACTION,
+  createCancelBookingUseCase,
+  createConfirmBookingUseCase,
   createCreateBookingUseCase,
   DEFAULT_HOLD_TTL_MINUTES,
+  toBookingOutput,
+  type BookingOutput,
+  type CancelBookingAction,
+  type CancelBookingInput,
+  type CancelBookingOutput,
+  type CancelBookingUseCase,
+  type CancelBookingUseCaseDeps,
+  type ConfirmBookingAction,
+  type ConfirmBookingInput,
+  type ConfirmBookingOutput,
+  type ConfirmBookingUseCase,
+  type ConfirmBookingUseCaseDeps,
   type CreateBookingAction,
   type CreateBookingInput,
   type CreateBookingOutput,

@@ -1,10 +1,12 @@
 import type { Booking, BookingService } from "@motanos/booking";
-import { DEFAULT_HOLD_TTL_MINUTES } from "@motanos/booking";
+import {
+  canTransitionBooking,
+  DEFAULT_HOLD_TTL_MINUTES,
+} from "@motanos/booking";
 
 /**
  * Temporary in-memory BookingService for composition bootstrap / tests.
- * Not a persistence adapter — no external systems.
- * Not part of the public @motanos/runtime API.
+ * Enforces SoT transitions for confirm/cancel. Not part of public API.
  */
 export function createInMemoryBookingService(): BookingService {
   const bookings = new Map<string, Booking>();
@@ -30,6 +32,38 @@ export function createInMemoryBookingService(): BookingService {
       bookings.set(id, booking);
       return { booking };
     },
+    async confirm(input) {
+      const existing = bookings.get(input.bookingId);
+      if (!existing) {
+        throw new Error(`Booking not found: ${input.bookingId}`);
+      }
+      if (
+        !canTransitionBooking(
+          existing.status,
+          "Confirmed",
+          "booking.confirmed_without_payment",
+        )
+      ) {
+        throw new Error(
+          `Invalid confirm transition from ${existing.status}`,
+        );
+      }
+      const { holdExpiresAt: _hold, ...rest } = existing;
+      const next: Booking = {
+        ...rest,
+        status: "Confirmed",
+        ...(input.metadata !== undefined
+          ? {
+              metadata: {
+                ...(existing.metadata ?? {}),
+                ...input.metadata,
+              },
+            }
+          : {}),
+      };
+      bookings.set(next.id, next);
+      return { booking: next };
+    },
     async update(input) {
       const existing = bookings.get(input.bookingId);
       if (!existing) {
@@ -49,6 +83,17 @@ export function createInMemoryBookingService(): BookingService {
       const existing = bookings.get(input.bookingId);
       if (!existing) {
         throw new Error(`Booking not found: ${input.bookingId}`);
+      }
+      if (
+        !canTransitionBooking(
+          existing.status,
+          "Cancelled",
+          "booking.cancelled_by_user",
+        )
+      ) {
+        throw new Error(
+          `Invalid cancel transition from ${existing.status}`,
+        );
       }
       const next: Booking = { ...existing, status: "Cancelled" };
       bookings.set(next.id, next);

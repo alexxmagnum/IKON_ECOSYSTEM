@@ -63,6 +63,7 @@ export type {
   AvailabilityResult,
   BookingResult,
   CancelBookingInput,
+  ConfirmBookingInput,
   CreateBookingInput,
   JoinWaitlistInput,
   ListBookingsQuery,

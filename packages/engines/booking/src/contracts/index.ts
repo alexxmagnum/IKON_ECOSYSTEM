@@ -40,6 +40,16 @@ export interface CancelBookingInput {
   reason?: string;
 }
 
+/**
+ * Confirm a booking without payment capture in this foundation path.
+ * SoT transition: Draft → Confirmed via booking.confirmed_without_payment.
+ * Payment-required confirmation remains a future composition decision.
+ */
+export interface ConfirmBookingInput {
+  bookingId: BookingId;
+  metadata?: Record<string, unknown>;
+}
+
 export interface BookingResult {
   booking: Booking;
   participants?: BookingParticipant[];

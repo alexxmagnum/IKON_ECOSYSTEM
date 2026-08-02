@@ -7,6 +7,8 @@ export type {
 } from "../config/runtime-config";
 
 export type {
+  CancelBookingHandler,
+  ConfirmBookingHandler,
   CreateBookingHandler,
   MotanOSRuntime,
   RuntimeContext,

@@ -44,11 +44,21 @@ export { toApiResponse, toExecutionContext } from "./pipeline/execute";
 export type { ApiService } from "./services/api-service";
 
 export type {
+  CancelBookingRequest,
+  CancelBookingResponse,
+  CancelBookingResponseData,
+  ConfirmBookingRequest,
+  ConfirmBookingResponse,
+  ConfirmBookingResponseData,
   CreateBookingRequest,
   CreateBookingResponse,
   CreateBookingResponseData,
 } from "./contracts/booking";
 export {
+  toCancelBookingInput,
+  toCancelBookingResponse,
+  toConfirmBookingInput,
+  toConfirmBookingResponse,
   toCreateBookingInput,
   toCreateBookingResponse,
 } from "./contracts/booking";

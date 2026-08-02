@@ -1,5 +1,7 @@
 export { createDefaultApplicationService } from "./application-service";
 export {
+  createCancelBookingHandler,
+  createConfirmBookingHandler,
   createCreateBookingHandler,
   createDefaultApiService,
 } from "./create-booking-handler";

@@ -13,9 +13,10 @@ Application owns use-case orchestration. Deep booking rules stay in `@motanos/bo
 ## Scope (current)
 
 - `ExecutionContext`, `UseCase`, `ApplicationResult`, `ApplicationService`
-- First vertical slice: **CreateBooking**
-  - `CreateBookingInput` / `CreateBookingOutput` (opaque references)
-  - `createCreateBookingUseCase` → AuthorizationService → BookingService
+- Booking lifecycle vertical slice:
+  - **CreateBooking** (`booking.create`)
+  - **ConfirmBooking** (`booking.confirm`) — Draft → Confirmed
+  - **CancelBooking** (`booking.cancel`) — → Cancelled
 
 ## Out of scope (current)
 

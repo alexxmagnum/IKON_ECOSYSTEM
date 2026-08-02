@@ -10,7 +10,11 @@ import {
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
 import { CREATE_BOOKING_ACTION } from "./actions";
-import type { CreateBookingInput, CreateBookingOutput } from "./types";
+import {
+  toBookingOutput,
+  type CreateBookingInput,
+  type CreateBookingOutput,
+} from "./types";
 
 export interface CreateBookingUseCaseDeps {
   authorization: AuthorizationService;
@@ -25,7 +29,6 @@ export type CreateBookingUseCase = UseCase<
 /**
  * CreateBooking vertical slice.
  * Flow: ExecutionContext → AuthorizationService → BookingService → ApplicationResult.
- * No persistence or transport in this use case.
  */
 export function createCreateBookingUseCase(
   deps: CreateBookingUseCaseDeps,
@@ -73,7 +76,7 @@ export function createCreateBookingUseCase(
       const engineInput = toBookingEngineInput(input);
       const result = await deps.booking.create(engineInput);
 
-      return success(toCreateBookingOutput(result.booking));
+      return success(toBookingOutput(result.booking));
     },
   };
 }
@@ -131,31 +134,4 @@ function toBookingEngineInput(
   };
 }
 
-function toCreateBookingOutput(
-  booking: {
-    id: string;
-    resourceId: string;
-    ownerUserId: string;
-    startsAt: string;
-    endsAt: string;
-    status: CreateBookingOutput["status"];
-    holdExpiresAt?: string;
-    metadata?: Record<string, unknown>;
-  },
-): CreateBookingOutput {
-  return {
-    bookingReference: booking.id,
-    resourceReference: booking.resourceId,
-    customerReference: booking.ownerUserId,
-    startAt: booking.startsAt,
-    endAt: booking.endsAt,
-    status: booking.status,
-    ...(booking.holdExpiresAt !== undefined
-      ? { holdExpiresAt: booking.holdExpiresAt }
-      : {}),
-    ...(booking.metadata !== undefined ? { metadata: booking.metadata } : {}),
-  };
-}
-
-/** Expose hold TTL constant for adapters/tests that mirror Draft holds (BR-0037). */
 export { DEFAULT_HOLD_TTL_MINUTES };

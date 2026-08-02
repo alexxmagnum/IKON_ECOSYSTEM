@@ -3,6 +3,7 @@ import type {
   AvailabilityResult,
   BookingResult,
   CancelBookingInput,
+  ConfirmBookingInput,
   CreateBookingInput,
   JoinWaitlistInput,
   ListBookingsQuery,
@@ -14,11 +15,12 @@ import type { Resource, ResourceId } from "../domain/resource";
 
 /**
  * Service contracts for the Booking Engine.
- * Implementations (persistence, Supabase, domain adapters) arrive in later phases.
+ * Implementations (persistence adapters) arrive in later phases.
  */
 
 export interface BookingService {
   create(input: CreateBookingInput): Promise<BookingResult>;
+  confirm(input: ConfirmBookingInput): Promise<BookingResult>;
   update(input: UpdateBookingInput): Promise<BookingResult>;
   cancel(input: CancelBookingInput): Promise<BookingResult>;
   getById(bookingId: BookingId): Promise<BookingResult | null>;

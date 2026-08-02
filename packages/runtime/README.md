@@ -41,13 +41,12 @@ createMotanOSRuntime()
 import { createMotanOSRuntime } from "@motanos/runtime";
 
 const {
-  runtime,
-  api,
-  application,
-  authorization,
-  booking,
   createBooking,
+  confirmBooking,
+  cancelBooking,
   createBookingHandler,
+  confirmBookingHandler,
+  cancelBookingHandler,
 } = createMotanOSRuntime();
 ```
 
