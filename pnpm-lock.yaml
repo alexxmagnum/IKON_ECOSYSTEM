@@ -414,6 +414,15 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/engines/workflow:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/permissions: {}
 
   packages/runtime:
