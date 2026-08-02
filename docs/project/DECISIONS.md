@@ -1409,3 +1409,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Experience into Event/Calendar Engine; absorbing Community; Experience → Booking/Resource/Payment imports; Application → Experience Provider; implementing publish, reservations, resource assignment, or charge flows in this phase.
 
 ---
+
+## DEC-COMMUNITY-BOUNDARY-001 — Community Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 67 introduces the Community Engine so MotanOS can express belonging, groups, and social participation independently of Identity (who you are), Membership (commercial relationship), Experience (what is offered), and Booking (when you participate). Community must not become a social network product, and must not absorb Identity or Membership.
+
+**Decision:**
+
+* **Ownership:** `Community`, factories, and `CommunityPort` live in `@motanos/community` (`packages/engines/community`). Community is an independent bounded context — not Booking, Resource, Experience, Commerce, Identity, Membership, Auth, or Runtime adapters.
+* **Pipeline relation:** Community Definition → Membership / Identity References → Experience Participation → Booking Interaction. Community answers “how do people belong and relate around the business?”
+* **Separations:** Community ≠ Identity (no users/login/passwords). Community ≠ Membership (“you’re a member” vs “you’re in the group”). Community ≠ Experience (offering). Community ≠ Booking (moment). Community ≠ Payment / Notification. Community ≠ Social Engine feed/chat product in this phase.
+* **Kinds (foundation):** `community.club`, `community.group`, `community.team`, `community.circle`, `community.network`, `community.operational`.
+* **Statuses (foundation):** `draft`, `active`, `paused`, `archived`, `cancelled` (e.g. draft → active ↔ paused → archived).
+* **Contract shape:** Opaque `communityReference`, required `tenantReference`, `communityKind`, `communityStatus`; optional opaque `nameReference`, `descriptionReference`, `ownerReference`, `actorReference`, `parentCommunityReference`, controlled `metadata`. No passwords, tokens, credentials, PII, or auth data.
+* **Tenant isolation:** Community may be bound to a tenant; cross-tenant creation is denied.
+* **Future refs:** May later hold opaque `identityReference`, `membershipReference`, `experienceReference`, `bookingReference` — never full foreign aggregates.
+* **Port surface:** `createCommunity` / `resolveCommunity` only. No `addMember`, `removeMember`, `sendMessage`, `inviteUser`, or `manageUsers` in this foundation.
+* **Runtime:** Composition root for future `Community Port → Adapter`. No member management, chat, invites, ranking, gamification, or vendor SDKs in this foundation.
+* **Dependencies:** `@motanos/community` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** real members, invitations, messaging, ranking/gamification, Identity/Membership Runtime wiring.
+
+**Rejected:** Absorbing Identity or Membership into Community; Community as a social network; Community → Booking/Auth/Payment/Experience/Resource imports; Application → Community Provider; implementing members, chat, invites, or persistence adapters in this phase.
+
+---
