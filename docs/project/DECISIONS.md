@@ -801,3 +801,28 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** BookingService → customer store; Application → CRM API; embedding PII; fusing Membership with Authorization; implementing membership domain events in this phase.
 
 ---
+
+## DEC-BOOKING-POLICY-001 — Booking Policy Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 44 introduces a Booking Policy Boundary for evaluating configurable business conditions separately from Authorization permissions and Domain state-machine rules.
+
+**Decision:**
+
+* **Ownership:** `BookingPolicy`, `BookingPolicyRequest`, `PolicyDecision`, and `createBookingPolicy` live in `@motanos/booking` (`packages/engines/booking/src/policies/`). Policy belongs to the Booking Engine — not Application, not Runtime, and not a new top-level layer above Booking.
+* **Coexistence with Authorization Policy:** `BookingAuthorizationPolicy` (DEC-BOOKING-AUTH-001) answers “may this actor perform this operation?” `BookingPolicy` answers “does this operation meet current business conditions?” (e.g. cancellation window). Domain Rules answer “is the state transition valid?” Do not merge.
+* **Operations (foundation):** `booking.create`, `booking.confirm`, `booking.cancel`, `booking.reschedule`.
+* **Contract shape:** Evaluation input requires opaque `tenantReference` and `actorReference`; optional `bookingReference` / `bookingTenantReference`; optional controlled `metadata`. Decision: `allowed`, optional `reason`, optional `policyReference`. No roles, JWT, tokens, emails, or secrets.
+* **Tenant isolation:** Policies may be bound to a tenant; cross-tenant evaluation is denied. Booking tenant mismatch is denied.
+* **Relation to Workflow:** Workflows may consult Booking Policy (DEC-BOOKING-WORKFLOW-001). Workflows must not mutate internal domain rules via Policy.
+* **Application:** Forbidden `Application → Policy Provider`. Flow: Use Case → Booking Policy → Booking Service → Domain.
+* **Domain Events:** No `policy.created|updated|denied` events or automatic audit dispatch in this foundation.
+* **Runtime:** Composition root for future policy adapters only. No rules engines, feature flags, env-driven config tables, or admin panels in this foundation.
+* **Deferred:** JSON/rules engines, pricing/billing/promotion rules, CMS, dynamic remote configuration.
+
+**Rejected:** Mixing Policy with Authorization or Domain Rules; Application → Policy Provider; embedding secrets/PII; implementing a full rules engine in this phase.
+
+---

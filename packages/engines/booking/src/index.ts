@@ -120,13 +120,24 @@ export type {
   BookingAuthorizationPolicy,
   BookingAuthorizationRequest,
   BookingAuthorizationResourceContext,
+  BookingPolicy,
+  BookingPolicyOperation,
+  BookingPolicyRequest,
+  CreateBookingPolicyOptions,
+  PolicyDecision,
 } from "./policies";
 export {
   BOOKING_AUTH_ACTIONS,
   BOOKING_AUTH_OPERATIONS,
+  BOOKING_POLICY_OPERATIONS,
+  BOOKING_POLICY_OPERATION_VALUES,
   bookingAuthActionFor,
   createBookingAuthorizationPolicy,
+  createBookingPolicy,
   isBookingAuthOperation,
+  isBookingPolicy,
+  isBookingPolicyOperation,
+  isPolicyDecision,
 } from "./policies";
 
 export type {
