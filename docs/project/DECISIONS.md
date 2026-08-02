@@ -126,3 +126,107 @@ Spanish narrative may appear in prose, but **canonical identifiers** in rules, s
 **Rejected alternative:** a dedicated Secrets Architect or domain-owned secret stores.
 
 **Full record:** `docs/project/ADR-002_SECRETS_GOVERNANCE.md`
+
+---
+
+## DEC-DISCOVERY-001 — Discovery owns recommendation capabilities
+
+**Status:** Accepted
+
+**Date:** 2026-08-02
+
+**Context:** The SoT document `docs/50_RECOMMENDATION_ENGINE.md` names a Recommendation Engine, but MotanOS architecture requires a broader transversal discovery capability (preferences, criteria, and future discovery surfaces).
+
+**Decision:** `@motanos/discovery` is the transversal Shared Engine. Recommendation is an internal capability of Discovery, alongside Preferences, Criteria, and future discovery capabilities.
+
+**Model:**
+
+```text
+Discovery Engine
+    ├── Recommendation
+    ├── Preferences
+    ├── Criteria
+    └── Future discovery capabilities
+```
+
+**Consequences:**
+
+* Package name remains `@motanos/discovery` (no rename).
+* Public exports stay on the Discovery package; Recommendation types are capabilities within it.
+* Future discovery capabilities may live in this engine without creating additional engines by default.
+
+**Rejected alternative:** Renaming the package to `@motanos/recommendations` or splitting Recommendation into a separate Shared Engine.
+
+---
+
+## DEC-DISCOVERY-002 — Recommendation lifecycle remains provisional
+
+**Status:** Accepted
+
+**Date:** 2026-08-02
+
+**Context:** There is no official `RECOMMENDATION` machine in `docs/rules/state-machines.md`. Consumers and end-to-end recommendation workflows are not fully defined yet.
+
+**Decision:** Foundation statuses live as TypeScript types in `@motanos/discovery`:
+
+* `Pending`
+* `Active`
+* `Accepted`
+* `Rejected`
+* `Expired`
+
+They are **provisional**. A later phase may formalize an official state machine when real workflows exist.
+
+**Consequences:**
+
+* Do not invent a SoT state machine for Recommendation in this phase.
+* Do not treat these statuses as frozen product law until a future DEC/SoT update.
+
+**Rejected alternative:** Adding a full `RECOMMENDATION` machine to `state-machines.md` before consumer workflows are defined.
+
+---
+
+## DEC-DISCOVERY-003 — Recommendation score semantics
+
+**Status:** Accepted
+
+**Date:** 2026-08-02
+
+**Context:** Discovery does not implement ranking or ML algorithms. An optional `score` field exists for externally produced confidence metadata.
+
+**Decision:**
+
+* Keep `score?: number` on Recommendation.
+* `score` represents **normalized confidence**.
+* Valid conceptual range: `0 <= score <= 1` (e.g. `0.92`).
+* `score` does **not** represent ranking position, list order, or absolute priority.
+
+**Consequences:**
+
+* Producers outside the foundation may attach a confidence value.
+* No validators or ranking algorithms are required in the foundation package.
+
+**Rejected alternative:** Interpreting `score` as sort rank or implementing scoring algorithms inside `@motanos/discovery`.
+
+---
+
+## DEC-DISCOVERY-004 — Discovery does not depend on Social
+
+**Status:** Accepted
+
+**Date:** 2026-08-02
+
+**Context:** Social may supply optional signals for discovery, but Discovery must remain independent of concrete social aggregates and of `@motanos/social`.
+
+**Decision:**
+
+* Keep opaque `socialReference?: string` (and equivalent opaque refs).
+* Do **not** add a dependency on `@motanos/social`.
+* Do **not** import `SocialGroup`, `SocialConnection`, or `SocialParticipation`.
+
+**Consequences:**
+
+* Signals may arrive from Social or other sources via opaque references.
+* Domain/engine coupling stays Domain/Social → Discovery (or producers → Discovery), never Discovery → Social.
+
+**Rejected alternative:** Importing `@motanos/social` types into Discovery or treating Social as a hard architectural dependency.
