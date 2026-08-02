@@ -1201,3 +1201,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Check-in with Confirmation/Resource/Payment/Settlement/Notification/Availability; Application → Check-in Provider; embedding PII/payment secrets; implementing aggregate or table assignment in this phase.
 
 ---
+
+## DEC-BOOKING-NOSHOW-001 — Booking No-Show Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 59 introduces a No-Show Boundary so Booking can express absence context when the expected actor did not present for a reservation, without mutating the Booking aggregate, releasing resources, applying fees/penalties, charging, notifying, analytics, or workflows. Distinct from Cancellation (actor decides to cancel) and Check-in (actor arrived).
+
+**Decision:**
+
+* **Ownership:** `BookingNoShow`, factories, and `BookingNoShowPort` live in `@motanos/booking` (`packages/engines/booking/src/no-shows/`). No-Show belongs to the Booking Engine as a conceptual boundary — not Domain state machine, Cancellation, Check-in, Fee, Payment, Settlement, Resource, Notification, or Runtime.
+* **Pipeline relation:** Booking Lifecycle → No-Show Boundary → Policy Evaluation → Domain Transition → Future Resource / Fee / Notification / Analytics. No-Show answers “is there a context where the booking was not attended due to actor absence?”
+* **Separations:** Cancellation = actor decides to cancel; No-Show = actor does not appear. Check-in = actor arrived; No-Show = actor did not arrive. No-Show ≠ Fee (fee evaluation may follow). No-Show ≠ Payment / Settlement. No-Show ≠ Resource release. No-Show ≠ Notification. No-Show ≠ Workflow.
+* **Kinds (foundation):** `booking.customer_absent`, `booking.operator_marked`, `booking.policy_required`, `booking.operational`, `booking.manual_review`. `operational` is a Booking-process initiation — not a technical infrastructure error.
+* **Statuses (foundation):** `detected`, `review_pending`, `confirmed`, `rejected`, `cancelled` — treatment statuses, not aggregate lifecycle states.
+* **Contract shape:** Opaque `noShowReference`, required `tenantReference` and `bookingReference`, `noShowKind`, `noShowStatus`; optional `actorReference`, opaque `reasonReference`, controlled `metadata`. No PII, tokens, credentials, or payment data.
+* **Tenant isolation:** No-Show may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Lifecycle relation:** After confirm, path may proceed to check-in → complete, or to no-show. Does not mutate aggregate state machines in this foundation.
+* **Application:** Forbidden `Application → No-Show Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No new no-show domain events from this boundary. Existing domain events remain intact. Boundary context ≠ Domain Event fact.
+* **Runtime:** Composition root for future `No-Show Port → Adapter` (`registerNoShow` / `resolveNoShow`). No persist, resource release, fee, payment, or notification adapters in this foundation.
+* **Deferred:** real no-show orchestration, resource release, fee/penalty evaluation, payment, notification, analytics.
+
+**Rejected:** Mixing No-Show with Cancellation/Check-in/Fee/Payment/Settlement/Resource/Notification; Application → No-Show Provider; embedding PII/payment secrets; implementing aggregate or fee collection in this phase.
+
+---
