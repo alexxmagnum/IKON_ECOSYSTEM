@@ -416,6 +416,27 @@ export {
 } from "./modifications";
 
 export type {
+  BookingCheckIn,
+  BookingCheckInKind,
+  BookingCheckInPort,
+  BookingCheckInStatus,
+  CreateBookingCheckInInput,
+  CreateBookingCheckInOptions,
+} from "./checkins";
+export {
+  BOOKING_CHECK_IN_KINDS,
+  BOOKING_CHECK_IN_KIND_VALUES,
+  BOOKING_CHECK_IN_STATUSES,
+  BOOKING_CHECK_IN_STATUS_VALUES,
+  createBookingCheckIn,
+  isBookingCheckIn,
+  isBookingCheckInKind,
+  isBookingCheckInPort,
+  isBookingCheckInStatus,
+  resetBookingCheckInReferenceSequence,
+} from "./checkins";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,

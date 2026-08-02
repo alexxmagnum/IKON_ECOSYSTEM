@@ -1174,3 +1174,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Modification with Reschedule/Cancellation/Domain mutation/Pricing/Payment/Notification/Workflow; Application → Modification Provider; embedding PII/payment secrets; implementing aggregate mutations in this phase.
 
 ---
+
+## DEC-BOOKING-CHECKIN-001 — Booking Check-in Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 58 introduces a Check-in Boundary so Booking can express arrival/presentation context for a reservation without mutating the Booking aggregate, assigning resources/tables, opening sessions, billing, payment, notifications, or availability checks. Distinct from Confirmation (reservation accepted) and future Completion (visit ended).
+
+**Decision:**
+
+* **Ownership:** `BookingCheckIn`, factories, and `BookingCheckInPort` live in `@motanos/booking` (`packages/engines/booking/src/checkins/`). Check-in belongs to the Booking Engine as a conceptual boundary — not Domain state machine, Resource, Payment, Settlement, Notification, or Runtime.
+* **Pipeline relation:** Actor → Check-in Boundary → Booking Policy → Domain Transition → Future Table / Service / Payment / Notification. Check-in answers “is there an arrival context for this booking?”
+* **Separations:** Confirmation = reservation accepted; Check-in = guest arrived. Check-in ≠ Resource assignment (may follow later). Check-in ≠ Payment / Settlement. Check-in ≠ Notification. Check-in ≠ Availability. Check-in ≠ Workflow.
+* **Kinds (foundation):** `booking.customer_arrival`, `booking.operator_assisted`, `booking.manual`, `booking.policy_required`, `booking.operational`. `operational` is a Booking-process initiation — not a technical infrastructure error.
+* **Statuses (foundation):** `requested`, `approved`, `completed`, `rejected`, `cancelled` — intent statuses, not aggregate lifecycle states.
+* **Contract shape:** Opaque `checkInReference`, required `tenantReference` and `bookingReference`, `checkInKind`, `checkInStatus`; optional `actorReference`, opaque `reasonReference`, controlled `metadata`. No PII, tokens, credentials, or payment data.
+* **Tenant isolation:** Check-in may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Lifecycle relation:** create → confirm → check-in → complete (completion deferred). Does not mutate aggregate state machines in this foundation.
+* **Application:** Forbidden `Application → Check-in Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No new check-in domain events from this boundary. Existing domain events remain intact. Boundary context ≠ Domain Event fact.
+* **Runtime:** Composition root for future `Check-in Port → Adapter` (`requestCheckIn` / `completeCheckIn`). No persist, resource assignment, payment, or notification adapters in this foundation.
+* **Deferred:** real check-in orchestration, table/resource assignment, service session opening, payment/notification wiring.
+
+**Rejected:** Mixing Check-in with Confirmation/Resource/Payment/Settlement/Notification/Availability; Application → Check-in Provider; embedding PII/payment secrets; implementing aggregate or table assignment in this phase.
+
+---
