@@ -230,3 +230,115 @@ They are **provisional**. A later phase may formalize an official state machine 
 * Domain/engine coupling stays Domain/Social → Discovery (or producers → Discovery), never Discovery → Social.
 
 **Rejected alternative:** Importing `@motanos/social` types into Discovery or treating Social as a hard architectural dependency.
+
+---
+
+## DEC-EXPERIENCE-001 — Experience Layer owns composition
+
+**Status:** Accepted
+
+**Date:** 2026-08-02
+
+**Context:** SoT documents describe Social Experience (`docs/48_SOCIAL_EXPERIENCE_ENGINE.md`) and the EXPERIENCE entity in the data model. Fase 17 introduced `@motanos/experience` as a composition layer. Ownership between Social/domain concepts and the Experience Layer needed clarification.
+
+**Decision:**
+
+* The **Experience Layer** (`@motanos/experience`) owns **composition** of abstract experiences, capabilities, and journeys.
+* **Social and Domain modules** own their **business concepts** (social graphs, sport, dining, events, tournaments, memberships, etc.).
+* Experience does not redefine or absorb Social Experience Engine product rules; it provides a transversal composition model.
+
+**Consequences:**
+
+* Domains/engines remain sources of business meaning; Experience references capabilities opaquely.
+* `docs/48` continues to govern social-experience product philosophy; Experience Layer governs composition contracts.
+
+**Rejected alternative:** Merging Social Experience business concepts into `@motanos/experience` or making Experience a Domain Module that owns golf/restaurant/event semantics.
+
+---
+
+## DEC-EXPERIENCE-002 — Experience remains a Shared Engine / Layer
+
+**Status:** Accepted
+
+**Date:** 2026-08-02
+
+**Context:** Placement under `packages/engines/experience` raised whether Experience should be a Domain Module instead.
+
+**Decision:** `@motanos/experience` remains a **Shared Engine / Experience Layer**, not a Domain Module.
+
+**Consequences:**
+
+* Dependency direction: Domains → Experience (optional), never Experience → Domains.
+* Package stays in `packages/engines/experience` with engine-layer independence rules (core + contracts only).
+
+**Rejected alternative:** Moving Experience under `packages/domains/*` or treating it as a sport/dining-specific domain.
+
+---
+
+## DEC-EXPERIENCE-003 — Experience and Journey lifecycles remain provisional
+
+**Status:** Accepted
+
+**Date:** 2026-08-02
+
+**Context:** There are no official `EXPERIENCE` or `JOURNEY` machines in `docs/rules/state-machines.md`. Execution workflows are not defined yet.
+
+**Decision:** Foundation statuses live as TypeScript types in `@motanos/experience`:
+
+**ExperienceStatus:** `Draft`, `Active`, `Archived`
+
+**JourneyStatus:** `Planned`, `InProgress`, `Completed`, `Cancelled`
+
+They are **provisional** until real execution workflows exist. A later phase may formalize SoT state machines.
+
+**Consequences:**
+
+* Do not add EXPERIENCE/JOURNEY machines to `state-machines.md` in this phase.
+* Do not treat these statuses as frozen product law until a future DEC/SoT update.
+
+**Rejected alternative:** Inventing official SoT state machines before composition execution is designed.
+
+---
+
+## DEC-EXPERIENCE-004 — Capability vocabulary remains extensible
+
+**Status:** Accepted
+
+**Date:** 2026-08-02
+
+**Context:** Capabilities are referenced by free-form `CapabilityType` strings without importing engines or domains.
+
+**Decision:**
+
+* Capability vocabulary remains **extensible**.
+* **No canonical catalog** of capability types is created in this phase.
+* Consumers may introduce type strings as needed; a future DEC may introduce a shared catalog in `@motanos/contracts` if required.
+
+**Consequences:**
+
+* No closed enum of capability kinds in `@motanos/experience`.
+* No dependency on Booking, Payments, Social, or domains to name capabilities.
+
+**Rejected alternative:** Shipping a closed capability catalog or importing engine/domain packages to type capabilities.
+
+---
+
+## DEC-EXPERIENCE-005 — Discovery and Experience communicate through opaque references
+
+**Status:** Accepted
+
+**Date:** 2026-08-02
+
+**Context:** Discovery may recommend experiences; Experience must not depend on Discovery (or the reverse as a hard package dependency).
+
+**Decision:**
+
+* Discovery and Experience communicate only through **opaque references**.
+* **No direct package dependency** either way in this foundation (`@motanos/experience` ↛ `@motanos/discovery`, and Discovery does not import Experience for foundation independence unless a future DEC revises composition wiring at the app layer).
+
+**Consequences:**
+
+* Recommendation `sourceReference` / experience ids may correlate externally.
+* Composition and discovery stay independently deployable foundations.
+
+**Rejected alternative:** Adding `@motanos/discovery` as a dependency of Experience (or Experience as a dependency of Discovery) in the foundation packages.
