@@ -109,6 +109,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ui
 
+  packages/application:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/auth:
     dependencies:
       '@motanos/config':
