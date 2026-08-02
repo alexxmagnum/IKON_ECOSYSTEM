@@ -1255,3 +1255,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Completion with Check-in/Settlement/Payment/Invoice/Resource/Notification; Application → Completion Provider; embedding PII/payment secrets; implementing aggregate or accounting closure in this phase.
 
 ---
+
+## DEC-BOOKING-WAITLIST-001 — Booking Waitlist Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 61 introduces a Waitlist Boundary so Booking can express a reservation intent that cannot yet become a Booking because availability is missing, without performing real availability search, resource assignment, automatic booking creation, notifications, ranking, auto-expiration, or payments. Waitlist belongs to the Booking Engine — not an Availability Engine.
+
+**Decision:**
+
+* **Ownership:** `BookingWaitlist`, factories, and `BookingWaitlistPort` live in `@motanos/booking` (`packages/engines/booking/src/waitlists/`). Waitlist is a conceptual boundary in the Booking Engine — not Availability Engine, Resource, Payment, Notification, or Runtime.
+* **Pipeline relation:** No Availability → Waitlist Boundary → Availability Event → Future Booking Opportunity → Booking Creation. Waitlist answers “is there an intent waiting for a booking opportunity?”
+* **Separations:** Waitlist ≠ Booking (may convert later). Availability decides if a slot exists; Waitlist waits for the opportunity. Waitlist ≠ Payment / Deposit. Waitlist ≠ Notification (notify may follow later). Waitlist ≠ Resource assignment.
+* **Kinds (foundation):** `booking.customer_requested`, `booking.operator_created`, `booking.availability_required`, `booking.capacity_required`, `booking.operational`. `operational` is a Booking-process initiation — not a technical infrastructure error.
+* **Statuses (foundation):** `waiting`, `notified`, `accepted`, `converted`, `expired`, `cancelled`.
+* **Contract shape:** Opaque `waitlistReference`, required `tenantReference`, `waitlistKind`, `waitlistStatus`; optional `bookingReference` (may be absent — no Booking yet), `actorReference`, opaque `availabilityReference`, opaque `requestedDateReference`, controlled `metadata`. No PII, payment data, or credentials.
+* **Tenant isolation:** Waitlist may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Application:** Forbidden `Application → Waitlist Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No new waitlist domain events from this boundary. Existing domain events remain intact. Boundary intent ≠ Domain Event fact.
+* **Runtime:** Composition root for future `Waitlist Port → Adapter` (`requestWaitlist` / `resolveWaitlist`). No database, email, WhatsApp, push, ranking, or auto-expiration adapters in this foundation.
+* **Deferred:** real availability integration, auto-convert to Booking, notifications, ranking, expiration workers.
+
+**Rejected:** Mixing Waitlist with Availability Engine/Booking creation/Payment/Notification/Resource; Application → Waitlist Provider; embedding PII/payment secrets; implementing live availability search in this phase.
+
+---

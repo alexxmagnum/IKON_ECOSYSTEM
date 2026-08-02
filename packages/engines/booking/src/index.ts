@@ -479,6 +479,27 @@ export {
 } from "./completions";
 
 export type {
+  BookingWaitlist,
+  BookingWaitlistKind,
+  BookingWaitlistPort,
+  BookingWaitlistStatus,
+  CreateBookingWaitlistInput,
+  CreateBookingWaitlistOptions,
+} from "./waitlists";
+export {
+  BOOKING_WAITLIST_KINDS,
+  BOOKING_WAITLIST_KIND_VALUES,
+  BOOKING_WAITLIST_STATUSES,
+  BOOKING_WAITLIST_STATUS_VALUES,
+  createBookingWaitlist,
+  isBookingWaitlist,
+  isBookingWaitlistKind,
+  isBookingWaitlistPort,
+  isBookingWaitlistStatus,
+  resetBookingWaitlistReferenceSequence,
+} from "./waitlists";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,
