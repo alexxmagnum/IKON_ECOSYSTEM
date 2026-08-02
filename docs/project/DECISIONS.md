@@ -646,3 +646,26 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Booking → vendor SDKs; Application → Provider; embedding credentials in integration contracts; treating Domain Events as the integration layer itself.
 
 ---
+
+## DEC-BOOKING-WORKFLOW-001 — Booking Workflow Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 38 introduces a Workflow Boundary for multi-step Booking business processes after Persistence, Transaction, Query, Authorization, Tenant, Audit, and Integration boundaries exist. Workflows answer “which steps form a process?” — not “is this change valid?” (Domain) and not “how is it scheduled?” (Infrastructure).
+
+**Decision:**
+
+* **Ownership:** `BookingWorkflow`, `BookingWorkflowDefinition`, and related factories live in `@motanos/booking` (`packages/engines/booking/src/workflows/`). Booking owns process contracts because it knows lifecycle coordination. Future runners, schedulers, workers, and queues belong to Runtime / infrastructure — not to API or Application use cases.
+* **Contract shape:** Opaque fields — `workflowReference`, `kind`, `bookingReference`, `tenantReference`, `actorReference`, `currentStep`, `state`, optional controlled `metadata`. No secrets, tokens, or provider payloads.
+* **Kinds (foundation definitions only):** `booking.confirmation`, `booking.payment`, `booking.reminder`. Definitions list ordered step ids; no execution.
+* **Relation to Domain:** Workflows coordinate; Domain Rules / `BookingService` decide validity. Flow remains Workflow → BookingService → Domain Rules. Workflows must not decide whether a booking state transition is valid.
+* **Relation to Domain Events:** Domain Events remain occurrence facts (DEC-BOOKING-EVENTS-002), e.g. `booking.confirmed`. Future workflow coordination signals (e.g. `confirmation.workflow.completed`) are separate and are not emitted in this foundation.
+* **Application:** Use cases must not depend on a workflow engine (`Application → Workflow Engine` forbidden). Flow remains Use Case → Booking Service → Result. Workflow is a future coordination boundary.
+* **Runtime:** Composition root for a future `Workflow Definition → Runner`. No cron, queues, workers, or BPM engines in this foundation.
+* **Deferred:** scheduling, retries, sagas, Temporal / BullMQ / RabbitMQ, distributed workflow state.
+
+**Rejected:** Workflow as substitute for Domain Rules; Application → Workflow Engine; embedding credentials; implementing real async infrastructure in this phase.
+
+---
