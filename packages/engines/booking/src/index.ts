@@ -149,8 +149,6 @@ export type {
   BookingIntegrationPort,
   BookingNotificationPort,
   BookingPaymentPort,
-  BookingPaymentRequest,
-  BookingPaymentResult,
 } from "./integrations";
 export {
   BOOKING_INTEGRATION_FORBIDDEN_REQUEST_KEYS,
@@ -173,6 +171,21 @@ export {
   isBookingNotificationRequest,
   resetBookingNotificationReferenceSequence,
 } from "./notifications";
+
+export type {
+  BookingPaymentKind,
+  BookingPaymentRequest,
+  BookingPaymentResult,
+  CreateBookingPaymentRequestInput,
+} from "./payments";
+export {
+  BOOKING_PAYMENT_KINDS,
+  BOOKING_PAYMENT_KIND_VALUES,
+  createBookingPaymentRequest,
+  isBookingPaymentKind,
+  isBookingPaymentRequest,
+  resetBookingPaymentReferenceSequence,
+} from "./payments";
 
 export type {
   BookingWorkflow,

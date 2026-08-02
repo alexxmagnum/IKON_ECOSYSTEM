@@ -693,3 +693,28 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** BookingService → sendEmail; Application → provider; embedding PII/contact channels in the request contract; treating Domain Events as the notification layer.
 
 ---
+
+## DEC-BOOKING-PAYMENT-001 — Booking Payment Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 40 introduces a Payment Boundary so Booking can express payment intents without coupling Domain Services to payment gateways, card processing, or financial ledgers.
+
+**Decision:**
+
+* **Ownership:** `BookingPaymentRequest`, payment kinds, and factories live in `@motanos/booking` (`packages/engines/booking/src/payments/`). Booking owns the contract because it knows when a booking needs payment. Provider adapters belong to Runtime / future infrastructure. Aligns with `22_PAYMENT_ARCHITECT` separation of payment intent vs gateway execution.
+* **Relation to Integration Boundary:** `BookingPaymentPort` (DEC-BOOKING-INTEGRATION-001) accepts `BookingPaymentRequest` from this boundary and returns `BookingPaymentResult`. Integration owns the outbound port; Payment owns the request shape and kinds.
+* **Contract shape:** Opaque fields — `paymentReference`, `tenantReference`, `bookingReference`, `payerReference`, optional `actorReference`, `paymentKind`, `amountReference`, optional controlled `metadata`. No card numbers, payment tokens, credentials, or vendor payloads. `amountReference` is opaque context — not a full financial model.
+* **Kinds (foundation):** `booking.deposit`, `booking.full_payment`, `booking.payment_required`, `booking.refund`. Kinds are internal intents, not gateway charge types. No invoices, taxes, or accounting in this foundation.
+* **Relation to Domain Events:** Domain Events are occurrence facts (DEC-BOOKING-EVENTS-002). Payment Requests are separate intents. No payment events, webhooks, or payment dispatcher in this foundation.
+* **Relation to Workflow Boundary:** Workflows may coordinate a step that produces a Payment Request (DEC-BOOKING-WORKFLOW-001). Workflows must not call payment vendors.
+* **Relation to Notification Boundary:** Payment and Notification are distinct capabilities (DEC-BOOKING-NOTIFICATION-001). A payment-required intent may later trigger a Notification Request; neither replaces the other.
+* **Application:** Forbidden `Application → Payment Provider`. Flow remains Use Case → Booking Service → Result. Future path: Workflow / Event → Payment Boundary → (Runtime) Provider Adapter.
+* **Runtime:** Composition root for future `Payment Port → Provider Adapter`. No vendor SDKs, secrets, or webhooks in this foundation.
+* **Deferred:** concrete providers, real charges, invoicing, reconciliation, accounting, subscriptions, wallets.
+
+**Rejected:** BookingService → vendor SDK; Application → provider; embedding card/secret data in the request contract; treating Domain Events as the payment layer.
+
+---

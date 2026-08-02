@@ -10,6 +10,7 @@ import { describe, it } from "node:test";
 import {
   BOOKING_INTEGRATION_FORBIDDEN_REQUEST_KEYS,
   BOOKING_NOTIFICATION_KINDS,
+  BOOKING_PAYMENT_KINDS,
   isBookingIntegrationPort,
   type BookingIntegrationPort,
   type BookingNotificationRequest,
@@ -54,9 +55,11 @@ describe("Booking Integration Boundary", () => {
     await port.notifications.sendBookingNotification(notification);
 
     const payment: BookingPaymentRequest = {
+      paymentReference: "payment-1",
       tenantReference: "tenant-a",
       bookingReference: "bk-1",
       payerReference: "user-1",
+      paymentKind: BOOKING_PAYMENT_KINDS.BookingFullPayment,
       amountReference: "amount-1",
     };
     const paymentResult = await port.payments.requestPayment(payment);
@@ -102,9 +105,12 @@ describe("Booking Integration Boundary", () => {
       "metadata",
     ];
     const paymentKeys: (keyof BookingPaymentRequest)[] = [
+      "paymentReference",
       "tenantReference",
       "bookingReference",
       "payerReference",
+      "actorReference",
+      "paymentKind",
       "amountReference",
       "metadata",
     ];

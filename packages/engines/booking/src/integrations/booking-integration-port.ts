@@ -2,39 +2,26 @@
  * Booking Integration Boundary — outbound ports for external capabilities.
  * Domain defines *what* is needed; Runtime/infra adapters define *how*.
  *
- * Notification request shapes live in the Notification Boundary
- * (`../notifications`) — this module only exposes the outbound port.
+ * Notification / Payment request shapes live in their boundaries
+ * (`../notifications`, `../payments`) — this module exposes outbound ports.
  *
  * @see DEC-BOOKING-INTEGRATION-001
  * @see DEC-BOOKING-NOTIFICATION-001
+ * @see DEC-BOOKING-PAYMENT-001
  */
 
 import type { BookingNotificationRequest } from "../notifications/booking-notification-request";
+import type {
+  BookingPaymentRequest,
+  BookingPaymentResult,
+} from "../payments/booking-payment-request";
 
-export type { BookingNotificationRequest };
+export type { BookingNotificationRequest, BookingPaymentRequest, BookingPaymentResult };
 
 export interface BookingNotificationPort {
   sendBookingNotification(
     request: BookingNotificationRequest,
   ): Promise<void>;
-}
-
-/**
- * Opaque payment intent for a Booking.
- * No vendor payloads, tokens, or card data.
- */
-export interface BookingPaymentRequest {
-  tenantReference: string;
-  bookingReference: string;
-  payerReference: string;
-  /** Opaque amount token resolved outside the Booking domain. */
-  amountReference: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface BookingPaymentResult {
-  /** Opaque payment reference from the integration side. */
-  paymentReference: string;
 }
 
 export interface BookingPaymentPort {
