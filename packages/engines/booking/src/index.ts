@@ -458,6 +458,27 @@ export {
 } from "./no-shows";
 
 export type {
+  BookingCompletion,
+  BookingCompletionKind,
+  BookingCompletionPort,
+  BookingCompletionStatus,
+  CreateBookingCompletionInput,
+  CreateBookingCompletionOptions,
+} from "./completions";
+export {
+  BOOKING_COMPLETION_KINDS,
+  BOOKING_COMPLETION_KIND_VALUES,
+  BOOKING_COMPLETION_STATUSES,
+  BOOKING_COMPLETION_STATUS_VALUES,
+  createBookingCompletion,
+  isBookingCompletion,
+  isBookingCompletionKind,
+  isBookingCompletionPort,
+  isBookingCompletionStatus,
+  resetBookingCompletionReferenceSequence,
+} from "./completions";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,

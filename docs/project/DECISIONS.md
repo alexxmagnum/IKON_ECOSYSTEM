@@ -1228,3 +1228,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing No-Show with Cancellation/Check-in/Fee/Payment/Settlement/Resource/Notification; Application → No-Show Provider; embedding PII/payment secrets; implementing aggregate or fee collection in this phase.
 
 ---
+
+## DEC-BOOKING-COMPLETION-001 — Booking Completion Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 60 introduces a Completion Boundary so Booking can express finalization context when a booking experience has ended, without mutating the Booking aggregate, closing accounting, settling, charging, releasing resources, requesting reviews, analytics, or notifications. Distinct from Check-in (guest arrived) and Settlement (economic liquidation).
+
+**Decision:**
+
+* **Ownership:** `BookingCompletion`, factories, and `BookingCompletionPort` live in `@motanos/booking` (`packages/engines/booking/src/completions/`). Completion belongs to the Booking Engine as a conceptual boundary — not Domain state machine, Check-in, No-Show, Payment, Settlement, Invoice, Resource, Notification, or Runtime.
+* **Pipeline relation:** Booking Lifecycle → Completion Boundary → Policy Evaluation → Domain Transition → Future Settlement / Resource / Notification / Analytics. Completion answers “is there a context where the booking experience has finished?”
+* **Separations:** Check-in = guest arrived; Completion = service finished. Completion ≠ Settlement (settlement may follow). Completion ≠ Payment / Invoice. Completion ≠ Resource release. Completion ≠ Notification. Completion ≠ Workflow. Completion ≠ No-Show.
+* **Kinds (foundation):** `booking.service_completed`, `booking.customer_completed`, `booking.operator_completed`, `booking.manual_review`, `booking.operational`. `operational` is a Booking-process initiation — not a technical infrastructure error.
+* **Statuses (foundation):** `requested`, `approved`, `completed`, `rejected`, `cancelled` — intent statuses, not aggregate lifecycle states.
+* **Contract shape:** Opaque `completionReference`, required `tenantReference` and `bookingReference`, `completionKind`, `completionStatus`; optional `actorReference`, opaque `reasonReference`, controlled `metadata`. No PII, tokens, credentials, or payment data.
+* **Tenant isolation:** Completion may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Lifecycle relation:** create → confirm → check-in → complete; alternative paths cancel or no-show. Does not mutate aggregate state machines in this foundation.
+* **Application:** Forbidden `Application → Completion Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No new completion-intent domain events from this boundary. Existing domain events remain intact. Boundary context ≠ Domain Event fact.
+* **Runtime:** Composition root for future `Completion Port → Adapter` (`requestCompletion` / `completeCompletion`). No persist, settlement, payment, or resource-release adapters in this foundation.
+* **Deferred:** real completion orchestration, settlement wiring, resource release, reviews, analytics, notifications.
+
+**Rejected:** Mixing Completion with Check-in/Settlement/Payment/Invoice/Resource/Notification; Application → Completion Provider; embedding PII/payment secrets; implementing aggregate or accounting closure in this phase.
+
+---
