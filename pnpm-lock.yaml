@@ -297,6 +297,24 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/engines/identity:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
+  packages/engines/membership:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/engines/notifications:
     dependencies:
       '@motanos/contracts':
