@@ -4,26 +4,28 @@ import type {
   RuntimeContext,
   RuntimeServices,
 } from "../contracts/runtime";
-import { RUNTIME_SERVICE_TOKENS } from "../contracts/runtime";
+import { RUNTIME_SERVICE_TOKENS } from "../contracts/service-tokens";
 import { createServiceRegistry } from "../registry/service-registry";
 
 export interface CreateRuntimeOptions {
   config: RuntimeConfig;
-  /**
-   * Optional pre-built layer handles. Not constructed here —
-   * callers supply implementations from outside this package.
-   */
+  /** Optional pre-built service handles to register. */
   services?: RuntimeServices;
-  /**
-   * Extra registration hook for future adapters (still abstract).
-   */
+  /** Extra registration hook after default service registration. */
   register?: (registry: ReturnType<typeof createServiceRegistry>) => void;
 }
 
 /**
- * Creates a base MotanOS runtime composition.
+ * Primitive runtime factory.
  *
- * Does not open connections, start servers, or call external systems.
+ * Responsibilities only:
+ * - validate base config
+ * - create ServiceRegistry
+ * - register supplied services under RUNTIME_SERVICE_TOKENS
+ * - build RuntimeContext
+ *
+ * Does not construct Authorization, Booking, UseCases, or API handlers.
+ * Prefer createMotanOSRuntime() for MotanOS product bootstrap.
  */
 export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
   const { config, services, register } = options;
@@ -46,12 +48,29 @@ export function createRuntime(options: CreateRuntimeOptions): MotanOSRuntime {
       services.authorization,
     );
   }
+  if (services?.booking) {
+    registry.register(RUNTIME_SERVICE_TOKENS.booking, services.booking);
+  }
+  if (services?.createBooking) {
+    registry.register(
+      RUNTIME_SERVICE_TOKENS.createBooking,
+      services.createBooking,
+    );
+  }
+  if (services?.createBookingHandler) {
+    registry.register(
+      RUNTIME_SERVICE_TOKENS.createBookingHandler,
+      services.createBookingHandler,
+    );
+  }
 
   register?.(registry);
 
   const context: RuntimeContext = {
     environment: config.environment,
-    ...(config.metadata !== undefined ? { metadata: { ...config.metadata } } : {}),
+    ...(config.metadata !== undefined
+      ? { metadata: { ...config.metadata } }
+      : {}),
     ...(services !== undefined ? { services } : {}),
   };
 

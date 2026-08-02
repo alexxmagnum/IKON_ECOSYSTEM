@@ -342,3 +342,66 @@ They are **provisional** until real execution workflows exist. A later phase may
 * Composition and discovery stay independently deployable foundations.
 
 **Rejected alternative:** Adding `@motanos/discovery` as a dependency of Experience (or Experience as a dependency of Discovery) in the foundation packages.
+
+---
+
+## DEC-RUNTIME-001 — Ownership of runtime bootstrap
+
+**Status:** DECISION REQUIRED
+
+**Date:** 2026-08-02
+
+**Context:** `@motanos/runtime` introduces `createMotanOSRuntime()` as the first composition root wiring API, Application, Permissions, and Booking.
+
+**Open question:** Who owns bootstrap long-term — Runtime package only, a dedicated app entry (e.g. `apps/web` / worker), or a Backend delivery package?
+
+**Interim (non-binding):** Composition wiring lives in `@motanos/runtime` via `createMotanOSRuntime()` (product bootstrap) on top of `createRuntime()` (primitive). Production ownership of the entrypoint remains open.
+
+---
+
+## DEC-RUNTIME-002 — Factories vs frameworks for DI
+
+**Status:** DECISION REQUIRED
+
+**Date:** 2026-08-02
+
+**Context:** Runtime uses manual factories + `ServiceRegistry` (in-memory map).
+
+**Open question:** Remain on manual factories, or adopt a DI framework later?
+
+**Interim (non-binding):** Manual factories for the vertical-slice composition root.
+
+---
+
+## DEC-RUNTIME-003 — Service lifecycle / scope
+
+**Status:** DECISION REQUIRED
+
+**Date:** 2026-08-02
+
+**Context:** Current registry is a plain map with no request scope.
+
+**Open question:** Singleton vs request scope (or other) for Authorization, Booking, and UseCases?
+
+**Interim (non-binding):** Process-local instances created once per `createMotanOSRuntime()` call — scope undefined for multi-request servers.
+
+---
+
+## DEC-RUNTIME-004 — In-memory providers vs future adapters
+
+**Status:** DECISION REQUIRED
+
+**Date:** 2026-08-02
+
+**Updated:** 2026-08-02 (hardening)
+
+**Context:** Runtime uses temporary in-memory Authorization and Booking providers inside `createMotanOSRuntime()` for composition tests and local bootstrap. These live under `src/providers/` and are **not** part of the public package API.
+
+**Open question:** When and where do real adapters replace in-memory providers (composition root injection vs separate packages)?
+
+**Interim (non-binding):**
+
+* Defaults: in-memory providers constructed only inside `createMotanOSRuntime()`.
+* Overrides: `createMotanOSRuntime({ authorization, booking })`.
+* Public surface: bootstrap + contracts only — not provider factories.
+* No vendor clients in Runtime.

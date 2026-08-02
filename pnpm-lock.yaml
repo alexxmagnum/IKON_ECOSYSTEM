@@ -325,6 +325,9 @@ importers:
       '@motanos/application':
         specifier: workspace:*
         version: link:../application
+      '@motanos/booking':
+        specifier: workspace:*
+        version: link:../engines/booking
       '@motanos/permissions':
         specifier: workspace:*
         version: link:../permissions

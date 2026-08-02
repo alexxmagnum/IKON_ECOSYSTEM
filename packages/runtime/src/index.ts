@@ -1,8 +1,11 @@
 /**
- * @motanos/runtime — Runtime Composition foundation.
+ * @motanos/runtime — Runtime Composition / composition root.
  *
- * Assembles API → Application → Permissions composition slots.
- * No business logic, no concrete infrastructure adapters.
+ * Assembles API → Application → Permissions → Booking for MotanOS.
+ * Lower layers must not import this package.
+ *
+ * Public surface: createMotanOSRuntime / createRuntime + shared contracts.
+ * In-memory providers and internal factories are not part of the public API.
  */
 
 export const RUNTIME_LAYER = "@motanos/runtime" as const;
@@ -13,6 +16,7 @@ export type {
 } from "./config/runtime-config";
 
 export type {
+  CreateBookingHandler,
   MotanOSRuntime,
   RuntimeContext,
   RuntimeServices,
@@ -20,7 +24,6 @@ export type {
 export { RUNTIME_SERVICE_TOKENS } from "./contracts/runtime";
 
 export type { ServiceRegistry, ServiceToken } from "./registry/service-registry";
-export { createServiceRegistry } from "./registry/service-registry";
 
 export type { RuntimeError, RuntimeErrorCode } from "./errors/runtime-errors";
 export {
@@ -31,3 +34,9 @@ export {
 
 export type { CreateRuntimeOptions } from "./composition/create-runtime";
 export { createRuntime } from "./composition/create-runtime";
+
+export type {
+  CreateMotanOSRuntimeOptions,
+  MotanOSComposedRuntime,
+} from "./composition/create-motanos-runtime";
+export { createMotanOSRuntime } from "./composition/create-motanos-runtime";

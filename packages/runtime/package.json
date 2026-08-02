@@ -11,11 +11,13 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/**/*.test.ts"
   },
   "dependencies": {
     "@motanos/api": "workspace:*",
     "@motanos/application": "workspace:*",
+    "@motanos/booking": "workspace:*",
     "@motanos/permissions": "workspace:*"
   }
 }
