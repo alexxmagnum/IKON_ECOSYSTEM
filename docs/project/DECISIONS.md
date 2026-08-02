@@ -877,3 +877,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Discount with Pricing/Payment/Billing; Application → Discount Provider; embedding secrets/PII; implementing coupons or campaigns in this phase.
 
 ---
+
+## DEC-BOOKING-TAX-001 — Booking Tax Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 47 introduces a Tax Boundary so Booking can express fiscal applicability intents without implementing legal tax calculation, country schedules, tax authorities, Billing, or Payment capture. Aligns with `22_PAYMENT_ARCHITECT`: Tax = “what fiscal impact applies”; Payment = “how the charge is processed”.
+
+**Decision:**
+
+* **Ownership:** `BookingTax`, `BookingTaxRequest`, `TaxDecision`, factories, and `BookingTaxPort` live in `@motanos/booking` (`packages/engines/booking/src/taxes/`). Tax belongs to the Booking Engine — not Pricing, Discount, Payment, Billing, or a new top-level layer.
+* **Pipeline relation:** Policy → Discount → Pricing → Tax → Payment. Tax must not call Payment, mutate Pricing, apply discounts, or decide permissions.
+* **Separations:** Authorization = may they?; Policy = conditions; Discount = reduction; Pricing = resulting price; Tax = fiscal impact; Payment = how to charge; Domain = transition validity.
+* **Kinds (foundation):** `booking.service_tax`, `booking.local_tax`, `booking.fee_tax`, `booking.vat_reference`. Internal kinds only — not legal country tax codes.
+* **Contract shape:** Opaque `taxReference`, `tenantReference`, `amountReference`, `taxKind`; optional `bookingReference`, `actorReference`, controlled `metadata`. Decision: `taxApplicable`, `taxReference`, `amountReference`, optional `reason`. No tax ids, fiscal addresses, bank data, PII, or credentials.
+* **Tenant isolation:** Tax may be bound to a tenant; cross-tenant evaluation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Workflow:** Workflows may consult Tax Boundary then Booking flow (DEC-BOOKING-WORKFLOW-001). Workflows must not call tax SDKs.
+* **Application:** Forbidden `Application → Tax Provider`. Flow remains Use Case → Booking Service → Result; Tax enters via Booking Engine contracts when wired later.
+* **Domain Events:** No `booking.tax_calculated` / `booking.tax_created` events in this foundation. Existing Booking domain events remain intact.
+* **Runtime:** Composition root for future `Tax Port → Adapter`. No fiscal SDKs, env-driven tax config, or external tax authority connections in this foundation.
+* **Deferred:** real tax math, VAT/country rules, tax authority integrations, Billing.
+
+**Rejected:** Mixing Tax with Pricing/Discount/Payment; Application → Tax Provider; embedding fiscal PII/secrets; implementing legal tax engines in this phase.
+
+---

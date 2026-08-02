@@ -173,6 +173,28 @@ export {
 } from "./discounts";
 
 export type {
+  BookingTax,
+  BookingTaxKind,
+  BookingTaxPort,
+  BookingTaxRequest,
+  CreateBookingTaxOptions,
+  CreateBookingTaxRequestInput,
+  TaxDecision,
+} from "./taxes";
+export {
+  BOOKING_TAX_KINDS,
+  BOOKING_TAX_KIND_VALUES,
+  createBookingTax,
+  createBookingTaxRequest,
+  isBookingTax,
+  isBookingTaxKind,
+  isBookingTaxPort,
+  isBookingTaxRequest,
+  isTaxDecision,
+  resetBookingTaxReferenceSequence,
+} from "./taxes";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,
