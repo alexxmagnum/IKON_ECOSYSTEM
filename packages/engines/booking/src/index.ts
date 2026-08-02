@@ -188,6 +188,25 @@ export {
 } from "./payments";
 
 export type {
+  BookingAvailabilityDecision,
+  BookingAvailabilityKind,
+  BookingAvailabilityPolicy,
+  BookingAvailabilityPort,
+  BookingAvailabilityRequest,
+  CreateBookingAvailabilityRequestInput,
+} from "./availability";
+export {
+  BOOKING_AVAILABILITY_KINDS,
+  BOOKING_AVAILABILITY_KIND_VALUES,
+  availabilityBelongsToTenant,
+  createBookingAvailabilityRequest,
+  isBookingAvailabilityKind,
+  isBookingAvailabilityPort,
+  isBookingAvailabilityRequest,
+  resetBookingAvailabilityReferenceSequence,
+} from "./availability";
+
+export type {
   BookingWorkflow,
   BookingWorkflowDefinition,
   BookingWorkflowKind,

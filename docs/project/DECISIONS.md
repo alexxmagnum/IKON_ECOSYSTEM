@@ -718,3 +718,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** BookingService → vendor SDK; Application → provider; embedding card/secret data in the request contract; treating Domain Events as the payment layer.
 
 ---
+
+## DEC-BOOKING-AVAILABILITY-001 — Booking Availability Policy Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 41 introduces an Availability Policy Boundary so Booking can evaluate capacity/availability intents without coupling Domain Services or Application to external calendars, slot engines, or sync providers.
+
+**Decision:**
+
+* **Ownership:** `BookingAvailabilityRequest`, kinds, policy/port contracts, and factories live in `@motanos/booking` (`packages/engines/booking/src/availability/`). Booking owns the contract because it knows resources, bookings, and overlap concerns. Provider adapters belong to Runtime / future infrastructure.
+* **Relation to Domain helpers:** Pure overlap helpers in `domain/availability` remain domain math. This boundary is the policy/intent contract for availability evaluation — not a replacement for those helpers.
+* **Relation to Query Boundary:** `BookingQueryService` reads existing booking state (DEC-BOOKING-QUERY-002). Availability Policy evaluates capacity under a policy. Neither replaces the other.
+* **Contract shape:** Opaque fields — `availabilityReference`, `tenantReference`, `resourceReference`, optional `bookingReference`, optional `actorReference`, `availabilityKind`, `startAt` / `endAt` range context, optional controlled `metadata`. No calendar tokens, private calendar payloads, or emails.
+* **Kinds (foundation):** `booking.resource_check`, `booking.slot_check`, `booking.capacity_check`. Internal only — not Google/Outlook event types.
+* **Policy / Port:** `BookingAvailabilityPolicy.evaluate` answers policy availability. `BookingAvailabilityPort.checkAvailability` is the future outbound port for capacity providers. Distinct from Integration `BookingCalendarPort` sync (DEC-BOOKING-INTEGRATION-001) — sync ≠ availability check.
+* **Relation to Domain Events:** Domain Events are occurrence facts (DEC-BOOKING-EVENTS-002). Availability Requests are separate evaluations. No availability events or dispatchers in this foundation.
+* **Relation to Workflow:** Workflows may coordinate Availability Boundary then Booking operations (DEC-BOOKING-WORKFLOW-001). Workflows must not call external calendar SDKs.
+* **Separation from Payment / Notification:** Availability is capacity; Payment is economic intent; Notification is communication — do not mix (DEC-BOOKING-PAYMENT-001, DEC-BOOKING-NOTIFICATION-001).
+* **Application:** Forbidden `Application → Availability Provider`. Flow remains Use Case → Booking Service / Query → (optional) Availability Boundary.
+* **Runtime:** Composition root for future `Availability Port → Provider Adapter`. No calendar SDKs, secrets, or sync jobs in this foundation.
+* **Deferred:** external calendars, advanced slot engines, scheduling, real capacity providers, persisted slot stores.
+
+**Rejected:** BookingService → Calendar API; Application → Availability Provider; embedding calendar credentials; substituting Availability Policy for BookingQueryService or Domain Rules.
+
+---
