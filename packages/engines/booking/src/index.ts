@@ -353,6 +353,27 @@ export {
 } from "./exceptions";
 
 export type {
+  BookingCancellation,
+  BookingCancellationKind,
+  BookingCancellationPort,
+  BookingCancellationStatus,
+  CreateBookingCancellationInput,
+  CreateBookingCancellationOptions,
+} from "./cancellations";
+export {
+  BOOKING_CANCELLATION_KINDS,
+  BOOKING_CANCELLATION_KIND_VALUES,
+  BOOKING_CANCELLATION_STATUSES,
+  BOOKING_CANCELLATION_STATUS_VALUES,
+  createBookingCancellation,
+  isBookingCancellation,
+  isBookingCancellationKind,
+  isBookingCancellationPort,
+  isBookingCancellationStatus,
+  resetBookingCancellationReferenceSequence,
+} from "./cancellations";
+
+export type {
   BookingAuditAction,
   BookingAuditRecord,
   CreateBookingAuditRecordInput,

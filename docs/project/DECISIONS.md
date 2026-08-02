@@ -1095,3 +1095,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Mixing Exception with Domain Error/Authorization/Approval/Support/Incident/technical infrastructure errors; Policy-style evaluation on the Exception Port (use `resolveException` for status treatment only); Application → Exception Provider; embedding secrets/PII/full logs; implementing ticket systems in this phase.
 
 ---
+
+## DEC-BOOKING-CANCELLATION-001 — Booking Cancellation Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 55 introduces a Cancellation Boundary so Booking can express cancellation intent/context for a reservation without mutating the Booking aggregate, processing refunds, sending notifications, or coordinating workflows. Distinct from Authorization/Policy (“may cancel?”), Domain transition (“status → cancelled”), Payment/Settlement (refund), Notification, and Workflow.
+
+**Decision:**
+
+* **Ownership:** `BookingCancellation`, factories, and `BookingCancellationPort` live in `@motanos/booking` (`packages/engines/booking/src/cancellations/`). Cancellation belongs to the Booking Engine as a conceptual boundary — not Domain state machine, Payment, Notification, or Runtime.
+* **Pipeline relation:** Actor → Cancellation Boundary → Booking Policy → Domain Transition → Future Refund / Notification / Workflow. Cancellation answers “is there a cancellation intent/context for this booking?”
+* **Separations:** Cancellation ≠ Domain Transition (does not change aggregate). Cancellation ≠ Policy (Policy decides; Cancellation is intent). Cancellation ≠ Approval (may precede Approval). Cancellation ≠ Refund / Payment / Settlement. Cancellation ≠ Notification. Cancellation ≠ Workflow.
+* **Kinds (foundation):** `booking.customer_requested`, `booking.operator_requested`, `booking.policy_required`, `booking.exception_based`, `booking.operational`. `operational` is a Booking-process initiation — not a technical infrastructure error. `exception_based` may relate to Exception Boundary without substituting Approval.
+* **Statuses (foundation):** `requested`, `approved`, `rejected`, `completed`, `cancelled` — intent statuses, not aggregate lifecycle states (`created` / `confirmed` / `cancel_requested` / `cancelled` remain in the domain state machine).
+* **Contract shape:** Opaque `cancellationReference`, required `tenantReference` and `bookingReference`, `cancellationKind`, `cancellationStatus`; optional `actorReference`, opaque `reasonReference`, controlled `metadata`. No emails, phones, tokens, secrets, or payment data.
+* **Tenant isolation:** Cancellation may be bound to a tenant; cross-tenant creation is denied (DEC-BOOKING-TENANT-001).
+* **Relation to Workflow:** Workflows may consult Cancellation Boundary. Workflows must not be replaced by this boundary.
+* **Application:** Forbidden `Application → Cancellation Provider`. Flow remains Use Case → Booking Service → Result.
+* **Domain Events:** No new cancellation-intent domain events. Existing domain events (including domain-emitted cancellation facts) remain intact. Boundary intent ≠ Domain Event fact.
+* **Runtime:** Composition root for future `Cancellation Port → Adapter` (`requestCancellation` / `completeCancellation`). No workers, queues, schedulers, persist, refund, email, or webhook adapters in this foundation.
+* **Deferred:** real cancellation orchestration, refund wiring, notification dispatch, human operator UIs.
+
+**Rejected:** Mixing Cancellation with Domain mutation/Refund/Payment/Notification/Workflow; Application → Cancellation Provider; embedding PII/payment secrets; implementing cancel aggregate transitions in this phase.
+
+---
