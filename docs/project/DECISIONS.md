@@ -1779,3 +1779,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Tenant into User Management; absorbing Billing or Authorization; Tenant → Identity/Auth/Stripe/database imports; Application → Tenant Provider; implementing people, subscriptions, or configuration inside Tenant in this phase.
 
 ---
+
+## DEC-ASSET-BOUNDARY-001 — Asset Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 81 introduces the Asset Engine so MotanOS can express conceptual digital resources (images, documents, files), their business-context links, and lifecycle independently of physical storage, cloud providers, real URLs, Supabase Storage, AWS S3, multimedia processing, access permissions, and file uploads. Asset answers “what digital resource is associated with a context?” — not where it is kept or how it is served.
+
+**Decision:**
+
+* **Ownership:** `Asset`, factories, and `AssetPort` live in `@motanos/asset` (`packages/engines/asset`). Asset is an independent bounded context — not Tenant, Identity, Experience, Community, Commerce, Storage, Database, or Permissions.
+* **Pipeline relation:** Domain Context → Asset Boundary → Storage Provider (future). Tenant / Experience / Community / Commerce / Identity may reference assets opaquely; Storage Provider owns where bytes live; Media Processing owns transforms; Authorization owns who may access.
+* **Separations:** Asset ≠ Storage. Asset ≠ Media Processing. Asset ≠ Authorization. Asset ≠ File Upload. No buckets, public URLs, CDN, S3, Supabase Storage, thumbnails, permissions, or users in this foundation.
+* **Kinds (foundation):** `asset.image`, `asset.document`, `asset.logo`, `asset.media`, `asset.avatar`, `asset.operational`.
+* **Statuses (foundation):** `draft`, `active`, `processing`, `inactive`, `archived`, `cancelled` (e.g. draft → active → archived).
+* **Contract shape:** Opaque `assetReference`, required `tenantReference`, `assetKind`, `assetStatus`; optional opaque `nameReference`, `descriptionReference`, `contextReference`, `ownerReference`, `parentAssetReference`, controlled `metadata`. No passwords, tokens, credentials, secrets, or API keys. Future opaque links to experience/community/commerce/identity — never engine imports.
+* **Tenant isolation:** Asset may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createAsset` / `resolveAsset` only. No uploadAsset, downloadAsset, deleteFile, generateThumbnail, processMedia, or storeAsset methods in this foundation.
+* **Runtime:** Composition root for future `Asset Port → Adapter`. No database, storage adapters, cloud providers, or upload handlers in this foundation.
+* **Dependencies:** `@motanos/asset` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** storage adapters, media processing pipelines, delivery URLs, access policies.
+
+**Rejected:** Turning Asset into File Storage; absorbing Media Processing or Authorization; Asset → S3/Supabase/CDN imports; Application → Storage Provider; implementing upload/download or transforms in this phase.
+
+---
