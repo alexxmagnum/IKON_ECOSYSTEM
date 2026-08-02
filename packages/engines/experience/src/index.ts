@@ -1,11 +1,13 @@
 /**
- * @motanos/experience — Experience Layer foundation
- * (DEC-EXPERIENCE-001 / DEC-EXPERIENCE-002).
+ * @motanos/experience — Experience Engine foundation.
  *
- * MotanOS Core → Shared Engines → Experience Layer → Domain Modules
+ * MotanOS Core → Shared Engines → @motanos/experience
  *
- * Composes opaque capabilities. Does not import domains, engines
- * (including discovery/social), auth, or DB (DEC-EXPERIENCE-005).
+ * Experience = what is offered. Resource = what exists. Booking = who participates.
+ * Must not depend on booking, resource, payment vendors, calendar, or persistence.
+ *
+ * @see DEC-EXPERIENCE-BOUNDARY-001
+ * @see DEC-EXPERIENCE-001
  */
 
 export const EXPERIENCE_ENGINE = "@motanos/experience" as const;
@@ -17,7 +19,11 @@ export type {
   CapabilityType,
 } from "./domain/capability";
 
-export type { Experience, ExperienceId } from "./domain/experience";
+/** Legacy domain aggregate — use boundary `Experience` for new work. */
+export type {
+  Experience as ExperienceAggregate,
+  ExperienceId,
+} from "./domain/experience";
 
 export type {
   Journey,
@@ -26,15 +32,16 @@ export type {
   JourneyStepId,
 } from "./domain/journey";
 
+/** Legacy provisional aggregate statuses (DEC-EXPERIENCE-003). */
 export type {
-  ExperienceStatus,
+  ExperienceStatus as ExperienceAggregateStatus,
   JourneyFinalStatus,
   JourneyStatus,
 } from "./types";
 export {
   canTransitionJourney,
-  EXPERIENCE_STATUSES,
-  isExperienceStatus,
+  EXPERIENCE_STATUSES as EXPERIENCE_AGGREGATE_STATUSES,
+  isExperienceStatus as isExperienceAggregateStatus,
   isJourneyFinal,
   isJourneyStatus,
   JOURNEY_FINAL_STATUSES,
@@ -42,8 +49,9 @@ export {
   JOURNEY_TRANSITIONS,
 } from "./types";
 
+/** Legacy aggregate contracts — use boundary `CreateExperienceInput` for new work. */
 export type {
-  CreateExperienceInput,
+  CreateExperienceInput as CreateExperienceAggregateInput,
   CreateJourneyInput,
   ExperienceResult,
   JourneyResult,
@@ -54,3 +62,24 @@ export type {
 } from "./contracts";
 
 export type { ExperienceService, JourneyService } from "./services";
+
+export type {
+  CreateExperienceInput,
+  CreateExperienceOptions,
+  Experience,
+  ExperienceKind,
+  ExperiencePort,
+  ExperienceStatus,
+} from "./experiences";
+export {
+  EXPERIENCE_KINDS,
+  EXPERIENCE_KIND_VALUES,
+  EXPERIENCE_STATUSES,
+  EXPERIENCE_STATUS_VALUES,
+  createExperience,
+  isExperience,
+  isExperienceKind,
+  isExperiencePort,
+  isExperienceStatus,
+  resetExperienceReferenceSequence,
+} from "./experiences";

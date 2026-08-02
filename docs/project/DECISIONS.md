@@ -1382,3 +1382,30 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Embedding Resource Engine inside Booking; Resource → Booking/Availability/Payment imports; Application → Resource Provider; implementing availability slots, reservations, or persistence adapters in this phase.
 
 ---
+
+## DEC-EXPERIENCE-BOUNDARY-001 — Experience Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 66 introduces the Experience Boundary so MotanOS can define what a business offers to a community, independently of Booking, Resource, Calendar events, Community, and Payment. Experience = what is offered; Resource = what exists; Booking = who wants to participate. Experience must not become an Event Engine yet, and must not absorb Community.
+
+**Decision:**
+
+* **Ownership:** Boundary `Experience`, factories, and `ExperiencePort` live in `@motanos/experience` (`packages/engines/experience/src/experiences/`). Experience Engine remains independent of Booking, Resource, Community, Commerce, Calendar, and Runtime adapters.
+* **Pipeline relation:** Experience Definition → Resource Association → Booking Intent → Participation → Commerce. Experience answers “what offering exists for the community?”
+* **Separations:** Experience ≠ Resource. Experience ≠ Booking. Experience ≠ Calendar Event (when it occurs). Experience ≠ Community. Experience ≠ Payment. Do not create Event Engine in this phase.
+* **Kinds (foundation):** `experience.event`, `experience.activity`, `experience.tournament`, `experience.class`, `experience.service`, `experience.social`, `experience.operational`.
+* **Statuses (foundation):** `draft`, `active`, `paused`, `completed`, `cancelled`, `archived` (e.g. draft → active → completed, or active ↔ paused).
+* **Contract shape:** Opaque `experienceReference`, required `tenantReference`, `experienceKind`, `experienceStatus`; optional opaque `nameReference`, `descriptionReference`, `resourceReference`, `parentExperienceReference`, `ownerReference`, controlled `metadata`. No real users, PII, or payment data.
+* **Tenant isolation:** Experience may be bound to a tenant; cross-tenant creation is denied.
+* **Export surface:** Package-root `Experience` / `CreateExperienceInput` / `EXPERIENCE_STATUSES` / `isExperienceStatus` are the Boundary. Legacy domain aggregate shapes are re-exported as `ExperienceAggregate`, `CreateExperienceAggregateInput`, `EXPERIENCE_AGGREGATE_STATUSES`, `isExperienceAggregateStatus` (DEC-EXPERIENCE-001..003 remain for legacy layer types).
+* **Future refs:** May later hold opaque `resourceReference`, booking participation refs, and `communityReference` — never full foreign aggregates.
+* **Runtime:** Composition root for future `Experience Port → Adapter` (`createExperience` / `resolveExperience`). No publish/calendar, booking creation, resource assignment, charging, or vendor SDKs in this foundation.
+* **Dependencies:** `@motanos/experience` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Event Engine, Community linkage, Booking Runtime wiring, Resource assignment flows, Journey/Capability evolution beyond existing provisional types.
+
+**Rejected:** Turning Experience into Event/Calendar Engine; absorbing Community; Experience → Booking/Resource/Payment imports; Application → Experience Provider; implementing publish, reservations, resource assignment, or charge flows in this phase.
+
+---
