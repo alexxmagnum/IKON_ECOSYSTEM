@@ -207,6 +207,23 @@ export {
 } from "./availability";
 
 export type {
+  BookingResource,
+  BookingResourceKind,
+  BookingResourcePort,
+  CreateBookingResourceInput,
+} from "./resources";
+export {
+  BOOKING_RESOURCE_KINDS,
+  BOOKING_RESOURCE_KIND_VALUES,
+  createBookingResource,
+  isBookingResource,
+  isBookingResourceKind,
+  isBookingResourcePort,
+  resetBookingResourceReferenceSequence,
+  resourceBelongsToTenant,
+} from "./resources";
+
+export type {
   BookingWorkflow,
   BookingWorkflowDefinition,
   BookingWorkflowKind,

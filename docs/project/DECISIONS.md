@@ -745,3 +745,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** BookingService → Calendar API; Application → Availability Provider; embedding calendar credentials; substituting Availability Policy for BookingQueryService or Domain Rules.
 
 ---
+
+## DEC-BOOKING-RESOURCE-001 — Booking Resource Boundary
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-02
+
+**Context:** Fase 42 introduces a Resource Boundary so Booking can identify reservable resources without coupling Domain Services or Application to inventory systems, ERP, facility tables, or domain-specific asset modules.
+
+**Decision:**
+
+* **Ownership:** `BookingResource`, resource kinds, port contract, and factories live in `@motanos/booking` (`packages/engines/booking/src/resources/`). Booking owns the contract because bookings reserve resources. Provider adapters belong to Runtime / future infrastructure.
+* **Relation to Domain `Resource`:** `domain/resource` (`Resource`, `RESOURCE_TYPES`) remains the in-engine aggregate vocabulary. `BookingResource` is the boundary identity contract (tenant-scoped opaque reference + kind) — not a CRUD inventory model and not a replacement for domain `Resource`.
+* **Contract shape:** Opaque fields — `resourceReference`, `tenantReference`, `resourceKind`, optional `resourceName`, optional controlled `metadata`. No credentials, user dumps, or ERP payloads.
+* **Kinds (foundation):** `booking.table`, `booking.court`, `booking.room`, `booking.seat`, `booking.equipment`. Internal concepts only — not full restaurant/golf/hotel modules.
+* **Relation to Availability:** Resource answers “what is the resource?” Availability answers “is it free in this window?” (DEC-BOOKING-AVAILABILITY-001). Do not merge.
+* **Relation to Query:** `BookingQueryService` reads bookings (DEC-BOOKING-QUERY-002). Resource Boundary describes resource identity. Neither replaces the other.
+* **Relation to Integration:** Resource is identity; Integration is outbound communication (DEC-BOOKING-INTEGRATION-001). No resource providers in Integration in this foundation. Future `BookingResourcePort → Adapter` at Runtime.
+* **Relation to Domain Events:** No `resource.created|updated|deleted` events in this foundation. Booking domain events remain separate (DEC-BOOKING-EVENTS-002).
+* **Relation to Workflow:** Workflows may consult Resource Boundary then Booking operations (DEC-BOOKING-WORKFLOW-001). Workflows must not call inventory SDKs.
+* **Separation from Payment / Notification / Availability:** Resource = identity; Payment = money; Notification = communication; Availability = temporal capacity.
+* **Application:** Forbidden `Application → Resource Provider`. Flow remains Use Case → Booking Engine Boundary.
+* **Runtime:** Composition root for future Resource Port adapters. No external bases, ERP, or inventory APIs in this foundation.
+* **Deferred:** inventory administration, panels, sync, real tables/courts/rooms, categories, CRUD catalogs.
+
+**Rejected:** BookingService → table store; Application → Resource Provider; embedding secrets; fusing Resource with Availability; implementing resource domain events in this phase.
+
+---
