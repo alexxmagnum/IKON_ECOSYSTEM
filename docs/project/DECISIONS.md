@@ -1961,3 +1961,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Preference into CRM, full profiles, tracking, analytics, AI, or a recommendation engine; Preference → Identity/Membership/Recommendation/Analytics/OpenAI/database imports; implementing learning or inference in this phase.
 
 ---
+
+## DEC-TEMPLATE-BOUNDARY-001 — Template Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-03
+
+**Context:** Fase 89 introduces the Template Engine so MotanOS can represent reusable structures for experiences, content, or operations — independently of CMS, visual editors, frontend pages, HTML renderers, design systems, automation engines, executable workflows, concrete experiences, and final generated content. Template answers “what reusable structure exists for a given context?” — not how to render, publish, send, or execute.
+
+**Decision:**
+
+* **Ownership:** `Template`, factories, and `TemplatePort` live in `@motanos/template` (`packages/engines/template`). Template is an independent bounded context — not Experience, Workflow, Notification, Localization, Asset, Recommendation, Analytics, Identity, Membership, AI providers, or Database providers.
+* **Pipeline relation:** Business / Tenant Context → Template Boundary → Future Experience / Content / Operational Systems. Template defines existence, context, kind, and status only.
+* **Separations:** Template ≠ Experience. Template ≠ Asset. Template ≠ Localization. Template ≠ Workflow. Template ≠ Notification. Template ≠ CMS / page builder / design system / automation. Opaque refs only — never `experienceId`, `bookingId`, `userId`, `workflowId`, `databaseId`.
+* **Kinds (foundation):** `template.experience`, `template.content`, `template.operational`, `template.communication`, `template.business`, `template.system`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled` (e.g. draft → active → inactive → archived).
+* **Contract shape:** Opaque `templateReference`, required `tenantReference`, `templateKind`, `templateStatus`; optional opaque `nameReference`, `descriptionReference`, `contextReference`, `ownerReference`, `parentTemplateReference`, `assetReference`, controlled `metadata`.
+* **Tenant isolation:** Template may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createTemplate` / `resolveTemplate` only. No renderTemplate, publishTemplate, deployTemplate, executeTemplate, generateTemplate, compileTemplate, sendTemplate, or translateTemplate in this foundation.
+* **Runtime:** Composition root for future `Template Port → Adapter`. No process runners, AI clients, or cross-engine imports in this foundation.
+* **Dependencies:** `@motanos/template` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Template Runtime, Experience/Content handoff, Localization linkage, Notification channel catalogs.
+
+**Rejected:** Turning Template into CMS, page builder, frontend framework, workflow engine, AI engine, or automation; Template → Experience/Workflow/Notification/Localization/Asset/Recommendation/Analytics/Identity/Membership/OpenAI/database imports; implementing render, publish, send, or generation in this phase.
+
+---
