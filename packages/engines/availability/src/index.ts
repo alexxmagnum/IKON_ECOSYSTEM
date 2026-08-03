@@ -3,13 +3,10 @@
  *
  * MotanOS Core → Shared Engines → @motanos/availability
  *
- * Availability = when something may be used (temporal rule).
- * Resource = what exists. Usage intents and timelines live elsewhere.
- *
- * Must not depend on usage engines, resource engines, experience engines,
- * commerce packages, auth packages, or persistence vendors.
- *
- * Distinct from any MotanOS usage-engine policy boundary.
+ * Availability = when an open slot exists for a business context.
+ * Must not depend on hold packages, timeline packages, unit packages,
+ * collect packages, trade packages, value packages, item packages,
+ * offer packages, compute vendors, or persistence vendors.
  *
  * @see DEC-AVAILABILITY-BOUNDARY-001
  */
@@ -25,10 +22,12 @@ export type {
   CreateAvailabilityOptions,
 } from "./availabilities";
 export {
+  AVAILABILITY_ITEM_REF_KEY,
   AVAILABILITY_KINDS,
   AVAILABILITY_KIND_VALUES,
   AVAILABILITY_STATUSES,
   AVAILABILITY_STATUS_VALUES,
+  AVAILABILITY_UNIT_REF_KEY,
   createAvailability,
   isAvailability,
   isAvailabilityKind,

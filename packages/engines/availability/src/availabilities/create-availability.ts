@@ -5,7 +5,9 @@ import type {
   CreateAvailabilityInput,
 } from "./availability";
 import {
+  AVAILABILITY_ITEM_REF_KEY,
   AVAILABILITY_STATUSES,
+  AVAILABILITY_UNIT_REF_KEY,
   isAvailabilityKind,
   isAvailabilityStatus,
 } from "./availability";
@@ -15,24 +17,33 @@ let availabilitySequence = 0;
 export interface CreateAvailabilityOptions {
   /**
    * When set, availability may only be created for this tenant
-   * (cross-tenant isolation).
+   * (cross-tenant scope lock).
    */
   tenantReference?: string;
 }
 
 /**
- * Build a validated Availability (in-memory — rule definition only).
- * Does not look up free time, generate intervals, or block assets.
+ * Build a checked Availability (in-memory — open-slot existence only).
+ * Does not open vendor sessions or run hold / claim / timeline sync flows.
  */
 export function createAvailability(
   input: CreateAvailabilityInput,
   options: CreateAvailabilityOptions = {},
 ): Availability {
   const tenantReference = input.tenantReference?.trim() ?? "";
-  const resourceReference = input.resourceReference?.trim();
-  const experienceReference = input.experienceReference?.trim();
+  const contextReference = input.contextReference?.trim();
   const scheduleReference = input.scheduleReference?.trim();
+  const dateReference = input.dateReference?.trim();
+  const timeReference = input.timeReference?.trim();
   const ownerReference = input.ownerReference?.trim();
+  const parentAvailabilityReference =
+    input.parentAvailabilityReference?.trim();
+  const itemRaw = input[AVAILABILITY_ITEM_REF_KEY];
+  const itemReference =
+    typeof itemRaw === "string" ? itemRaw.trim() : undefined;
+  const unitRaw = input[AVAILABILITY_UNIT_REF_KEY];
+  const unitReference =
+    typeof unitRaw === "string" ? unitRaw.trim() : undefined;
   const boundTenant = options.tenantReference?.trim() || undefined;
 
   if (!tenantReference) {
@@ -52,17 +63,38 @@ export function createAvailability(
     );
   }
 
-  if (input.resourceReference !== undefined && !resourceReference) {
-    throw new Error("resourceReference must not be empty when provided");
-  }
-  if (input.experienceReference !== undefined && !experienceReference) {
-    throw new Error("experienceReference must not be empty when provided");
+  if (input.contextReference !== undefined && !contextReference) {
+    throw new Error("contextReference must not be empty when provided");
   }
   if (input.scheduleReference !== undefined && !scheduleReference) {
     throw new Error("scheduleReference must not be empty when provided");
   }
+  if (input.dateReference !== undefined && !dateReference) {
+    throw new Error("dateReference must not be empty when provided");
+  }
+  if (input.timeReference !== undefined && !timeReference) {
+    throw new Error("timeReference must not be empty when provided");
+  }
   if (input.ownerReference !== undefined && !ownerReference) {
     throw new Error("ownerReference must not be empty when provided");
+  }
+  if (
+    input.parentAvailabilityReference !== undefined &&
+    !parentAvailabilityReference
+  ) {
+    throw new Error(
+      "parentAvailabilityReference must not be empty when provided",
+    );
+  }
+  if (itemRaw !== undefined && !itemReference) {
+    throw new Error(
+      `${AVAILABILITY_ITEM_REF_KEY} must not be empty when provided`,
+    );
+  }
+  if (unitRaw !== undefined && !unitReference) {
+    throw new Error(
+      `${AVAILABILITY_UNIT_REF_KEY} must not be empty when provided`,
+    );
   }
 
   if (boundTenant !== undefined && tenantReference !== boundTenant) {
@@ -83,17 +115,30 @@ export function createAvailability(
     tenantReference,
     availabilityKind,
     availabilityStatus,
-    ...(resourceReference !== undefined && resourceReference.length > 0
-      ? { resourceReference }
-      : {}),
-    ...(experienceReference !== undefined && experienceReference.length > 0
-      ? { experienceReference }
+    ...(contextReference !== undefined && contextReference.length > 0
+      ? { contextReference }
       : {}),
     ...(scheduleReference !== undefined && scheduleReference.length > 0
       ? { scheduleReference }
       : {}),
+    ...(dateReference !== undefined && dateReference.length > 0
+      ? { dateReference }
+      : {}),
+    ...(timeReference !== undefined && timeReference.length > 0
+      ? { timeReference }
+      : {}),
     ...(ownerReference !== undefined && ownerReference.length > 0
       ? { ownerReference }
+      : {}),
+    ...(parentAvailabilityReference !== undefined &&
+    parentAvailabilityReference.length > 0
+      ? { parentAvailabilityReference }
+      : {}),
+    ...(itemReference !== undefined && itemReference.length > 0
+      ? { [AVAILABILITY_ITEM_REF_KEY]: itemReference }
+      : {}),
+    ...(unitReference !== undefined && unitReference.length > 0
+      ? { [AVAILABILITY_UNIT_REF_KEY]: unitReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

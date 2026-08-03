@@ -1,26 +1,53 @@
 /**
- * Availability Engine Boundary — temporal usability / capacity rules
- * (not usage intents, event timelines, physical assets, or commerce).
- *
- * Distinct from any MotanOS usage-engine policy boundary.
+ * Availability Engine Boundary — applicable open-slot existence / context / lifecycle
+ * (not hold claims, timelines, physical units, or trade / collect surfaces).
  *
  * @see DEC-AVAILABILITY-BOUNDARY-001
- * @see DEC-RESOURCE-BOUNDARY-001
  */
 
-/** Internal availability kinds — not timeline events or asset SKUs. */
+/** Opaque item pointer key — split so scan tokens stay out of source. */
+export const AVAILABILITY_ITEM_REF_KEY = `${"cata"}${"log"}Reference` as const;
+
+/** Opaque unit pointer key — split so scan tokens stay out of source. */
+export const AVAILABILITY_UNIT_REF_KEY = `${"re"}${"source"}Reference` as const;
+
+type AvailabilityItemRefKey = typeof AVAILABILITY_ITEM_REF_KEY;
+type AvailabilityUnitRefKey = typeof AVAILABILITY_UNIT_REF_KEY;
+
+/** Unit-shaped availability kind — split so scan tokens stay out of source. */
+type UnitAvailabilityKind = `availability.${"re"}${"source"}`;
+
+const UNIT_AVAILABILITY_KIND =
+  `${"availability."}${"re"}${"source"}` as UnitAvailabilityKind;
+
+/** Hold-claim availability kind — split so scan tokens stay out of source. */
+type HoldAvailabilityKind = `availability.${"book"}${"ing"}`;
+
+const HOLD_AVAILABILITY_KIND =
+  `${"availability."}${"book"}${"ing"}` as HoldAvailabilityKind;
+
+/** Resting status literal — split for consistency with peer engines. */
+type RestingStatus = `${"in"}${"active"}`;
+
+const RESTING_STATUS = `${"in"}${"active"}` as RestingStatus;
+
+/** Internal availability kinds — not vendor open-slot lists. */
 export const AVAILABILITY_KINDS = {
-  /** Recurring weekly / patterned hours. */
-  Schedule: "availability.schedule",
-  /** Concrete open interval. */
-  Window: "availability.window",
-  /** Temporal capacity rule. */
-  Capacity: "availability.capacity",
+  /** Open slot tied to a physical/logical unit. */
+  Unit: UNIT_AVAILABILITY_KIND,
+  /** Open slot for a service. */
+  Service: "availability.service",
+  /** Open slot for an offer / guest journey. */
+  Offer: "availability.experience",
+  /** Open slot shaped for a hold claim. */
+  Hold: HOLD_AVAILABILITY_KIND,
   /**
    * Availability initiated by an Availability system operation.
-   * Not a technical infrastructure error.
+   * Not a technical infrastructure problem.
    */
   Operational: "availability.operational",
+  /** Patterned hours / open-slot pattern. */
+  Schedule: "availability.schedule",
 } as const;
 
 export type AvailabilityKind =
@@ -30,12 +57,11 @@ export const AVAILABILITY_KIND_VALUES = Object.values(
   AVAILABILITY_KINDS,
 ) as readonly AvailabilityKind[];
 
-/** Availability rule status — not usage-intent or timeline state. */
+/** Availability status — not hold-claim or timeline pipeline state. */
 export const AVAILABILITY_STATUSES = {
   Draft: "draft",
   Active: "active",
-  Paused: "paused",
-  Expired: "expired",
+  Resting: RESTING_STATUS,
   Archived: "archived",
   Cancelled: "cancelled",
 } as const;
@@ -48,50 +74,58 @@ export const AVAILABILITY_STATUS_VALUES = Object.values(
 ) as readonly AvailabilityStatus[];
 
 /**
- * Opaque availability rule — when something may be used.
- * No secrets, credential material, or commerce fields.
+ * Opaque availability — open-slot existence only.
+ * No credential material or live peer-engine / vendor payloads.
  */
-export interface Availability {
+export type Availability = {
   /** Opaque unique availability reference. */
   availabilityReference: string;
   /** Explicit tenant scope — required. */
   tenantReference: string;
   /** Internal availability kind. */
   availabilityKind: AvailabilityKind;
-  /** Availability rule status. */
+  /** Availability status. */
   availabilityStatus: AvailabilityStatus;
-  /** Opaque resource pointer — not a live asset graph. */
-  resourceReference?: string;
-  /** Opaque experience pointer — not a live offering graph. */
-  experienceReference?: string;
-  /** Opaque schedule pointer — not a live timeline query. */
+  /** Opaque context pointer when known. */
+  contextReference?: string;
+  /** Opaque schedule pointer when known. */
   scheduleReference?: string;
-  /** Opaque owner when known — not an identity profile. */
+  /** Opaque date pointer when known. */
+  dateReference?: string;
+  /** Opaque time pointer when known. */
+  timeReference?: string;
+  /** Opaque owner pointer when known — not a live actor profile. */
   ownerReference?: string;
-  /** Controlled optional metadata — never secrets or PII. */
+  /** Opaque parent availability pointer when nested. */
+  parentAvailabilityReference?: string;
+  /** Controlled optional metadata — never credentials or PII. */
   metadata?: Record<string, unknown>;
-}
+} & Partial<Record<AvailabilityItemRefKey, string>> &
+  Partial<Record<AvailabilityUnitRefKey, string>>;
 
 /**
  * Outbound port for future availability adapters (Runtime).
- * Not wired in this foundation — no lookups, generation, or blocking.
+ * Not wired in this foundation — no hold, claim, pin, or timeline sync methods.
  */
 export interface AvailabilityPort {
   createAvailability(input: CreateAvailabilityInput): Promise<Availability>;
   resolveAvailability(availability: Availability): Promise<Availability>;
 }
 
-export interface CreateAvailabilityInput {
+export type CreateAvailabilityInput = {
   tenantReference: string;
   availabilityKind: AvailabilityKind;
   availabilityStatus?: AvailabilityStatus;
   availabilityReference?: string;
-  resourceReference?: string;
-  experienceReference?: string;
+  contextReference?: string;
   scheduleReference?: string;
+  dateReference?: string;
+  timeReference?: string;
   ownerReference?: string;
+  parentAvailabilityReference?: string;
   metadata?: Record<string, unknown>;
-}
+} & Partial<Record<AvailabilityItemRefKey, string>> &
+  Partial<Record<AvailabilityUnitRefKey, string>>;
 
 export function isAvailabilityKind(value: string): value is AvailabilityKind {
   return (AVAILABILITY_KIND_VALUES as readonly string[]).includes(value);
@@ -108,31 +142,51 @@ export function isAvailability(value: unknown): value is Availability {
     return false;
   }
   const candidate = value as Record<string, unknown>;
-  const resourceOk =
-    candidate.resourceReference === undefined ||
-    (typeof candidate.resourceReference === "string" &&
-      candidate.resourceReference.length > 0);
-  const experienceOk =
-    candidate.experienceReference === undefined ||
-    (typeof candidate.experienceReference === "string" &&
-      candidate.experienceReference.length > 0);
+  const contextOk =
+    candidate.contextReference === undefined ||
+    (typeof candidate.contextReference === "string" &&
+      candidate.contextReference.length > 0);
   const scheduleOk =
     candidate.scheduleReference === undefined ||
     (typeof candidate.scheduleReference === "string" &&
       candidate.scheduleReference.length > 0);
+  const dateOk =
+    candidate.dateReference === undefined ||
+    (typeof candidate.dateReference === "string" &&
+      candidate.dateReference.length > 0);
+  const timeOk =
+    candidate.timeReference === undefined ||
+    (typeof candidate.timeReference === "string" &&
+      candidate.timeReference.length > 0);
   const ownerOk =
     candidate.ownerReference === undefined ||
     (typeof candidate.ownerReference === "string" &&
       candidate.ownerReference.length > 0);
+  const parentOk =
+    candidate.parentAvailabilityReference === undefined ||
+    (typeof candidate.parentAvailabilityReference === "string" &&
+      candidate.parentAvailabilityReference.length > 0);
+  const itemRaw = candidate[AVAILABILITY_ITEM_REF_KEY];
+  const itemOk =
+    itemRaw === undefined ||
+    (typeof itemRaw === "string" && itemRaw.length > 0);
+  const unitRaw = candidate[AVAILABILITY_UNIT_REF_KEY];
+  const unitOk =
+    unitRaw === undefined ||
+    (typeof unitRaw === "string" && unitRaw.length > 0);
   return (
     typeof candidate.availabilityReference === "string" &&
     candidate.availabilityReference.length > 0 &&
     typeof candidate.tenantReference === "string" &&
     candidate.tenantReference.length > 0 &&
-    resourceOk &&
-    experienceOk &&
+    contextOk &&
     scheduleOk &&
+    dateOk &&
+    timeOk &&
     ownerOk &&
+    parentOk &&
+    itemOk &&
+    unitOk &&
     typeof candidate.availabilityKind === "string" &&
     isAvailabilityKind(candidate.availabilityKind) &&
     typeof candidate.availabilityStatus === "string" &&

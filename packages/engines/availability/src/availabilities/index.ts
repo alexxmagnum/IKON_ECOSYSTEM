@@ -6,10 +6,12 @@ export type {
   CreateAvailabilityInput,
 } from "./availability";
 export {
+  AVAILABILITY_ITEM_REF_KEY,
   AVAILABILITY_KINDS,
   AVAILABILITY_KIND_VALUES,
   AVAILABILITY_STATUSES,
   AVAILABILITY_STATUS_VALUES,
+  AVAILABILITY_UNIT_REF_KEY,
   isAvailability,
   isAvailabilityKind,
   isAvailabilityPort,
