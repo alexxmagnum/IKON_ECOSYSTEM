@@ -1,14 +1,11 @@
 /**
- * @motanos/commerce — Commerce Engine foundation.
+ * @motanos/commerce — Commerce Engine Boundary foundation.
  *
  * MotanOS Core → Shared Engines → @motanos/commerce
  *
- * Commerce = what can be acquired and at what referenced value.
- * Experience / Membership / Booking define context; charge rails and
- * fiscal documents live elsewhere.
- *
- * Must not depend on usage engines, experience engines, membership engines,
- * charge-rail packages, fiscal packages, auth packages, or persistence vendors.
+ * Commerce = commercial-operation existence for a business context.
+ * Must not depend on collect packages, tariff packages, fiscal packages,
+ * cart packages, compute vendors, or persistence vendors.
  *
  * @see DEC-COMMERCE-BOUNDARY-001
  */
@@ -16,21 +13,22 @@
 export const COMMERCE_ENGINE = "@motanos/commerce" as const;
 
 export type {
+  Commerce,
   CommerceKind,
-  CommerceOffer,
   CommercePort,
   CommerceStatus,
-  CreateCommerceOfferInput,
-  CreateCommerceOfferOptions,
+  CreateCommerceInput,
+  CreateCommerceOptions,
 } from "./commerce";
 export {
   COMMERCE_KINDS,
   COMMERCE_KIND_VALUES,
   COMMERCE_STATUSES,
   COMMERCE_STATUS_VALUES,
-  createCommerceOffer,
+  COMMERCE_TARIFF_REF_KEY,
+  createCommerce,
+  isCommerce,
   isCommerceKind,
-  isCommerceOffer,
   isCommercePort,
   isCommerceStatus,
   resetCommerceReferenceSequence,

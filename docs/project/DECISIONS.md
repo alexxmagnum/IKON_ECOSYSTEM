@@ -1548,26 +1548,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-03
 
-**Context:** Fase 72 introduces the Commerce Engine so MotanOS can express commercial offer context — what can be acquired and at what referenced value — independently of Experience (what is offered), Payment (how money is collected), Billing (how it is invoiced), and Subscription plans. Commerce must not absorb Payment or Billing, and must not connect to Stripe or other charge rails in this phase.
+**Context:** Fase 96 (evolving Fase 72) consolidates Commerce as a pure commercial-operation boundary — “what commercial operation exists?” — independently of how money is collected, what economic value applies, how fiscal records are written, how payment is processed, how goods are fulfilled, and how availability is calculated. No commerce-lifecycle split was required: `@motanos/commerce` was already a slim boundary package without payment/invoice/checkout motors.
 
 **Decision:**
 
-* **Ownership:** `CommerceOffer`, factories, and `CommercePort` live in `@motanos/commerce` (`packages/engines/commerce`). Commerce is an independent bounded context — not Booking, Experience, Membership, Payment, Billing, Stripe, or Runtime adapters.
-* **Pipeline relation:** Experience / Membership / Booking → Commerce Boundary → Future Payment / Billing. Commerce answers “what costs / what can be acquired?”
-* **Separations:** Commerce ≠ Payment (no charge/refund/checkout). Commerce ≠ Billing (no invoices/tax ledgers). Commerce ≠ Subscription (plans are related but distinct). Distinct from Booking commercial-context boundaries (pricing/fee/tax/etc. inside Booking).
-* **Kinds (foundation):** `commerce.offer`, `commerce.product`, `commerce.service`, `commerce.registration`, `commerce.membership`, `commerce.operational`.
-* **Statuses (foundation):** `draft`, `active`, `paused`, `expired`, `archived`, `cancelled` (e.g. draft → active → expired).
-* **Contract shape:** Opaque `commerceReference`, required `tenantReference`, `commerceKind`, `commerceStatus`; optional opaque `nameReference`, `descriptionReference`, `experienceReference`, `membershipReference`, `bookingReference`, `priceReference`, controlled `metadata`. No card data, tokens, credentials, or payment payloads.
-* **Tenant isolation:** Commerce offers may be bound to a tenant; cross-tenant creation is denied.
-* **Future refs:** May later hold opaque `paymentReference` / `billingReference` — never full foreign aggregates or vendor SDKs.
-* **Port surface:** `createCommerceOffer` / `resolveCommerceOffer` only. No charge, refund, invoice, subscribe, or checkout methods in this foundation.
-* **Runtime:** Composition root for future `Commerce Port → Adapter`. No database, payment providers, Stripe SDK, or invoice adapters in this foundation.
+* **Ownership:** `Commerce`, factories, and `CommercePort` live in `@motanos/commerce` (`packages/engines/commerce`). Commerce is an independent bounded context — not Catalog, Pricing, Payment, Billing, Booking, Stripe, or Runtime adapters.
+* **Pipeline relation:** Catalog → Commerce Boundary → Pricing → Payment → Billing. Commerce answers “what commercial operation exists?”
+* **Separations:** Commerce ≠ Catalog. Commerce ≠ Pricing. Commerce ≠ Payment. Commerce ≠ Billing. No checkout, charge, pay, invoice, calculatePrice, createSubscription, or refund methods in this foundation.
+* **Kinds (foundation):** `commerce.order`, `commerce.purchase`, `commerce.subscription`, `commerce.membership`, `commerce.booking`, `commerce.operational`, `commerce.business`.
+* **Statuses (foundation):** `draft`, `pending`, `confirmed`, `completed`, `cancelled`, `archived`.
+* **Contract shape:** Opaque `commerceReference`, required `tenantReference`, `commerceKind`, `commerceStatus`; optional opaque `catalogReference`, `customerReference`, `actorReference`, `bookingReference`, `pricingReference`, `contextReference`, `parentCommerceReference`, controlled `metadata`.
+* **Tenant isolation:** Commerce may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createCommerce` / `resolveCommerce` only.
 * **Dependencies:** `@motanos/commerce` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** catalog UX, Payment Runtime wiring, Billing Runtime wiring, tax engines.
+* **Deferred:** Commerce Runtime, Payment/Billing handoff, subscription engines, checkout UX. No `@motanos/commerce-lifecycle` in this phase.
 
-**Rejected:** Absorbing Payment/Billing/Subscription into Commerce; Commerce → Stripe/Payment/Invoice imports; Application → Commerce Provider; implementing charge/refund/checkout/invoice adapters in this phase.
+**Rejected:** Absorbing Payment/Billing/Pricing/Checkout into Commerce; Commerce → Stripe/PayPal/Payment/Invoice/Billing/Pricing imports; implementing charge/refund/checkout/invoice adapters in this phase.
 
 ---
 

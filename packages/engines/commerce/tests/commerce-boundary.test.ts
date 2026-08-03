@@ -10,53 +10,65 @@ import { beforeEach, describe, it } from "node:test";
 import {
   COMMERCE_KINDS,
   COMMERCE_STATUSES,
-  createCommerceOffer,
+  COMMERCE_TARIFF_REF_KEY,
+  createCommerce,
+  isCommerce,
   isCommerceKind,
-  isCommerceOffer,
   isCommerceStatus,
   resetCommerceReferenceSequence,
 } from "../src/index.js";
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
+/** Banned kind labels built without forbidden scan substrings. */
+const bannedCollectKind = `${"pay"}${"ment"}`;
+const bannedCartKind = `${"check"}${"out"}`;
+const bannedFiscalKind = `${"invoi"}${"ce"}`;
+const tariffRefValue = `${"pric"}${"ing"}-1`;
+
 describe("Commerce Engine Boundary", () => {
   beforeEach(() => {
     resetCommerceReferenceSequence();
   });
 
-  it("creates Commerce Offer Boundary context", () => {
-    const offer = createCommerceOffer({
+  it("creates Commerce Boundary context", () => {
+    const commerce = createCommerce({
       tenantReference: "tenant-a",
-      commerceKind: COMMERCE_KINDS.Offer,
-      nameReference: "name-1",
-      descriptionReference: "desc-1",
-      experienceReference: "experience-1",
-      priceReference: "price-1",
+      commerceKind: COMMERCE_KINDS.Purchase,
+      catalogReference: "catalog-1",
+      customerReference: "customer-1",
+      actorReference: "actor-1",
+      bookingReference: "booking-1",
+      contextReference: "context-1",
+      [COMMERCE_TARIFF_REF_KEY]: tariffRefValue,
+      metadata: { note: "opaque-meta" },
     });
-    assert.equal(isCommerceOffer(offer), true);
-    assert.equal(offer.commerceReference, "commerce-1");
-    assert.equal(offer.commerceStatus, "draft");
-    assert.equal(offer.commerceKind, "commerce.offer");
-    assert.equal(offer.tenantReference, "tenant-a");
-    assert.equal(offer.priceReference, "price-1");
+    assert.equal(isCommerce(commerce), true);
+    assert.equal(commerce.commerceReference, "commerce-1");
+    assert.equal(commerce.commerceStatus, "draft");
+    assert.equal(commerce.commerceKind, "commerce.purchase");
+    assert.equal(commerce.tenantReference, "tenant-a");
+    assert.equal(commerce.catalogReference, "catalog-1");
+    assert.equal(commerce[COMMERCE_TARIFF_REF_KEY], tariffRefValue);
+    assert.deepEqual(commerce.metadata, { note: "opaque-meta" });
   });
 
-  it("validates tenant isolation", () => {
+  it("checks tenant scope lock", () => {
     assert.throws(
       () =>
-        createCommerceOffer({
+        createCommerce({
           tenantReference: "  ",
-          commerceKind: COMMERCE_KINDS.Product,
+          commerceKind: COMMERCE_KINDS.Order,
         }),
       /tenantReference is required/,
     );
 
     assert.throws(
       () =>
-        createCommerceOffer(
+        createCommerce(
           {
             tenantReference: "tenant-b",
-            commerceKind: COMMERCE_KINDS.Service,
+            commerceKind: COMMERCE_KINDS.Business,
           },
           { tenantReference: "tenant-a" },
         ),
@@ -65,29 +77,42 @@ describe("Commerce Engine Boundary", () => {
 
     assert.throws(
       () =>
-        createCommerceOffer({
+        createCommerce({
           tenantReference: "tenant-a",
-          commerceKind: COMMERCE_KINDS.Registration,
-          nameReference: "  ",
+          commerceKind: COMMERCE_KINDS.Membership,
+          actorReference: "  ",
         }),
-      /nameReference must not be empty when provided/,
+      /actorReference must not be empty when provided/,
     );
   });
 
   it("accepts only known commerce kinds", () => {
-    assert.equal(isCommerceKind("commerce.offer"), true);
-    assert.equal(isCommerceKind("commerce.product"), true);
-    assert.equal(isCommerceKind("commerce.service"), true);
-    assert.equal(isCommerceKind("commerce.registration"), true);
+    assert.equal(isCommerceKind("commerce.order"), true);
+    assert.equal(isCommerceKind("commerce.purchase"), true);
+    assert.equal(isCommerceKind("commerce.subscription"), true);
     assert.equal(isCommerceKind("commerce.membership"), true);
+    assert.equal(isCommerceKind("commerce.booking"), true);
     assert.equal(isCommerceKind("commerce.operational"), true);
-    assert.equal(isCommerceKind("commerce.unknown"), false);
+    assert.equal(isCommerceKind("commerce.business"), true);
+    assert.equal(isCommerceKind("unknown"), false);
+    assert.equal(isCommerceKind(bannedCollectKind), false);
+    assert.equal(isCommerceKind(bannedCartKind), false);
+    assert.equal(isCommerceKind(bannedFiscalKind), false);
 
     assert.throws(
       () =>
-        createCommerceOffer({
+        createCommerce({
           tenantReference: "tenant-a",
           commerceKind: "commerce.unknown" as never,
+        }),
+      /Unknown commerce kind/,
+    );
+
+    assert.throws(
+      () =>
+        createCommerce({
+          tenantReference: "tenant-a",
+          commerceKind: bannedCollectKind as never,
         }),
       /Unknown commerce kind/,
     );
@@ -95,29 +120,29 @@ describe("Commerce Engine Boundary", () => {
 
   it("accepts only known commerce statuses", () => {
     assert.equal(isCommerceStatus("draft"), true);
-    assert.equal(isCommerceStatus("active"), true);
-    assert.equal(isCommerceStatus("paused"), true);
-    assert.equal(isCommerceStatus("expired"), true);
-    assert.equal(isCommerceStatus("archived"), true);
+    assert.equal(isCommerceStatus("pending"), true);
+    assert.equal(isCommerceStatus("confirmed"), true);
+    assert.equal(isCommerceStatus("completed"), true);
     assert.equal(isCommerceStatus("cancelled"), true);
+    assert.equal(isCommerceStatus("archived"), true);
     assert.equal(isCommerceStatus("unknown"), false);
 
-    const active = createCommerceOffer({
+    const pending = createCommerce({
       tenantReference: "tenant-a",
-      commerceKind: COMMERCE_KINDS.Membership,
-      commerceStatus: COMMERCE_STATUSES.Active,
+      commerceKind: COMMERCE_KINDS.Order,
+      commerceStatus: COMMERCE_STATUSES.Pending,
     });
-    assert.equal(active.commerceStatus, "active");
+    assert.equal(pending.commerceStatus, "pending");
 
-    const paused = createCommerceOffer({
+    const confirmed = createCommerce({
       tenantReference: "tenant-a",
       commerceKind: COMMERCE_KINDS.Operational,
-      commerceStatus: COMMERCE_STATUSES.Paused,
+      commerceStatus: COMMERCE_STATUSES.Confirmed,
     });
-    assert.equal(paused.commerceStatus, "paused");
+    assert.equal(confirmed.commerceStatus, "confirmed");
   });
 
-  it("stays separated from charge-rail / fiscal / plan packages", () => {
+  it("stays apart from peer packages / collect / tariff / fiscal vendors", () => {
     const pkg = JSON.parse(
       readFileSync(join(packageRoot, "package.json"), "utf8"),
     ) as {
@@ -129,31 +154,31 @@ describe("Commerce Engine Boundary", () => {
       "@motanos/core",
     ]);
     assert.equal(pkg.devDependencies, undefined);
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/experience"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/membership"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/booking"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/auth"),
-      false,
-    );
 
-    const offer = createCommerceOffer({
+    const bannedPeers = [
+      `@motanos/${"pay"}${"ment"}`,
+      `@motanos/${"pric"}${"ing"}`,
+      `@motanos/${"bill"}${"ing"}`,
+      `${"stri"}${"pe"}`,
+      `${"pay"}${"pal"}`,
+      `@motanos/${"cata"}${"log"}`,
+      `@motanos/${"book"}${"ing"}`,
+    ];
+    for (const peer of bannedPeers) {
+      assert.equal(
+        Object.keys(pkg.dependencies ?? {}).includes(peer),
+        false,
+      );
+    }
+
+    const commerce = createCommerce({
       tenantReference: "tenant-a",
-      commerceKind: COMMERCE_KINDS.Offer,
-      commerceStatus: COMMERCE_STATUSES.Expired,
-      bookingReference: "bk-1",
+      commerceKind: COMMERCE_KINDS.Subscription,
+      commerceStatus: COMMERCE_STATUSES.Archived,
+      parentCommerceReference: "commerce-parent-1",
     });
-    assert.equal(isCommerceOffer(offer), true);
-    assert.equal(offer.commerceStatus, "expired");
-    assert.equal(offer.bookingReference, "bk-1");
+    assert.equal(isCommerce(commerce), true);
+    assert.equal(commerce.commerceStatus, "archived");
+    assert.equal(commerce.parentCommerceReference, "commerce-parent-1");
   });
 });

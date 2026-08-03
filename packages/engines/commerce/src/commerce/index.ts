@@ -1,22 +1,23 @@
 export type {
+  Commerce,
   CommerceKind,
-  CommerceOffer,
   CommercePort,
   CommerceStatus,
-  CreateCommerceOfferInput,
-} from "./commerce-offer";
+  CreateCommerceInput,
+} from "./commerce";
 export {
   COMMERCE_KINDS,
   COMMERCE_KIND_VALUES,
   COMMERCE_STATUSES,
   COMMERCE_STATUS_VALUES,
+  COMMERCE_TARIFF_REF_KEY,
+  isCommerce,
   isCommerceKind,
-  isCommerceOffer,
   isCommercePort,
   isCommerceStatus,
-} from "./commerce-offer";
-export type { CreateCommerceOfferOptions } from "./create-commerce-offer";
+} from "./commerce";
+export type { CreateCommerceOptions } from "./create-commerce";
 export {
-  createCommerceOffer,
+  createCommerce,
   resetCommerceReferenceSequence,
-} from "./create-commerce-offer";
+} from "./create-commerce";
