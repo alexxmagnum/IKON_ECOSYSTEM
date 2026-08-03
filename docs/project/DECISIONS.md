@@ -1387,26 +1387,26 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-03
 
-**Context:** Fase 66 introduces the Experience Boundary so MotanOS can define what a business offers to a community, independently of Booking, Resource, Calendar events, Community, and Payment. Experience = what is offered; Resource = what exists; Booking = who wants to participate. Experience must not become an Event Engine yet, and must not absorb Community.
+**Context:** Fase 88 (evolving Fase 66) consolidates the Experience Boundary so MotanOS can represent business experience existence and context — independently of UI components, frontend pages, visual design, workflow execution, recommendations, notifications, analytics, automatic personalization, and AI. Experience answers “what experience exists for a given context?” — not how steps run, what to suggest, or how to communicate.
 
 **Decision:**
 
-* **Ownership:** Boundary `Experience`, factories, and `ExperiencePort` live in `@motanos/experience` (`packages/engines/experience/src/experiences/`). Experience Engine remains independent of Booking, Resource, Community, Commerce, Calendar, and Runtime adapters.
-* **Pipeline relation:** Experience Definition → Resource Association → Booking Intent → Participation → Commerce. Experience answers “what offering exists for the community?”
-* **Separations:** Experience ≠ Resource. Experience ≠ Booking. Experience ≠ Calendar Event (when it occurs). Experience ≠ Community. Experience ≠ Payment. Do not create Event Engine in this phase.
-* **Kinds (foundation):** `experience.event`, `experience.activity`, `experience.tournament`, `experience.class`, `experience.service`, `experience.social`, `experience.operational`.
-* **Statuses (foundation):** `draft`, `active`, `paused`, `completed`, `cancelled`, `archived` (e.g. draft → active → completed, or active ↔ paused).
-* **Contract shape:** Opaque `experienceReference`, required `tenantReference`, `experienceKind`, `experienceStatus`; optional opaque `nameReference`, `descriptionReference`, `resourceReference`, `parentExperienceReference`, `ownerReference`, controlled `metadata`. No real users, PII, or payment data.
+* **Ownership:** Boundary `Experience`, factories, and `ExperiencePort` live in `@motanos/experience` (`packages/engines/experience/src/experiences/`). Experience remains independent of Workflow, Preference, Recommendation, Notification, Analytics, Identity, Membership, AI providers, and Database providers.
+* **Pipeline relation:** Business / User / Tenant Context → Experience Boundary → Future Experience Runtime / Workflow / Recommendation. Experience defines existence, context, status, and kind only — it does not execute steps, automate, recommend, or communicate.
+* **Separations:** Experience ≠ Workflow. Experience ≠ Preference. Experience ≠ Recommendation. Experience ≠ Notification. Experience ≠ Analytics. Experience ≠ UI framework / CRM / automation engine. Opaque refs only — never `bookingId`, `userId`, `memberId`, `workflowId`, `databaseId`.
+* **Kinds (foundation):** `experience.customer`, `experience.member`, `experience.booking`, `experience.event`, `experience.operational`, `experience.business`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled` (e.g. draft → active → inactive → archived).
+* **Contract shape:** Opaque `experienceReference`, required `tenantReference`, `experienceKind`, `experienceStatus`; optional opaque `nameReference`, `descriptionReference`, `contextReference`, `ownerReference`, `parentExperienceReference`, `assetReference`, controlled `metadata`.
 * **Tenant isolation:** Experience may be bound to a tenant; cross-tenant creation is denied.
-* **Export surface:** Package-root `Experience` / `CreateExperienceInput` / `EXPERIENCE_STATUSES` / `isExperienceStatus` are the Boundary. Legacy domain aggregate shapes are re-exported as `ExperienceAggregate`, `CreateExperienceAggregateInput`, `EXPERIENCE_AGGREGATE_STATUSES`, `isExperienceAggregateStatus` (DEC-EXPERIENCE-001..003 remain for legacy layer types).
-* **Future refs:** May later hold opaque `resourceReference`, booking participation refs, and `communityReference` — never full foreign aggregates.
-* **Runtime:** Composition root for future `Experience Port → Adapter` (`createExperience` / `resolveExperience`). No publish/calendar, booking creation, resource assignment, charging, or vendor SDKs in this foundation.
+* **Export surface:** Package-root `Experience` / `CreateExperienceInput` / `EXPERIENCE_STATUSES` / `isExperienceStatus` are the Boundary. Legacy provisional aggregate shapes remain re-exported as `ExperienceAggregate`, `CreateExperienceAggregateInput`, `EXPERIENCE_AGGREGATE_STATUSES`, `isExperienceAggregateStatus` under `src/legacy/` (DEC-EXPERIENCE-001..003).
+* **Port surface:** `createExperience` / `resolveExperience` only. No executeExperience, runExperience, triggerExperience, personalizeExperience, recommendExperience, trackExperience, or analyzeExperience in this foundation.
+* **Runtime:** Composition root for future `Experience Port → Adapter`. No process runners, AI clients, or cross-engine imports in this foundation.
 * **Dependencies:** `@motanos/experience` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** Event Engine, Community linkage, Booking Runtime wiring, Resource assignment flows, Journey/Capability evolution beyond existing provisional types.
+* **Deferred:** Experience Runtime, Workflow handoff, Recommendation/Notification linkage, Event Engine evolution.
 
-**Rejected:** Turning Experience into Event/Calendar Engine; absorbing Community; Experience → Booking/Resource/Payment imports; Application → Experience Provider; implementing publish, reservations, resource assignment, or charge flows in this phase.
+**Rejected:** Turning Experience into UI/workflow/CRM/analytics/AI/recommendation/automation; Experience → Workflow/Preference/Recommendation/Notification/Analytics/Identity/Membership/OpenAI/database imports; implementing step execution or personalization in this phase.
 
 ---
 

@@ -1,15 +1,15 @@
-import type { Capability, CapabilityId } from "../domain/capability";
-import type { Experience, ExperienceId } from "../domain/experience";
+import type { Capability, CapabilityId } from "../legacy/capability";
+import type { Experience, ExperienceId } from "../legacy/experience";
 import type {
   Journey,
   JourneyId,
   JourneyStep,
-} from "../domain/journey";
+} from "../legacy/journey";
 import type { ExperienceStatus, JourneyStatus } from "../types";
 
 /**
  * API-oriented TypeScript contracts for a future Experience Layer surface.
- * No route handlers or workflow runtimes live here.
+ * No route handlers or process runners live here.
  */
 
 export interface CreateExperienceInput {

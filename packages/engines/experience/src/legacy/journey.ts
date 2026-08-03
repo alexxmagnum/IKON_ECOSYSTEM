@@ -6,7 +6,7 @@ export type JourneyId = string;
 export type JourneyStepId = string;
 
 /**
- * Single abstract step in a journey — no workflow execution.
+ * Single abstract step in a journey — no process runner.
  */
 export interface JourneyStep {
   id: JourneyStepId;

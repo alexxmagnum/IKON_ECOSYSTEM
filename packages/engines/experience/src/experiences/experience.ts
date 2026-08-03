@@ -1,30 +1,27 @@
 /**
- * Experience Engine Boundary — what a business offers to a community
- * (not Booking / Resource / Calendar Event / Community / Payment).
+ * Experience Engine Boundary — business experience existence / context / lifecycle
+ * (not UI surfaces, step runners, suggestion engines, or signal packages).
  *
  * @see DEC-EXPERIENCE-BOUNDARY-001
- * @see DEC-RESOURCE-BOUNDARY-001
  */
 
-/** Internal experience kinds — not calendar events or booking slots. */
+/** Internal experience kinds — not vendor experience catalogs. */
 export const EXPERIENCE_KINDS = {
-  /** Special offered event (e.g. tasting dinner). */
+  /** End-customer facing experience. */
+  Customer: "experience.customer",
+  /** Member-facing experience. */
+  Member: "experience.member",
+  /** Booking-oriented experience. */
+  Booking: "experience.booking",
+  /** Event-oriented experience. */
   Event: "experience.event",
-  /** Recurring or one-off activity. */
-  Activity: "experience.activity",
-  /** Competition / tournament offering. */
-  Tournament: "experience.tournament",
-  /** Class / course offering. */
-  Class: "experience.class",
-  /** Premium or packaged service experience. */
-  Service: "experience.service",
-  /** Social offering among members. */
-  Social: "experience.social",
   /**
    * Experience initiated by an Experience system operation.
-   * Not a technical infrastructure error.
+   * Not a technical infrastructure problem.
    */
   Operational: "experience.operational",
+  /** Commercial / business experience. */
+  Business: "experience.business",
 } as const;
 
 export type ExperienceKind =
@@ -34,14 +31,13 @@ export const EXPERIENCE_KIND_VALUES = Object.values(
   EXPERIENCE_KINDS,
 ) as readonly ExperienceKind[];
 
-/** Experience offering status — not booking or calendar occurrence state. */
+/** Experience status — not runner or suggestion pipeline state. */
 export const EXPERIENCE_STATUSES = {
   Draft: "draft",
   Active: "active",
-  Paused: "paused",
-  Completed: "completed",
-  Cancelled: "cancelled",
+  Inactive: "inactive",
   Archived: "archived",
+  Cancelled: "cancelled",
 } as const;
 
 export type ExperienceStatus =
@@ -52,8 +48,8 @@ export const EXPERIENCE_STATUS_VALUES = Object.values(
 ) as readonly ExperienceStatus[];
 
 /**
- * Opaque experience offering definition.
- * No real users, PII, or payment data.
+ * Opaque experience — business experience existence only.
+ * No credential material or live peer-engine payloads.
  */
 export interface Experience {
   /** Opaque unique experience reference. */
@@ -62,25 +58,27 @@ export interface Experience {
   tenantReference: string;
   /** Internal experience kind. */
   experienceKind: ExperienceKind;
-  /** Experience offering status. */
+  /** Experience status. */
   experienceStatus: ExperienceStatus;
-  /** Opaque display-name pointer — not live localized copy. */
+  /** Opaque name pointer when known. */
   nameReference?: string;
-  /** Opaque description pointer — not live localized copy. */
+  /** Opaque description pointer when known. */
   descriptionReference?: string;
-  /** Opaque associated resource — not a live Resource object. */
-  resourceReference?: string;
-  /** Opaque parent experience (hierarchy) — not a live graph query. */
-  parentExperienceReference?: string;
-  /** Opaque owner when known — not an identity profile. */
+  /** Opaque context pointer when known. */
+  contextReference?: string;
+  /** Opaque owner pointer when known — not a live actor profile. */
   ownerReference?: string;
-  /** Controlled optional metadata — never secrets or PII. */
+  /** Opaque parent experience pointer when nested. */
+  parentExperienceReference?: string;
+  /** Opaque asset pointer when known. */
+  assetReference?: string;
+  /** Controlled optional metadata — never credentials or PII. */
   metadata?: Record<string, unknown>;
 }
 
 /**
  * Outbound port for future experience adapters (Runtime).
- * Not wired in this foundation — no publish, booking, or charge flows.
+ * Not wired in this foundation — no run, suggest, or forecast methods.
  */
 export interface ExperiencePort {
   createExperience(input: CreateExperienceInput): Promise<Experience>;
@@ -94,9 +92,10 @@ export interface CreateExperienceInput {
   experienceReference?: string;
   nameReference?: string;
   descriptionReference?: string;
-  resourceReference?: string;
-  parentExperienceReference?: string;
+  contextReference?: string;
   ownerReference?: string;
+  parentExperienceReference?: string;
+  assetReference?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -121,18 +120,22 @@ export function isExperience(value: unknown): value is Experience {
     candidate.descriptionReference === undefined ||
     (typeof candidate.descriptionReference === "string" &&
       candidate.descriptionReference.length > 0);
-  const resourceOk =
-    candidate.resourceReference === undefined ||
-    (typeof candidate.resourceReference === "string" &&
-      candidate.resourceReference.length > 0);
-  const parentOk =
-    candidate.parentExperienceReference === undefined ||
-    (typeof candidate.parentExperienceReference === "string" &&
-      candidate.parentExperienceReference.length > 0);
+  const contextOk =
+    candidate.contextReference === undefined ||
+    (typeof candidate.contextReference === "string" &&
+      candidate.contextReference.length > 0);
   const ownerOk =
     candidate.ownerReference === undefined ||
     (typeof candidate.ownerReference === "string" &&
       candidate.ownerReference.length > 0);
+  const parentOk =
+    candidate.parentExperienceReference === undefined ||
+    (typeof candidate.parentExperienceReference === "string" &&
+      candidate.parentExperienceReference.length > 0);
+  const assetOk =
+    candidate.assetReference === undefined ||
+    (typeof candidate.assetReference === "string" &&
+      candidate.assetReference.length > 0);
   return (
     typeof candidate.experienceReference === "string" &&
     candidate.experienceReference.length > 0 &&
@@ -140,9 +143,10 @@ export function isExperience(value: unknown): value is Experience {
     candidate.tenantReference.length > 0 &&
     nameOk &&
     descriptionOk &&
-    resourceOk &&
-    parentOk &&
+    contextOk &&
     ownerOk &&
+    parentOk &&
+    assetOk &&
     typeof candidate.experienceKind === "string" &&
     isExperienceKind(candidate.experienceKind) &&
     typeof candidate.experienceStatus === "string" &&

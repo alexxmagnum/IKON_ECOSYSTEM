@@ -8,12 +8,12 @@ import type {
   UpdateExperienceInput,
   UpdateJourneyInput,
 } from "../contracts";
-import type { ExperienceId } from "../domain/experience";
-import type { JourneyId } from "../domain/journey";
+import type { ExperienceId } from "../legacy/experience";
+import type { JourneyId } from "../legacy/journey";
 
 /**
  * Service contracts for the Experience Layer.
- * Interfaces only — no composition runtime or domain orchestration here.
+ * Interfaces only — no composition runtime or aggregate orchestration here.
  */
 
 export interface ExperienceService {

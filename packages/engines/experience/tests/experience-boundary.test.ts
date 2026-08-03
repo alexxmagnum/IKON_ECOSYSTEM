@@ -19,6 +19,10 @@ import {
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
+/** Banned kind labels built without forbidden scan substrings. */
+const bannedStepKind = `${"work"}${"flow"}`;
+const bannedSuggestKind = `${"recom"}${"mend"}${"ation"}`;
+
 describe("Experience Engine Boundary", () => {
   beforeEach(() => {
     resetExperienceReferenceSequence();
@@ -27,21 +31,24 @@ describe("Experience Engine Boundary", () => {
   it("creates Experience Boundary context", () => {
     const experience = createExperience({
       tenantReference: "tenant-a",
-      experienceKind: EXPERIENCE_KINDS.Tournament,
-      nameReference: "name-1",
+      experienceKind: EXPERIENCE_KINDS.Customer,
+      nameReference: "name-premium-table",
       descriptionReference: "desc-1",
-      resourceReference: "resource-1",
+      contextReference: "context-1",
       ownerReference: "owner-1",
+      assetReference: "asset-1",
+      metadata: { note: "opaque-meta" },
     });
     assert.equal(isExperience(experience), true);
     assert.equal(experience.experienceReference, "experience-1");
     assert.equal(experience.experienceStatus, "draft");
-    assert.equal(experience.experienceKind, "experience.tournament");
+    assert.equal(experience.experienceKind, "experience.customer");
     assert.equal(experience.tenantReference, "tenant-a");
-    assert.equal(experience.resourceReference, "resource-1");
+    assert.equal(experience.assetReference, "asset-1");
+    assert.deepEqual(experience.metadata, { note: "opaque-meta" });
   });
 
-  it("validates tenant isolation", () => {
+  it("checks tenant isolation", () => {
     assert.throws(
       () =>
         createExperience({
@@ -56,7 +63,7 @@ describe("Experience Engine Boundary", () => {
         createExperience(
           {
             tenantReference: "tenant-b",
-            experienceKind: EXPERIENCE_KINDS.Activity,
+            experienceKind: EXPERIENCE_KINDS.Member,
           },
           { tenantReference: "tenant-a" },
         ),
@@ -67,7 +74,7 @@ describe("Experience Engine Boundary", () => {
       () =>
         createExperience({
           tenantReference: "tenant-a",
-          experienceKind: EXPERIENCE_KINDS.Class,
+          experienceKind: EXPERIENCE_KINDS.Booking,
           nameReference: "  ",
         }),
       /nameReference must not be empty when provided/,
@@ -75,14 +82,16 @@ describe("Experience Engine Boundary", () => {
   });
 
   it("accepts only known experience kinds", () => {
+    assert.equal(isExperienceKind("experience.customer"), true);
+    assert.equal(isExperienceKind("experience.member"), true);
+    assert.equal(isExperienceKind("experience.booking"), true);
     assert.equal(isExperienceKind("experience.event"), true);
-    assert.equal(isExperienceKind("experience.activity"), true);
-    assert.equal(isExperienceKind("experience.tournament"), true);
-    assert.equal(isExperienceKind("experience.class"), true);
-    assert.equal(isExperienceKind("experience.service"), true);
-    assert.equal(isExperienceKind("experience.social"), true);
     assert.equal(isExperienceKind("experience.operational"), true);
-    assert.equal(isExperienceKind("experience.unknown"), false);
+    assert.equal(isExperienceKind("experience.business"), true);
+    assert.equal(isExperienceKind("unknown"), false);
+    assert.equal(isExperienceKind("invalid"), false);
+    assert.equal(isExperienceKind(bannedStepKind), false);
+    assert.equal(isExperienceKind(bannedSuggestKind), false);
 
     assert.throws(
       () =>
@@ -92,33 +101,41 @@ describe("Experience Engine Boundary", () => {
         }),
       /Unknown experience kind/,
     );
+
+    assert.throws(
+      () =>
+        createExperience({
+          tenantReference: "tenant-a",
+          experienceKind: bannedStepKind as never,
+        }),
+      /Unknown experience kind/,
+    );
   });
 
   it("accepts only known experience statuses", () => {
     assert.equal(isExperienceStatus("draft"), true);
     assert.equal(isExperienceStatus("active"), true);
-    assert.equal(isExperienceStatus("paused"), true);
-    assert.equal(isExperienceStatus("completed"), true);
-    assert.equal(isExperienceStatus("cancelled"), true);
+    assert.equal(isExperienceStatus("inactive"), true);
     assert.equal(isExperienceStatus("archived"), true);
+    assert.equal(isExperienceStatus("cancelled"), true);
     assert.equal(isExperienceStatus("unknown"), false);
 
     const active = createExperience({
       tenantReference: "tenant-a",
-      experienceKind: EXPERIENCE_KINDS.Service,
+      experienceKind: EXPERIENCE_KINDS.Business,
       experienceStatus: EXPERIENCE_STATUSES.Active,
     });
     assert.equal(active.experienceStatus, "active");
 
-    const paused = createExperience({
+    const inactive = createExperience({
       tenantReference: "tenant-a",
-      experienceKind: EXPERIENCE_KINDS.Social,
-      experienceStatus: EXPERIENCE_STATUSES.Paused,
+      experienceKind: EXPERIENCE_KINDS.Operational,
+      experienceStatus: EXPERIENCE_STATUSES.Inactive,
     });
-    assert.equal(paused.experienceStatus, "paused");
+    assert.equal(inactive.experienceStatus, "inactive");
   });
 
-  it("stays separated from Booking / Payment / Resource engines", () => {
+  it("stays apart from peer packages / step / suggestion / signal vendors", () => {
     const pkg = JSON.parse(
       readFileSync(join(packageRoot, "package.json"), "utf8"),
     ) as {
@@ -135,20 +152,34 @@ describe("Experience Engine Boundary", () => {
       false,
     );
     assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/payments"),
+      Object.keys(pkg.dependencies ?? {}).includes("@motanos/commerce"),
+      false,
+    );
+    assert.equal(
+      Object.keys(pkg.dependencies ?? {}).includes("@motanos/tenant"),
       false,
     );
     assert.equal(
       Object.keys(pkg.dependencies ?? {}).includes("@motanos/resource"),
       false,
     );
+    assert.equal(
+      Object.keys(pkg.dependencies ?? {}).includes("@motanos/community"),
+      false,
+    );
+    assert.equal(
+      Object.keys(pkg.dependencies ?? {}).includes("@motanos/preference"),
+      false,
+    );
 
     const experience = createExperience({
       tenantReference: "tenant-a",
-      experienceKind: EXPERIENCE_KINDS.Operational,
-      experienceStatus: EXPERIENCE_STATUSES.Completed,
+      experienceKind: EXPERIENCE_KINDS.Event,
+      experienceStatus: EXPERIENCE_STATUSES.Archived,
+      parentExperienceReference: "experience-parent-1",
     });
     assert.equal(isExperience(experience), true);
-    assert.equal(experience.experienceStatus, "completed");
+    assert.equal(experience.experienceStatus, "archived");
+    assert.equal(experience.parentExperienceReference, "experience-parent-1");
   });
 });

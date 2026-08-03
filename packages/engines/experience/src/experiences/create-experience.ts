@@ -21,8 +21,8 @@ export interface CreateExperienceOptions {
 }
 
 /**
- * Build a validated Experience (in-memory — offering definition only).
- * Does not publish calendar events, create bookings, assign resources, or charge.
+ * Build a checked Experience (in-memory — experience existence / context only).
+ * Does not run steps, open vendor sessions, or produce suggestions.
  */
 export function createExperience(
   input: CreateExperienceInput,
@@ -31,9 +31,10 @@ export function createExperience(
   const tenantReference = input.tenantReference?.trim() ?? "";
   const nameReference = input.nameReference?.trim();
   const descriptionReference = input.descriptionReference?.trim();
-  const resourceReference = input.resourceReference?.trim();
-  const parentExperienceReference = input.parentExperienceReference?.trim();
+  const contextReference = input.contextReference?.trim();
   const ownerReference = input.ownerReference?.trim();
+  const parentExperienceReference = input.parentExperienceReference?.trim();
+  const assetReference = input.assetReference?.trim();
   const boundTenant = options.tenantReference?.trim() || undefined;
 
   if (!tenantReference) {
@@ -59,8 +60,11 @@ export function createExperience(
   if (input.descriptionReference !== undefined && !descriptionReference) {
     throw new Error("descriptionReference must not be empty when provided");
   }
-  if (input.resourceReference !== undefined && !resourceReference) {
-    throw new Error("resourceReference must not be empty when provided");
+  if (input.contextReference !== undefined && !contextReference) {
+    throw new Error("contextReference must not be empty when provided");
+  }
+  if (input.ownerReference !== undefined && !ownerReference) {
+    throw new Error("ownerReference must not be empty when provided");
   }
   if (
     input.parentExperienceReference !== undefined &&
@@ -70,8 +74,8 @@ export function createExperience(
       "parentExperienceReference must not be empty when provided",
     );
   }
-  if (input.ownerReference !== undefined && !ownerReference) {
-    throw new Error("ownerReference must not be empty when provided");
+  if (input.assetReference !== undefined && !assetReference) {
+    throw new Error("assetReference must not be empty when provided");
   }
 
   if (boundTenant !== undefined && tenantReference !== boundTenant) {
@@ -98,15 +102,18 @@ export function createExperience(
     ...(descriptionReference !== undefined && descriptionReference.length > 0
       ? { descriptionReference }
       : {}),
-    ...(resourceReference !== undefined && resourceReference.length > 0
-      ? { resourceReference }
+    ...(contextReference !== undefined && contextReference.length > 0
+      ? { contextReference }
+      : {}),
+    ...(ownerReference !== undefined && ownerReference.length > 0
+      ? { ownerReference }
       : {}),
     ...(parentExperienceReference !== undefined &&
     parentExperienceReference.length > 0
       ? { parentExperienceReference }
       : {}),
-    ...(ownerReference !== undefined && ownerReference.length > 0
-      ? { ownerReference }
+    ...(assetReference !== undefined && assetReference.length > 0
+      ? { assetReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

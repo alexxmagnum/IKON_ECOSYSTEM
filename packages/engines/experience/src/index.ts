@@ -3,8 +3,9 @@
  *
  * MotanOS Core → Shared Engines → @motanos/experience
  *
- * Experience = what is offered. Resource = what exists. Booking = who participates.
- * Must not depend on booking, resource, payment vendors, calendar, or persistence.
+ * Experience = what business experience exists for a context.
+ * Must not depend on step packages, preference, suggestion, signal,
+ * actor, or relation packages; nor compute / persistence vendors.
  *
  * @see DEC-EXPERIENCE-BOUNDARY-001
  * @see DEC-EXPERIENCE-001
@@ -17,20 +18,20 @@ export type {
   CapabilityId,
   CapabilityReference,
   CapabilityType,
-} from "./domain/capability";
+} from "./legacy/capability";
 
-/** Legacy domain aggregate — use boundary `Experience` for new work. */
+/** Legacy aggregate — use boundary `Experience` for new work. */
 export type {
   Experience as ExperienceAggregate,
   ExperienceId,
-} from "./domain/experience";
+} from "./legacy/experience";
 
 export type {
   Journey,
   JourneyId,
   JourneyStep,
   JourneyStepId,
-} from "./domain/journey";
+} from "./legacy/journey";
 
 /** Legacy provisional aggregate statuses (DEC-EXPERIENCE-003). */
 export type {

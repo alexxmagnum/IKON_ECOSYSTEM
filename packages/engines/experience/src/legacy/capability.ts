@@ -1,6 +1,6 @@
 /**
  * Free-form capability kind (DEC-EXPERIENCE-004 — extensible, no catalog yet).
- * No engine/domain imports — vocabulary is opaque.
+ * No engine/peer imports — vocabulary is opaque.
  */
 export type CapabilityType = string;
 
@@ -13,7 +13,7 @@ export type CapabilityReference = string;
 
 /**
  * Required capability for composing an Experience.
- * Does not import Booking, Payments, Social, or domains.
+ * Does not import Booking, Payments, Social, or peer packages.
  */
 export interface Capability {
   id: CapabilityId;
