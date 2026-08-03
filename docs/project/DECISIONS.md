@@ -1594,7 +1594,33 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-BILLING-BOUNDARY-001 — Billing Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-03
+
+**Context:** Fase 98 introduces Billing as a pure economic/fiscal-record boundary — “what billing record exists?” — independently of how documents are rendered (PDF), how invoices are sent, how taxes are calculated, how fiscal providers connect, and how Payment collects money. Multi-country MotanOS requires Billing to stay jurisdiction-agnostic so country-specific fiscal adapters can plug in later. No prior `packages/engines/billing` existed; the package is created as a slim boundary. No `@motanos/billing-lifecycle` split was required.
+
+**Decision:**
+
+* **Ownership:** `Billing`, factories, and `BillingPort` live in `@motanos/billing` (`packages/engines/billing`). Billing is an independent bounded context — not Payment, Pricing, Commerce, Stripe invoicing, fiscal providers, or Runtime adapters.
+* **Pipeline relation:** Commerce → Pricing → Payment Boundary → Billing Boundary → Future Billing Provider. Billing answers “what economic record exists?”
+* **Separations:** Billing ≠ Payment. Billing ≠ Pricing. Billing ≠ Provider/Adapter. Opaque refs only — never live PDF payloads, tax engine outputs, or accounting sync sessions.
+* **Kinds (foundation):** `billing.invoice`, `billing.receipt`, `billing.statement`, `billing.subscription`, `billing.membership`, `billing.operational`, `billing.business`.
+* **Statuses (foundation):** `draft`, `pending`, `issued`, `paid`, `cancelled`, `refunded`, `archived`.
+* **Contract shape:** Opaque `billingReference`, required `tenantReference`, `billingKind`, `billingStatus`; optional opaque `commerceReference`, `paymentReference`, `customerReference`, `actorReference`, `currencyReference`, `amountReference`, `taxReference`, `contextReference`, `parentBillingReference`, controlled `metadata`.
+* **Tenant isolation:** Billing may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createBilling` / `resolveBilling` only. No generateInvoice, createPDF, sendInvoice, calculateTax, syncAccounting, connectFiscalProvider, or stripeInvoice.
+* **Dependencies:** `@motanos/billing` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** fiscal provider adapters, PDF generation, tax calculation, accounting sync, delivery. No `@motanos/billing-lifecycle` in this phase.
+
+**Rejected:** Absorbing Payment/Pricing into Billing; Billing → Stripe/PayPal/provider/invoice-PDF/tax/fiscal/accounting imports; implementing document generation, tax math, or ledger sync in this phase.
+
+---
+
 ## DEC-NOTIFICATION-BOUNDARY-001 — Notification Engine Boundary Foundation
+
 
 **Status:** ACCEPTED (foundation)
 

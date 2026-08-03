@@ -297,6 +297,15 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/engines/billing:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/engines/booking:
     dependencies:
       '@motanos/contracts':
