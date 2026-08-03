@@ -2013,3 +2013,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Content into CMS, blog engine, visual editor, page builder, AI engine, publishing system, or multimedia storage; Content → Template/Asset/Localization/Experience/Workflow/Notification/Recommendation/Analytics/Identity/Membership/OpenAI/database imports; implementing publish, translate, render, upload, or generation in this phase.
 
 ---
+
+## DEC-CATALOG-BOUNDARY-001 — Catalog Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-03
+
+**Context:** Fase 91 introduces the Catalog Engine so MotanOS can represent discoverable catalogable elements within a business context — independently of commerce, pricing, payments, bookings, inventory/stock, orders, billing, full content bodies, CMS, search, recommendation, and frontend rendering. Catalog answers “what elements exist and can be discovered within a business context?” — not how to sell, charge, reserve, search, or recommend.
+
+**Decision:**
+
+* **Ownership:** `CatalogItem`, factories, and `CatalogPort` live in `@motanos/catalog` (`packages/engines/catalog`). Catalog is an independent bounded context — not Commerce, Payment, Booking, Content, Asset, Template, Experience, Search, Recommendation, Analytics, Identity, Membership, AI providers, or Database providers.
+* **Pipeline relation:** Tenant / Business Context → Catalog Boundary → Future Commerce / Booking / Experience Systems. Catalog defines existence, tenant, kind, and status only.
+* **Separations:** Catalog ≠ Content. Catalog ≠ Asset. Catalog ≠ Template. Catalog ≠ Experience. Catalog ≠ Commerce. Catalog ≠ Payment. Catalog ≠ Booking. Catalog ≠ Search / Recommendation / Inventory. Opaque refs only — never `productId`, `bookingId`, `paymentId`, `priceId`, `inventoryId`, `databaseId`.
+* **Kinds (foundation):** `catalog.product`, `catalog.service`, `catalog.activity`, `catalog.experience`, `catalog.resource`, `catalog.operational`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled` (e.g. draft → active → inactive → archived).
+* **Contract shape:** Opaque `catalogReference`, required `tenantReference`, `catalogKind`, `catalogStatus`; optional opaque `nameReference`, `descriptionReference`, `contextReference`, `categoryReference`, `assetReference`, `contentReference`, `templateReference`, controlled `metadata`.
+* **Tenant isolation:** CatalogItem may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createCatalogItem` / `resolveCatalogItem` only. No sellCatalogItem, priceCatalogItem, checkoutCatalogItem, reserveCatalogItem, searchCatalogItem, recommendCatalogItem, publishCatalogItem, or updateInventory in this foundation.
+* **Runtime:** Composition root for future `Catalog Port → Adapter`. No process runners, AI clients, or cross-engine imports in this foundation.
+* **Dependencies:** `@motanos/catalog` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Catalog Runtime, Commerce/Booking handoff, Search indexing, Recommendation linkage.
+
+**Rejected:** Turning Catalog into CMS, Commerce, Payment, Booking, Inventory, Search, Recommendation, or frontend builder; Catalog → Commerce/Payment/Booking/Content/Asset/Template/Experience/Search/Recommendation/Analytics/Identity/Membership/OpenAI/database imports; implementing sell, price, checkout, reserve, search, or recommend in this phase.
+
+---
