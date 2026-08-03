@@ -4,21 +4,26 @@ import type {
   PaymentKind,
   PaymentStatus,
 } from "./payment";
-import { PAYMENT_STATUSES, isPaymentKind, isPaymentStatus } from "./payment";
+import {
+  PAYMENT_RAIL_REF_KEY,
+  PAYMENT_STATUSES,
+  isPaymentKind,
+  isPaymentStatus,
+} from "./payment";
 
 let paymentSequence = 0;
 
 export interface CreatePaymentOptions {
   /**
    * When set, payment may only be created for this tenant
-   * (cross-tenant isolation).
+   * (cross-tenant scope lock).
    */
   tenantReference?: string;
 }
 
 /**
- * Build a validated Payment (in-memory — intent / context only).
- * Does not capture funds, process methods, or open vendor sessions.
+ * Build a checked Payment (in-memory — payment-operation existence only).
+ * Does not open vendor sessions or run capture / collect / cart flows.
  */
 export function createPayment(
   input: CreatePaymentInput,
@@ -27,11 +32,15 @@ export function createPayment(
   const tenantReference = input.tenantReference?.trim() ?? "";
   const commerceReference = input.commerceReference?.trim();
   const bookingReference = input.bookingReference?.trim();
-  const membershipReference = input.membershipReference?.trim();
-  const experienceReference = input.experienceReference?.trim();
-  const amountReference = input.amountReference?.trim();
+  const customerReference = input.customerReference?.trim();
+  const actorReference = input.actorReference?.trim();
   const currencyReference = input.currencyReference?.trim();
-  const providerReference = input.providerReference?.trim();
+  const amountReference = input.amountReference?.trim();
+  const contextReference = input.contextReference?.trim();
+  const parentPaymentReference = input.parentPaymentReference?.trim();
+  const railRaw = input[PAYMENT_RAIL_REF_KEY];
+  const railReference =
+    typeof railRaw === "string" ? railRaw.trim() : undefined;
   const boundTenant = options.tenantReference?.trim() || undefined;
 
   if (!tenantReference) {
@@ -55,20 +64,33 @@ export function createPayment(
   if (input.bookingReference !== undefined && !bookingReference) {
     throw new Error("bookingReference must not be empty when provided");
   }
-  if (input.membershipReference !== undefined && !membershipReference) {
-    throw new Error("membershipReference must not be empty when provided");
+  if (input.customerReference !== undefined && !customerReference) {
+    throw new Error("customerReference must not be empty when provided");
   }
-  if (input.experienceReference !== undefined && !experienceReference) {
-    throw new Error("experienceReference must not be empty when provided");
-  }
-  if (input.amountReference !== undefined && !amountReference) {
-    throw new Error("amountReference must not be empty when provided");
+  if (input.actorReference !== undefined && !actorReference) {
+    throw new Error("actorReference must not be empty when provided");
   }
   if (input.currencyReference !== undefined && !currencyReference) {
     throw new Error("currencyReference must not be empty when provided");
   }
-  if (input.providerReference !== undefined && !providerReference) {
-    throw new Error("providerReference must not be empty when provided");
+  if (input.amountReference !== undefined && !amountReference) {
+    throw new Error("amountReference must not be empty when provided");
+  }
+  if (input.contextReference !== undefined && !contextReference) {
+    throw new Error("contextReference must not be empty when provided");
+  }
+  if (
+    input.parentPaymentReference !== undefined &&
+    !parentPaymentReference
+  ) {
+    throw new Error(
+      "parentPaymentReference must not be empty when provided",
+    );
+  }
+  if (railRaw !== undefined && !railReference) {
+    throw new Error(
+      `${PAYMENT_RAIL_REF_KEY} must not be empty when provided`,
+    );
   }
 
   if (boundTenant !== undefined && tenantReference !== boundTenant) {
@@ -94,20 +116,27 @@ export function createPayment(
     ...(bookingReference !== undefined && bookingReference.length > 0
       ? { bookingReference }
       : {}),
-    ...(membershipReference !== undefined && membershipReference.length > 0
-      ? { membershipReference }
+    ...(customerReference !== undefined && customerReference.length > 0
+      ? { customerReference }
       : {}),
-    ...(experienceReference !== undefined && experienceReference.length > 0
-      ? { experienceReference }
-      : {}),
-    ...(amountReference !== undefined && amountReference.length > 0
-      ? { amountReference }
+    ...(actorReference !== undefined && actorReference.length > 0
+      ? { actorReference }
       : {}),
     ...(currencyReference !== undefined && currencyReference.length > 0
       ? { currencyReference }
       : {}),
-    ...(providerReference !== undefined && providerReference.length > 0
-      ? { providerReference }
+    ...(amountReference !== undefined && amountReference.length > 0
+      ? { amountReference }
+      : {}),
+    ...(contextReference !== undefined && contextReference.length > 0
+      ? { contextReference }
+      : {}),
+    ...(parentPaymentReference !== undefined &&
+    parentPaymentReference.length > 0
+      ? { parentPaymentReference }
+      : {}),
+    ...(railReference !== undefined && railReference.length > 0
+      ? { [PAYMENT_RAIL_REF_KEY]: railReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

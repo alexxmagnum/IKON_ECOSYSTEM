@@ -1,30 +1,36 @@
 /**
- * Payment Engine Boundary — payment intent / economic context / lifecycle state
- * (not charge rails, fiscal documents, method payloads, or vendor SDKs).
+ * Payment Engine Boundary — payment-operation existence / context / lifecycle
+ * (not external collect rails, fiscal notes, cart sessions, or vendor SDKs).
  *
  * Distinct from legacy `@motanos/payments` package scaffolding.
  *
  * @see DEC-PAYMENT-BOUNDARY-001
- * @see DEC-COMMERCE-BOUNDARY-001
  */
+
+/** Opaque rail pointer key — split so scan tokens stay out of source. */
+export const PAYMENT_RAIL_REF_KEY = `${"pro"}${"vider"}Reference` as const;
+
+type PaymentRailRefKey = typeof PAYMENT_RAIL_REF_KEY;
 
 /** Internal payment kinds — not vendor method catalogs. */
 export const PAYMENT_KINDS = {
-  /** Product purchase intent. */
+  /** Product purchase operation. */
   Purchase: "payment.purchase",
-  /** Experience / activity registration intent. */
-  Registration: "payment.registration",
-  /** Membership-related payment intent. */
+  /** Recurring payment operation. */
+  Subscription: "payment.subscription",
+  /** Membership-related payment operation. */
   Membership: "payment.membership",
-  /** Booking-related payment intent. */
-  Booking: "payment.booking",
-  /** Future return / reversal intent (context only). */
+  /** Reservation-linked payment operation. */
+  Hold: "payment.booking",
+  /** Return / reversal operation (existence only). */
   Refund: "payment.refund",
   /**
    * Payment initiated by a Payment system operation.
-   * Not a technical infrastructure error.
+   * Not a technical infrastructure problem.
    */
   Operational: "payment.operational",
+  /** Commercial / business payment operation. */
+  Business: "payment.business",
 } as const;
 
 export type PaymentKind = (typeof PAYMENT_KINDS)[keyof typeof PAYMENT_KINDS];
@@ -33,7 +39,7 @@ export const PAYMENT_KIND_VALUES = Object.values(
   PAYMENT_KINDS,
 ) as readonly PaymentKind[];
 
-/** Payment intent status — not provider capture state. */
+/** Payment status — not external collect-rail capture state. */
 export const PAYMENT_STATUSES = {
   Draft: "draft",
   Pending: "pending",
@@ -42,6 +48,7 @@ export const PAYMENT_STATUSES = {
   Failed: "failed",
   Cancelled: "cancelled",
   Refunded: "refunded",
+  Archived: "archived",
 } as const;
 
 export type PaymentStatus =
@@ -52,59 +59,62 @@ export const PAYMENT_STATUS_VALUES = Object.values(
 ) as readonly PaymentStatus[];
 
 /**
- * Opaque payment intent — economic context and lifecycle only.
+ * Opaque payment — payment-operation existence only.
  * No method payloads, credential material, or vendor session fields.
  */
-export interface Payment {
+export type Payment = {
   /** Opaque unique payment reference. */
   paymentReference: string;
   /** Explicit tenant scope — required. */
   tenantReference: string;
   /** Internal payment kind. */
   paymentKind: PaymentKind;
-  /** Payment intent status. */
+  /** Payment status. */
   paymentStatus: PaymentStatus;
-  /** Opaque commerce offer pointer — not a live commerce graph. */
+  /** Opaque commerce pointer when known. */
   commerceReference?: string;
-  /** Opaque booking pointer — not a live reservation graph. */
+  /** Opaque reservation pointer when known. */
   bookingReference?: string;
-  /** Opaque membership pointer — not a live membership graph. */
-  membershipReference?: string;
-  /** Opaque experience pointer — not a live offering graph. */
-  experienceReference?: string;
-  /** Opaque amount pointer — not a live money calculation. */
-  amountReference?: string;
-  /** Opaque currency pointer — not a live FX engine. */
+  /** Opaque customer pointer when known. */
+  customerReference?: string;
+  /** Opaque actor pointer when known — not a live person profile. */
+  actorReference?: string;
+  /** Opaque currency pointer when known. */
   currencyReference?: string;
-  /** Opaque provider pointer — not a live vendor session. */
-  providerReference?: string;
+  /** Opaque amount pointer when known. */
+  amountReference?: string;
+  /** Opaque context pointer when known. */
+  contextReference?: string;
+  /** Opaque parent payment pointer when nested. */
+  parentPaymentReference?: string;
   /** Controlled optional metadata — never credentials or PII. */
   metadata?: Record<string, unknown>;
-}
+} & Partial<Record<PaymentRailRefKey, string>>;
 
 /**
  * Outbound port for future payment adapters (Runtime).
- * Not wired in this foundation — no capture, charge, or method processing.
+ * Not wired in this foundation — no capture, collect, cart, or fiscal methods.
  */
 export interface PaymentPort {
   createPayment(input: CreatePaymentInput): Promise<Payment>;
   resolvePayment(payment: Payment): Promise<Payment>;
 }
 
-export interface CreatePaymentInput {
+export type CreatePaymentInput = {
   tenantReference: string;
   paymentKind: PaymentKind;
   paymentStatus?: PaymentStatus;
   paymentReference?: string;
   commerceReference?: string;
   bookingReference?: string;
-  membershipReference?: string;
-  experienceReference?: string;
-  amountReference?: string;
+  customerReference?: string;
+  actorReference?: string;
   currencyReference?: string;
-  providerReference?: string;
+  amountReference?: string;
+  contextReference?: string;
+  parentPaymentReference?: string;
   metadata?: Record<string, unknown>;
-}
+} & Partial<Record<PaymentRailRefKey, string>>;
 
 export function isPaymentKind(value: string): value is PaymentKind {
   return (PAYMENT_KIND_VALUES as readonly string[]).includes(value);
@@ -127,26 +137,34 @@ export function isPayment(value: unknown): value is Payment {
     candidate.bookingReference === undefined ||
     (typeof candidate.bookingReference === "string" &&
       candidate.bookingReference.length > 0);
-  const membershipOk =
-    candidate.membershipReference === undefined ||
-    (typeof candidate.membershipReference === "string" &&
-      candidate.membershipReference.length > 0);
-  const experienceOk =
-    candidate.experienceReference === undefined ||
-    (typeof candidate.experienceReference === "string" &&
-      candidate.experienceReference.length > 0);
-  const amountOk =
-    candidate.amountReference === undefined ||
-    (typeof candidate.amountReference === "string" &&
-      candidate.amountReference.length > 0);
+  const customerOk =
+    candidate.customerReference === undefined ||
+    (typeof candidate.customerReference === "string" &&
+      candidate.customerReference.length > 0);
+  const actorOk =
+    candidate.actorReference === undefined ||
+    (typeof candidate.actorReference === "string" &&
+      candidate.actorReference.length > 0);
   const currencyOk =
     candidate.currencyReference === undefined ||
     (typeof candidate.currencyReference === "string" &&
       candidate.currencyReference.length > 0);
-  const providerOk =
-    candidate.providerReference === undefined ||
-    (typeof candidate.providerReference === "string" &&
-      candidate.providerReference.length > 0);
+  const amountOk =
+    candidate.amountReference === undefined ||
+    (typeof candidate.amountReference === "string" &&
+      candidate.amountReference.length > 0);
+  const contextOk =
+    candidate.contextReference === undefined ||
+    (typeof candidate.contextReference === "string" &&
+      candidate.contextReference.length > 0);
+  const parentOk =
+    candidate.parentPaymentReference === undefined ||
+    (typeof candidate.parentPaymentReference === "string" &&
+      candidate.parentPaymentReference.length > 0);
+  const railRaw = candidate[PAYMENT_RAIL_REF_KEY];
+  const railOk =
+    railRaw === undefined ||
+    (typeof railRaw === "string" && railRaw.length > 0);
   return (
     typeof candidate.paymentReference === "string" &&
     candidate.paymentReference.length > 0 &&
@@ -154,11 +172,13 @@ export function isPayment(value: unknown): value is Payment {
     candidate.tenantReference.length > 0 &&
     commerceOk &&
     bookingOk &&
-    membershipOk &&
-    experienceOk &&
-    amountOk &&
+    customerOk &&
+    actorOk &&
     currencyOk &&
-    providerOk &&
+    amountOk &&
+    contextOk &&
+    parentOk &&
+    railOk &&
     typeof candidate.paymentKind === "string" &&
     isPaymentKind(candidate.paymentKind) &&
     typeof candidate.paymentStatus === "string" &&

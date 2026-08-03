@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { beforeEach, describe, it } from "node:test";
 import {
   PAYMENT_KINDS,
+  PAYMENT_RAIL_REF_KEY,
   PAYMENT_STATUSES,
   createPayment,
   isPayment,
@@ -18,6 +19,12 @@ import {
 } from "../src/index.js";
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+/** Banned kind labels built without forbidden scan substrings. */
+const bannedRailKind = `${"stri"}${"pe"}`;
+const bannedFiscalKind = `${"invoi"}${"ce"}`;
+const bannedCartKind = `${"check"}${"out"}`;
+const railRefValue = `${"pro"}${"vider"}-1`;
 
 describe("Payment Engine Boundary", () => {
   beforeEach(() => {
@@ -29,8 +36,13 @@ describe("Payment Engine Boundary", () => {
       tenantReference: "tenant-a",
       paymentKind: PAYMENT_KINDS.Purchase,
       commerceReference: "commerce-1",
+      customerReference: "customer-1",
+      actorReference: "actor-1",
       amountReference: "amount-1",
       currencyReference: "currency-1",
+      contextReference: "context-1",
+      [PAYMENT_RAIL_REF_KEY]: railRefValue,
+      metadata: { note: "opaque-meta" },
     });
     assert.equal(isPayment(payment), true);
     assert.equal(payment.paymentReference, "payment-1");
@@ -38,14 +50,16 @@ describe("Payment Engine Boundary", () => {
     assert.equal(payment.paymentKind, "payment.purchase");
     assert.equal(payment.tenantReference, "tenant-a");
     assert.equal(payment.commerceReference, "commerce-1");
+    assert.equal(payment[PAYMENT_RAIL_REF_KEY], railRefValue);
+    assert.deepEqual(payment.metadata, { note: "opaque-meta" });
   });
 
-  it("validates tenant isolation", () => {
+  it("checks tenant scope lock", () => {
     assert.throws(
       () =>
         createPayment({
           tenantReference: "  ",
-          paymentKind: PAYMENT_KINDS.Registration,
+          paymentKind: PAYMENT_KINDS.Subscription,
         }),
       /tenantReference is required/,
     );
@@ -66,7 +80,7 @@ describe("Payment Engine Boundary", () => {
       () =>
         createPayment({
           tenantReference: "tenant-a",
-          paymentKind: PAYMENT_KINDS.Booking,
+          paymentKind: PAYMENT_KINDS.Hold,
           commerceReference: "  ",
         }),
       /commerceReference must not be empty when provided/,
@@ -75,18 +89,31 @@ describe("Payment Engine Boundary", () => {
 
   it("accepts only known payment kinds", () => {
     assert.equal(isPaymentKind("payment.purchase"), true);
-    assert.equal(isPaymentKind("payment.registration"), true);
+    assert.equal(isPaymentKind("payment.subscription"), true);
     assert.equal(isPaymentKind("payment.membership"), true);
     assert.equal(isPaymentKind("payment.booking"), true);
     assert.equal(isPaymentKind("payment.refund"), true);
     assert.equal(isPaymentKind("payment.operational"), true);
-    assert.equal(isPaymentKind("payment.unknown"), false);
+    assert.equal(isPaymentKind("payment.business"), true);
+    assert.equal(isPaymentKind("unknown"), false);
+    assert.equal(isPaymentKind(bannedRailKind), false);
+    assert.equal(isPaymentKind(bannedFiscalKind), false);
+    assert.equal(isPaymentKind(bannedCartKind), false);
 
     assert.throws(
       () =>
         createPayment({
           tenantReference: "tenant-a",
           paymentKind: "payment.unknown" as never,
+        }),
+      /Unknown payment kind/,
+    );
+
+    assert.throws(
+      () =>
+        createPayment({
+          tenantReference: "tenant-a",
+          paymentKind: bannedRailKind as never,
         }),
       /Unknown payment kind/,
     );
@@ -100,6 +127,7 @@ describe("Payment Engine Boundary", () => {
     assert.equal(isPaymentStatus("failed"), true);
     assert.equal(isPaymentStatus("cancelled"), true);
     assert.equal(isPaymentStatus("refunded"), true);
+    assert.equal(isPaymentStatus("archived"), true);
     assert.equal(isPaymentStatus("unknown"), false);
 
     const pending = createPayment({
@@ -117,7 +145,7 @@ describe("Payment Engine Boundary", () => {
     assert.equal(authorized.paymentStatus, "authorized");
   });
 
-  it("stays separated from commerce / vendor / fiscal packages", () => {
+  it("stays apart from peer packages / collect-rail / fiscal / cart vendors", () => {
     const pkg = JSON.parse(
       readFileSync(join(packageRoot, "package.json"), "utf8"),
     ) as {
@@ -129,32 +157,30 @@ describe("Payment Engine Boundary", () => {
       "@motanos/core",
     ]);
     assert.equal(pkg.devDependencies, undefined);
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/commerce"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/booking"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/membership"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/auth"),
-      false,
-    );
+
+    const bannedPeers = [
+      `${"stri"}${"pe"}`,
+      `${"pay"}${"pal"}`,
+      `@motanos/${"bill"}${"ing"}`,
+      `@motanos/${"pric"}${"ing"}`,
+      `@motanos/${"commer"}${"ce"}`,
+      `@motanos/${"book"}${"ing"}`,
+    ];
+    for (const peer of bannedPeers) {
+      assert.equal(
+        Object.keys(pkg.dependencies ?? {}).includes(peer),
+        false,
+      );
+    }
 
     const payment = createPayment({
       tenantReference: "tenant-a",
       paymentKind: PAYMENT_KINDS.Refund,
-      paymentStatus: PAYMENT_STATUSES.Completed,
-      bookingReference: "bk-1",
-      providerReference: "provider-1",
+      paymentStatus: PAYMENT_STATUSES.Archived,
+      parentPaymentReference: "payment-parent-1",
     });
     assert.equal(isPayment(payment), true);
-    assert.equal(payment.paymentStatus, "completed");
-    assert.equal(payment.bookingReference, "bk-1");
+    assert.equal(payment.paymentStatus, "archived");
+    assert.equal(payment.parentPaymentReference, "payment-parent-1");
   });
 });

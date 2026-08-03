@@ -1,13 +1,11 @@
 /**
- * @motanos/payment — Payment Engine foundation.
+ * @motanos/payment — Payment Engine Boundary foundation.
  *
  * MotanOS Core → Shared Engines → @motanos/payment
  *
- * Payment = payment intent, economic context, and lifecycle state.
- * Commerce defines acquire value; charge rails and fiscal docs live elsewhere.
- *
- * Must not depend on commerce, booking, membership, billing packages,
- * vendor SDKs, or persistence vendors.
+ * Payment = payment-operation existence for a business context.
+ * Must not depend on commerce packages, tariff packages, fiscal packages,
+ * cart packages, collect-rail SDKs, or persistence vendors.
  *
  * Distinct from legacy `@motanos/payments` package scaffolding.
  *
@@ -27,6 +25,7 @@ export type {
 export {
   PAYMENT_KINDS,
   PAYMENT_KIND_VALUES,
+  PAYMENT_RAIL_REF_KEY,
   PAYMENT_STATUSES,
   PAYMENT_STATUS_VALUES,
   createPayment,

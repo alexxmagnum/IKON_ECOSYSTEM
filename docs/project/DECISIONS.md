@@ -1573,25 +1573,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-03
 
-**Context:** Fase 73 introduces the Payment Engine so MotanOS can express a payment intent, economic context, and lifecycle state independently of Commerce (what can be acquired), Billing (fiscal registration), and Payment Providers (how collection is executed). Payment must not absorb Commerce or Billing, and must not depend on Stripe or other vendors. Distinct from legacy `@motanos/payments` scaffolding and from Booking Payment Boundary (opaque request context inside Booking).
+**Context:** Fase 97 (evolving Fase 73) consolidates Payment as a pure payment-operation boundary — “what payment operation exists within a context?” — independently of how collection is executed externally, which rail is used, checkout UX, fiscal registration, taxes, pricing, discounts, and commercial subscriptions. Multi-country MotanOS requires Payment to stay rail-agnostic so Stripe/Adyen/banks can plug in later as adapters. No payment-lifecycle split was required: `@motanos/payment` was already a slim boundary without vendor SDKs. Distinct from legacy `@motanos/payments` and from Booking Payment Boundary inside `@motanos/booking-lifecycle`.
 
 **Decision:**
 
-* **Ownership:** `Payment`, factories, and `PaymentPort` live in `@motanos/payment` (`packages/engines/payment`). Payment is an independent bounded context — not Commerce, Booking, Membership, Billing, Stripe, providers, or Runtime adapters.
-* **Pipeline relation:** Commerce → Payment → Payment Provider (future) → Billing (future). Payment answers “is there a payment intent and what is its state?”
-* **Separations:** Payment ≠ Commerce. Payment ≠ Billing. Payment ≠ Provider. Payment ≠ Stripe. No cards, bank data, checkout, webhooks, charge/refund execution, invoices, or taxes in this foundation.
-* **Kinds (foundation):** `payment.purchase`, `payment.registration`, `payment.membership`, `payment.booking`, `payment.refund`, `payment.operational`.
-* **Statuses (foundation):** `draft`, `pending`, `authorized`, `completed`, `failed`, `cancelled`, `refunded` (e.g. draft → pending → authorized → completed).
-* **Contract shape:** Opaque `paymentReference`, required `tenantReference`, `paymentKind`, `paymentStatus`; optional opaque `commerceReference`, `bookingReference`, `membershipReference`, `experienceReference`, `amountReference`, `currencyReference`, `providerReference`, controlled `metadata`. No card numbers, credentials, secrets, tokens, or method payloads.
+* **Ownership:** `Payment`, factories, and `PaymentPort` live in `@motanos/payment` (`packages/engines/payment`). Payment is an independent bounded context — not Commerce, Pricing, Billing, Booking, Stripe/PayPal, or Runtime adapters.
+* **Pipeline relation:** Commerce → Payment Boundary → Payment Provider Adapter (future) → Billing (future). Payment answers “what payment exists?”
+* **Separations:** Payment ≠ Commerce. Payment ≠ Pricing. Payment ≠ Billing. Payment ≠ Provider/Adapter. Opaque refs only — never live vendor sessions, cards, or fiscal documents.
+* **Kinds (foundation):** `payment.purchase`, `payment.subscription`, `payment.membership`, `payment.booking`, `payment.refund`, `payment.operational`, `payment.business`.
+* **Statuses (foundation):** `draft`, `pending`, `authorized`, `completed`, `failed`, `cancelled`, `refunded`, `archived`.
+* **Contract shape:** Opaque `paymentReference`, required `tenantReference`, `paymentKind`, `paymentStatus`; optional opaque `commerceReference`, `bookingReference`, `customerReference`, `actorReference`, `currencyReference`, `amountReference`, `providerReference`, `contextReference`, `parentPaymentReference`, controlled `metadata`.
 * **Tenant isolation:** Payment may be bound to a tenant; cross-tenant creation is denied.
-* **Port surface:** `createPayment` / `resolvePayment` only. No charge, capture, checkout, refund, or processCard methods in this foundation.
-* **Runtime:** Composition root for future `Payment Port → Adapter`. No database, provider SDKs, or Stripe in this foundation.
+* **Port surface:** `createPayment` / `resolvePayment` only. No charge, capture, refundProvider, checkout, createInvoice, calculateAmount, connectStripe, or syncProvider.
 * **Dependencies:** `@motanos/payment` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** provider adapters, capture/charge execution, Billing linkage, webhook handling.
+* **Deferred:** provider adapters, capture/charge execution, Billing linkage, webhook handling. No `@motanos/payment-lifecycle` in this phase.
 
-**Rejected:** Absorbing Commerce/Billing into Payment; Payment → Stripe/provider/database imports; Application → Payment Provider; implementing charge/capture/checkout/refund execution in this phase.
+**Rejected:** Absorbing Commerce/Billing/Pricing into Payment; Payment → Stripe/PayPal/provider/checkout/invoice/billing/pricing imports; implementing charge/capture/checkout/refund execution in this phase.
 
 ---
 
