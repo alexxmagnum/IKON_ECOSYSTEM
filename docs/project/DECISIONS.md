@@ -2039,3 +2039,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Catalog into CMS, Commerce, Payment, Booking, Inventory, Search, Recommendation, or frontend builder; Catalog → Commerce/Payment/Booking/Content/Asset/Template/Experience/Search/Recommendation/Analytics/Identity/Membership/OpenAI/database imports; implementing sell, price, checkout, reserve, search, or recommend in this phase.
 
 ---
+
+## DEC-PRICING-BOUNDARY-001 — Pricing Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-03
+
+**Context:** Fase 92 introduces the Pricing Engine so MotanOS can represent economic values and price definitions applicable to a business context or element — independently of charging, payment, checkout, invoicing, taxes, automatic discounts, payment providers, currency-as-financial-system, commerce, bookings, and inventory. Pricing answers “what economic value applies to a context or business element?” — not how to charge, invoice, or process payments.
+
+**Decision:**
+
+* **Ownership:** `Pricing`, factories, and `PricingPort` live in `@motanos/pricing` (`packages/engines/pricing`). Pricing is an independent bounded context — not Catalog, Commerce, Payment, Currency, Billing, Booking, Content, Asset, Template, Experience, Analytics, Identity, Membership, AI providers, or Database providers.
+* **Pipeline relation:** Business Context / Catalog Context → Pricing Boundary → Future Commerce / Billing / Payment Systems. Pricing defines existence, tenant/context, kind, and status only.
+* **Separations:** Pricing ≠ Catalog. Pricing ≠ Currency. Pricing ≠ Commerce. Pricing ≠ Payment. Pricing ≠ Billing. Pricing ≠ tax/discount/checkout engines. Opaque refs only — never `priceId`, `paymentId`, `stripePriceId`, `invoiceId`, `databaseId`.
+* **Kinds (foundation):** `pricing.product`, `pricing.service`, `pricing.subscription`, `pricing.membership`, `pricing.booking`, `pricing.operational`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled` (e.g. draft → active → inactive → archived).
+* **Contract shape:** Opaque `pricingReference`, required `tenantReference`, `pricingKind`, `pricingStatus`; optional opaque `catalogReference`, `contextReference`, `amountReference`, `currencyReference`, `nameReference`, `descriptionReference`, `parentPricingReference`, controlled `metadata`.
+* **Tenant isolation:** Pricing may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createPricing` / `resolvePricing` only. No charge, checkout, calculateTax, applyDiscount, convertCurrency, createInvoice, processPayment, syncStripe, or syncPayPal in this foundation.
+* **Runtime:** Composition root for future `Pricing Port → Adapter`. No process runners, AI clients, payment SDKs, or cross-engine imports in this foundation.
+* **Dependencies:** `@motanos/pricing` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Pricing Runtime, Commerce/Billing handoff, Currency conversion policies, provider sync.
+
+**Rejected:** Turning Pricing into Payment, Billing, Commerce, Tax, Discount, or Checkout engines; Stripe/PayPal integrations; Pricing → Catalog/Commerce/Payment/Currency/Billing/Booking/Content/Asset/Template/Experience/Analytics/Identity/Membership/OpenAI/database imports; implementing charge, invoice, tax, discount, or currency conversion in this phase.
+
+---
