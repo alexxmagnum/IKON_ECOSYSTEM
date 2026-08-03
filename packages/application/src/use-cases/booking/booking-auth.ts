@@ -2,8 +2,8 @@ import type {
   BookingAuthorizationDecision,
   BookingAuthorizationGateway,
   BookingAuthorizationPolicy,
-} from "@motanos/booking";
-import { createBookingAuthorizationPolicy } from "@motanos/booking";
+} from "@motanos/booking-lifecycle";
+import { createBookingAuthorizationPolicy } from "@motanos/booking-lifecycle";
 import {
   isAllowed,
   type AuthorizationService,

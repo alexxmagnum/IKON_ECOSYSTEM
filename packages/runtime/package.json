@@ -17,7 +17,7 @@
   "dependencies": {
     "@motanos/api": "workspace:*",
     "@motanos/application": "workspace:*",
-    "@motanos/booking": "workspace:*",
+    "@motanos/booking-lifecycle": "workspace:*",
     "@motanos/permissions": "workspace:*"
   }
 }

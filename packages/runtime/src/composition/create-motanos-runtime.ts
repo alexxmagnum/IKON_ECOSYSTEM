@@ -24,12 +24,12 @@ import type {
   BookingQueryService,
   BookingRepository,
   BookingService,
-} from "@motanos/booking";
+} from "@motanos/booking-lifecycle";
 import {
   createBookingQueryService,
   createBookingService,
   createInMemoryBookingRepository,
-} from "@motanos/booking";
+} from "@motanos/booking-lifecycle";
 import type { AuthorizationService } from "@motanos/permissions";
 import type { RuntimeConfig } from "../config/runtime-config";
 import type {

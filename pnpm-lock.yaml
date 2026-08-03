@@ -117,9 +117,9 @@ importers:
 
   packages/application:
     dependencies:
-      '@motanos/booking':
+      '@motanos/booking-lifecycle':
         specifier: workspace:*
-        version: link:../engines/booking
+        version: link:../engines/booking-lifecycle
       '@motanos/contracts':
         specifier: workspace:*
         version: link:../contracts
@@ -200,9 +200,9 @@ importers:
 
   packages/domains/events:
     dependencies:
-      '@motanos/booking':
+      '@motanos/booking-lifecycle':
         specifier: workspace:*
-        version: link:../../engines/booking
+        version: link:../../engines/booking-lifecycle
       '@motanos/contracts':
         specifier: workspace:*
         version: link:../../contracts
@@ -212,9 +212,9 @@ importers:
 
   packages/domains/golf:
     dependencies:
-      '@motanos/booking':
+      '@motanos/booking-lifecycle':
         specifier: workspace:*
-        version: link:../../engines/booking
+        version: link:../../engines/booking-lifecycle
       '@motanos/contracts':
         specifier: workspace:*
         version: link:../../contracts
@@ -230,9 +230,9 @@ importers:
 
   packages/domains/restaurant:
     dependencies:
-      '@motanos/booking':
+      '@motanos/booking-lifecycle':
         specifier: workspace:*
-        version: link:../../engines/booking
+        version: link:../../engines/booking-lifecycle
       '@motanos/contracts':
         specifier: workspace:*
         version: link:../../contracts
@@ -242,9 +242,9 @@ importers:
 
   packages/domains/tournaments:
     dependencies:
-      '@motanos/booking':
+      '@motanos/booking-lifecycle':
         specifier: workspace:*
-        version: link:../../engines/booking
+        version: link:../../engines/booking-lifecycle
       '@motanos/contracts':
         specifier: workspace:*
         version: link:../../contracts
@@ -298,6 +298,15 @@ importers:
         version: link:../../core
 
   packages/engines/booking:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
+  packages/engines/booking-lifecycle:
     dependencies:
       '@motanos/contracts':
         specifier: workspace:*
@@ -559,9 +568,9 @@ importers:
       '@motanos/application':
         specifier: workspace:*
         version: link:../application
-      '@motanos/booking':
+      '@motanos/booking-lifecycle':
         specifier: workspace:*
-        version: link:../engines/booking
+        version: link:../engines/booking-lifecycle
       '@motanos/permissions':
         specifier: workspace:*
         version: link:../permissions

@@ -2064,3 +2064,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Pricing into Payment, Billing, Commerce, Tax, Discount, or Checkout engines; Stripe/PayPal integrations; Pricing → Catalog/Commerce/Payment/Currency/Billing/Booking/Content/Asset/Template/Experience/Analytics/Identity/Membership/OpenAI/database imports; implementing charge, invoice, tax, discount, or currency conversion in this phase.
 
 ---
+
+## DEC-BOOKING-BOUNDARY-001 — Booking Engine Boundary Split Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-03
+
+**Context:** Fase 95 splits the historical `@motanos/booking` fat engine so MotanOS can keep a pure Booking Boundary (“what reservation exists within a business context?”) independently of availability, resources, calendars, pricing, payments, invoicing, notifications, and physical assignment. Mixing domain existence with lifecycle/operations blocked a clean bounded context and failed architectural separation scans.
+
+**Decision:**
+
+* **Split:**
+  * `@motanos/booking` — Booking Boundary (existence, kind, status, opaque refs only).
+  * `@motanos/booking-lifecycle` — provisional motor holding the prior services, queries, repositories, and operational sub-boundaries (payment/pricing/availability/resource/invoice intents, etc.).
+* **Ownership (Boundary):** `Booking`, `createBooking`, `resolveBooking`, and `BookingPort` live in `@motanos/booking` (`packages/engines/booking/src/bookings/`).
+* **Pipeline relation:** Catalog → Resource → Availability → Booking Boundary → Commerce / Pricing / Payment. Lifecycle remains a temporary compatibility layer for Application/Runtime.
+* **Separations:** Booking ≠ Availability. Booking ≠ Resource. Booking ≠ Calendar. Booking ≠ Pricing. Booking ≠ Payment. Booking ≠ Billing/Invoice. Opaque refs only — never live foreign aggregates or provider IDs.
+* **Kinds (foundation):** `booking.resource`, `booking.service`, `booking.experience`, `booking.event`, `booking.operational`, `booking.business`.
+* **Statuses (foundation):** `draft`, `pending`, `confirmed`, `cancelled`, `completed`, `archived`.
+* **Contract shape:** Opaque `bookingReference`, required `tenantReference`, `bookingKind`, `bookingStatus`; optional opaque `resourceReference`, `availabilityReference`, `catalogReference`, `actorReference`, `experienceReference`, `contextReference`, `parentBookingReference`, controlled `metadata`.
+* **Port surface (Boundary):** `createBooking` / `resolveBooking` only. No reserve, book, confirmPayment, calculatePrice, checkAvailability, assignResource, createInvoice, or sendNotification.
+* **Dependencies (Boundary):** `@motanos/booking` limited to `@motanos/contracts` + `@motanos/core`.
+* **Consumers:** Application/Runtime/Domains that need the historical motor import `@motanos/booking-lifecycle`. Prior DEC-BOOKING-* operational records remain applicable to the lifecycle package until migrated into specialized engines.
+* **Future direction:** progressive migration of lifecycle capabilities into specialized engines; shrink lifecycle over time.
+
+**Rejected:** Keeping payment/pricing/availability/resource/invoice logic inside the Booking Boundary; Boundary → Payment/Pricing/Availability/Resource/Calendar/Commerce/Billing/OpenAI/database imports; deleting lifecycle behavior in this phase.
+
+---

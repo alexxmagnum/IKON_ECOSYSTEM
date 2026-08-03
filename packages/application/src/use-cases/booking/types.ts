@@ -1,8 +1,8 @@
-import type { Booking, BookingStatus } from "@motanos/booking";
+import type { Booking, BookingStatus } from "@motanos/booking-lifecycle";
 
 /**
  * Application CreateBooking input — opaque references only.
- * Maps onto @motanos/booking CreateBookingInput at the engine boundary.
+ * Maps onto @motanos/booking-lifecycle CreateBookingInput at the engine boundary.
  */
 export interface CreateBookingInput {
   tenantReference: string;

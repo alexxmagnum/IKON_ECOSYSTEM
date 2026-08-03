@@ -1,11 +1,11 @@
-# `@motanos/booking`
+# `@motanos/booking-lifecycle`
 
 Shared Booking Engine foundation for MotanOS.
 
 ## Placement
 
 ```
-MotanOS Core → Shared Engines → @motanos/booking → Domain Modules
+MotanOS Core → Shared Engines → @motanos/booking-lifecycle → Domain Modules
 ```
 
 This package is platform infrastructure. It does not belong to a customer implementation or to any consuming domain module.

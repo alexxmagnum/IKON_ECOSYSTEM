@@ -1,4 +1,4 @@
-import type { BookingId } from "@motanos/booking";
+import type { BookingId } from "@motanos/booking-lifecycle";
 import type { PaymentId } from "@motanos/payments";
 import type { GolfCourseId } from "./course";
 import type { GolfPlayer } from "./player";

@@ -1,4 +1,4 @@
-import type { BookingId, ResourceId } from "@motanos/booking";
+import type { BookingId, ResourceId } from "@motanos/booking-lifecycle";
 import type { PaymentId } from "@motanos/payments";
 import type { RestaurantVenueId, RestaurantZoneId } from "./venue";
 import type { RestaurantTableStatus } from "../types";

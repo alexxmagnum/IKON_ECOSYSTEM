@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@motanos/booking": "workspace:*",
+    "@motanos/booking-lifecycle": "workspace:*",
     "@motanos/contracts": "workspace:*",
     "@motanos/domain-events": "workspace:*",
     "@motanos/domain-golf": "workspace:*",

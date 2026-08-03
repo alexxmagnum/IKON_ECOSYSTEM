@@ -10,7 +10,7 @@ import type {
   RescheduleBookingUseCase,
   ExpireBookingHoldsUseCase,
 } from "@motanos/application";
-import type { BookingService } from "@motanos/booking";
+import type { BookingService } from "@motanos/booking-lifecycle";
 import type { AuthorizationService } from "@motanos/permissions";
 import type {
   CancelBookingHandler,

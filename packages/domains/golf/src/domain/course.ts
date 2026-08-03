@@ -1,4 +1,4 @@
-import type { ResourceId } from "@motanos/booking";
+import type { ResourceId } from "@motanos/booking-lifecycle";
 
 export type GolfCourseId = string;
 export type HoleId = string;

@@ -2,8 +2,8 @@ import type {
   BookingAuthorizationPolicy,
   BookingQueryService,
   BookingService,
-} from "@motanos/booking";
-import { canRescheduleBooking } from "@motanos/booking";
+} from "@motanos/booking-lifecycle";
+import { canRescheduleBooking } from "@motanos/booking-lifecycle";
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
 import { forbiddenFromBookingPolicy } from "./booking-auth";

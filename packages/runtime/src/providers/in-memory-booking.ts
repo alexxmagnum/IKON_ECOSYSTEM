@@ -2,12 +2,12 @@ import type {
   BookingQueryService,
   BookingRepository,
   BookingService,
-} from "@motanos/booking";
+} from "@motanos/booking-lifecycle";
 import {
   createBookingQueryService,
   createBookingService,
   createInMemoryBookingRepository,
-} from "@motanos/booking";
+} from "@motanos/booking-lifecycle";
 
 /**
  * Runtime wiring: shared InMemory repository → command + query services.

@@ -2,7 +2,7 @@
  * Application-layer action strings for booking orchestration.
  * Sourced from Booking Authorization Policy action catalog.
  */
-import { BOOKING_AUTH_ACTIONS } from "@motanos/booking";
+import { BOOKING_AUTH_ACTIONS } from "@motanos/booking-lifecycle";
 
 export const CREATE_BOOKING_ACTION = BOOKING_AUTH_ACTIONS.create;
 export const CONFIRM_BOOKING_ACTION = BOOKING_AUTH_ACTIONS.confirm;

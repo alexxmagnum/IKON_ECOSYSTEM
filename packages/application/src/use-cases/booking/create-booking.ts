@@ -2,8 +2,8 @@ import type {
   BookingAuthorizationPolicy,
   BookingService,
   CreateBookingInput as BookingEngineCreateInput,
-} from "@motanos/booking";
-import { DEFAULT_HOLD_TTL_MINUTES } from "@motanos/booking";
+} from "@motanos/booking-lifecycle";
+import { DEFAULT_HOLD_TTL_MINUTES } from "@motanos/booking-lifecycle";
 import type { UseCase } from "../../contracts/use-case";
 import { failure, success } from "../../contracts/result";
 import { forbiddenFromBookingPolicy } from "./booking-auth";

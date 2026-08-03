@@ -1,5 +1,5 @@
 {
-  "name": "@motanos/domain-events",
+  "name": "@motanos/booking-lifecycle",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,11 +11,11 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/**/*.test.ts"
   },
   "dependencies": {
-    "@motanos/booking-lifecycle": "workspace:*",
     "@motanos/contracts": "workspace:*",
-    "@motanos/payments": "workspace:*"
+    "@motanos/core": "workspace:*"
   }
 }

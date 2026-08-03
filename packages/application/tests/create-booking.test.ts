@@ -6,12 +6,12 @@
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { BookingService, BookingQueryService } from "@motanos/booking";
+import type { BookingService, BookingQueryService } from "@motanos/booking-lifecycle";
 import {
   createBookingQueryService,
   createBookingService,
   createInMemoryBookingRepository,
-} from "@motanos/booking";
+} from "@motanos/booking-lifecycle";
 import {
   allow,
   authorizationResult,

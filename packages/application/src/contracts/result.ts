@@ -1,5 +1,5 @@
 import type { ApplicationError } from "./errors";
-import type { DomainEvent } from "@motanos/booking";
+import type { DomainEvent } from "@motanos/booking-lifecycle";
 
 /**
  * Discriminated application result — business outcomes as data, not thrown exceptions.

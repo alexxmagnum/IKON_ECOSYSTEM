@@ -15,7 +15,7 @@
     "test": "tsx --test tests/**/*.test.ts"
   },
   "dependencies": {
-    "@motanos/booking": "workspace:*",
+    "@motanos/booking-lifecycle": "workspace:*",
     "@motanos/contracts": "workspace:*",
     "@motanos/core": "workspace:*",
     "@motanos/permissions": "workspace:*"
