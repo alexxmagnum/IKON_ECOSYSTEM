@@ -1,5 +1,8 @@
 /**
- * @motanos/permissions — Authorization / Permissions foundation.
+ * @motanos/permissions-lifecycle — Historical authorization motor (RBAC / AuthorizationService).
+ *
+ * Split from the pure Permissions boundary. This package retains the MotanOS
+ * authorization motor: AuthorizationService, RBAC helpers, and related APIs.
  *
  * Application → AuthorizationService → Domains / Engines
  *
@@ -10,7 +13,7 @@
  * without implementing ABAC or domain action catalogs here.
  */
 
-export const PERMISSIONS_LAYER = "@motanos/permissions" as const;
+export const PERMISSIONS_LAYER = "@motanos/permissions-lifecycle" as const;
 
 export type {
   ActorReference,

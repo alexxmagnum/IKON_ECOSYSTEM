@@ -7,7 +7,7 @@ import { createBookingAuthorizationPolicy } from "@motanos/booking-lifecycle";
 import {
   isAllowed,
   type AuthorizationService,
-} from "@motanos/permissions";
+} from "@motanos/permissions-lifecycle";
 import { failure } from "../../contracts/result";
 
 /**

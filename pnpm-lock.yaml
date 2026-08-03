@@ -126,9 +126,9 @@ importers:
       '@motanos/core':
         specifier: workspace:*
         version: link:../core
-      '@motanos/permissions':
+      '@motanos/permissions-lifecycle':
         specifier: workspace:*
-        version: link:../permissions
+        version: link:../engines/permissions-lifecycle
 
   packages/auth:
     dependencies:
@@ -477,6 +477,17 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/engines/permissions:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
+  packages/engines/permissions-lifecycle: {}
+
   packages/engines/policy:
     dependencies:
       '@motanos/contracts':
@@ -580,9 +591,9 @@ importers:
       '@motanos/booking-lifecycle':
         specifier: workspace:*
         version: link:../engines/booking-lifecycle
-      '@motanos/permissions':
+      '@motanos/permissions-lifecycle':
         specifier: workspace:*
-        version: link:../permissions
+        version: link:../engines/permissions-lifecycle
 
   packages/ui:
     devDependencies:

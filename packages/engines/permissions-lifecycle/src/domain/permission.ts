@@ -16,7 +16,7 @@ export type ActorReference = string;
  *   Read: "mydomain.read",
  * } as const satisfies Record<string, PermissionAction>;
  *
- * Do not put vertical/business action catalogs in @motanos/permissions.
+ * Do not put vertical/business action catalogs in @motanos/permissions-lifecycle.
  */
 export type PermissionAction = string;
 

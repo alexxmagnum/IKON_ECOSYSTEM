@@ -11,7 +11,7 @@ import type {
   ExpireBookingHoldsUseCase,
 } from "@motanos/application";
 import type { BookingService } from "@motanos/booking-lifecycle";
-import type { AuthorizationService } from "@motanos/permissions";
+import type { AuthorizationService } from "@motanos/permissions-lifecycle";
 import type {
   CancelBookingHandler,
   CheckAvailabilityHandler,

@@ -4,7 +4,7 @@ import {
   deny,
   type AuthorizationContext,
   type AuthorizationService,
-} from "@motanos/permissions";
+} from "@motanos/permissions-lifecycle";
 
 export interface InMemoryAuthorizationOptions {
   /**

@@ -18,6 +18,6 @@
     "@motanos/booking-lifecycle": "workspace:*",
     "@motanos/contracts": "workspace:*",
     "@motanos/core": "workspace:*",
-    "@motanos/permissions": "workspace:*"
+    "@motanos/permissions-lifecycle": "workspace:*"
   }
 }

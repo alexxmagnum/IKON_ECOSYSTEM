@@ -16,7 +16,7 @@ import {
   filterOfficialRoles,
   hasRole,
   isPlatformAdmin,
-} from "@motanos/permissions";
+} from "@motanos/permissions-lifecycle";
 import { hasDatabaseUrl, getDatabase, roles, permissions } from "@motanos/database";
 import { createServerSupabaseClient } from "@motanos/auth/server";
 

@@ -1,4 +1,4 @@
-# `@motanos/permissions`
+# `@motanos/permissions-lifecycle`
 
 Authorization / Permissions foundation for MotanOS.
 
@@ -38,7 +38,7 @@ Keep **permission** naming for permission keys, actions, and DEC-002 RBAC helper
 Domains may define their own typed action catalogs **without** changing this package:
 
 ```ts
-import type { PermissionAction } from "@motanos/permissions";
+import type { PermissionAction } from "@motanos/permissions-lifecycle";
 
 export const ExampleDomainActions = {
   Create: "example.create",
@@ -46,7 +46,7 @@ export const ExampleDomainActions = {
 } as const satisfies Record<string, PermissionAction>;
 ```
 
-Do not add vertical action catalogs (reservations, orders, billing, etc.) inside `@motanos/permissions`.
+Do not add vertical action catalogs (reservations, orders, billing, etc.) inside `@motanos/permissions-lifecycle`.
 
 ## Out of scope
 

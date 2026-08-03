@@ -1670,6 +1670,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-PERMISSIONS-BOUNDARY-001 — Permissions Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-03
+
+**Context:** Fase 101 consolidates Permissions as a pure declarative authorization boundary — “what action capacity exists for an actor within a context?” — independently of who the actor is (Identity), what they belong to (Membership), authentication/sessions, user-role administration, tenant management, action execution, workflows, and business policy engines. MotanOS needs a rail-agnostic capacity record so future RBAC/ABAC adapters can plug in without absorbing Identity or Membership. Historical AuthorizationService / RBAC motor moved to `@motanos/permissions-lifecycle`; `@motanos/permissions` is the pure boundary under `packages/engines/permissions`.
+
+**Decision:**
+
+* **Ownership:** `Permission`, factories, and `PermissionPort` live in `@motanos/permissions` (`packages/engines/permissions`). Permissions is an independent bounded context — not Identity, Membership, Auth, Policy, Workflow, or Runtime adapters.
+* **Pipeline relation:** Identity → Membership → Permissions Boundary → Domain Engines. Permissions answers “what can they do?”
+* **Separations:** Permissions ≠ Identity. Permissions ≠ Membership. Permissions ≠ Authentication. Permissions ≠ Policy. Permissions ≠ Workflow. Opaque refs only — never live person profiles, session tokens, or policy documents.
+* **Kinds (foundation):** `permission.identity`, `permission.role`, `permission.resource`, `permission.operational`, `permission.business`, `permission.system`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `permissionReference`, required `tenantReference`, `permissionKind`, `permissionStatus`; optional opaque `identityReference`, `membershipReference`, `roleReference`, `resourceReference`, `actionReference`, `contextReference`, `parentPermissionReference`, controlled `metadata`.
+* **Tenant isolation:** Permission may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createPermission` / `resolvePermission` only. No checkPermission, authorize, assignRole, createRole, grantAccess, revokeAccess, authenticate, createPolicy, or executeWorkflow.
+* **Dependencies:** `@motanos/permissions` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** RBAC/ABAC evaluation adapters, Runtime wiring. Historical motor retained in `@motanos/permissions-lifecycle`.
+
+**Rejected:** Absorbing Identity/Membership/Auth into Permissions; Permissions → Identity/Membership/Auth/Workflow/Policy imports; implementing check/authorize/grant/revoke in this phase.
+
+---
+
 ## DEC-ANALYTICS-BOUNDARY-001 — Analytics Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

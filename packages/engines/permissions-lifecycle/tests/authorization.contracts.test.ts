@@ -1,8 +1,8 @@
 /**
- * Contract-level validation for @motanos/permissions refinements.
+ * Contract-level validation for @motanos/permissions-lifecycle refinements.
  * No auth, database, tenant, or domain fakes.
  *
- * Run: pnpm --filter @motanos/permissions test
+ * Run: pnpm --filter @motanos/permissions-lifecycle test
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
@@ -25,7 +25,7 @@ import {
   type PermissionService,
 } from "../src/index.js";
 
-describe("@motanos/permissions authorization contracts", () => {
+describe("@motanos/permissions-lifecycle authorization contracts", () => {
   it("creates AuthorizationContext with actor, action, resource; metadata optional", () => {
     const context: AuthorizationContext = {
       actor: "actor-opaque-1",

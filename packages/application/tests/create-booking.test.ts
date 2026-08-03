@@ -17,7 +17,7 @@ import {
   authorizationResult,
   deny,
   type AuthorizationService,
-} from "@motanos/permissions";
+} from "@motanos/permissions-lifecycle";
 import {
   createCancelBookingUseCase,
   createCheckAvailabilityUseCase,

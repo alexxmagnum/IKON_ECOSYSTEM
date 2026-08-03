@@ -1,5 +1,5 @@
-{
-  "name": "@motanos/runtime",
+﻿{
+  "name": "@motanos/permissions-lifecycle",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -13,11 +13,5 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/**/*.test.ts"
-  },
-  "dependencies": {
-    "@motanos/api": "workspace:*",
-    "@motanos/application": "workspace:*",
-    "@motanos/booking-lifecycle": "workspace:*",
-    "@motanos/permissions-lifecycle": "workspace:*"
   }
 }

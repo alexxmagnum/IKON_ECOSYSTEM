@@ -30,7 +30,7 @@ import {
   createBookingService,
   createInMemoryBookingRepository,
 } from "@motanos/booking-lifecycle";
-import type { AuthorizationService } from "@motanos/permissions";
+import type { AuthorizationService } from "@motanos/permissions-lifecycle";
 import type { RuntimeConfig } from "../config/runtime-config";
 import type {
   CancelBookingHandler,
