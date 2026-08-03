@@ -15,14 +15,14 @@ let notificationSequence = 0;
 export interface CreateNotificationOptions {
   /**
    * When set, notification may only be created for this tenant
-   * (cross-tenant isolation).
+   * (cross-tenant scope lock).
    */
   tenantReference?: string;
 }
 
 /**
- * Build a validated Notification (in-memory — intent / context only).
- * Does not deliver messages, open vendor sessions, or render templates.
+ * Build a checked Notification (in-memory — communication existence only).
+ * Does not open vendor sessions, render layouts, or run outbound rails.
  */
 export function createNotification(
   input: CreateNotificationInput,
@@ -30,12 +30,14 @@ export function createNotification(
 ): Notification {
   const tenantReference = input.tenantReference?.trim() ?? "";
   const actorReference = input.actorReference?.trim();
-  const bookingReference = input.bookingReference?.trim();
-  const paymentReference = input.paymentReference?.trim();
-  const membershipReference = input.membershipReference?.trim();
-  const communityReference = input.communityReference?.trim();
-  const experienceReference = input.experienceReference?.trim();
+  const customerReference = input.customerReference?.trim();
+  const memberReference = input.memberReference?.trim();
+  const contextReference = input.contextReference?.trim();
+  const contentReference = input.contentReference?.trim();
+  const templateReference = input.templateReference?.trim();
   const channelReference = input.channelReference?.trim();
+  const parentNotificationReference =
+    input.parentNotificationReference?.trim();
   const boundTenant = options.tenantReference?.trim() || undefined;
 
   if (!tenantReference) {
@@ -58,23 +60,31 @@ export function createNotification(
   if (input.actorReference !== undefined && !actorReference) {
     throw new Error("actorReference must not be empty when provided");
   }
-  if (input.bookingReference !== undefined && !bookingReference) {
-    throw new Error("bookingReference must not be empty when provided");
+  if (input.customerReference !== undefined && !customerReference) {
+    throw new Error("customerReference must not be empty when provided");
   }
-  if (input.paymentReference !== undefined && !paymentReference) {
-    throw new Error("paymentReference must not be empty when provided");
+  if (input.memberReference !== undefined && !memberReference) {
+    throw new Error("memberReference must not be empty when provided");
   }
-  if (input.membershipReference !== undefined && !membershipReference) {
-    throw new Error("membershipReference must not be empty when provided");
+  if (input.contextReference !== undefined && !contextReference) {
+    throw new Error("contextReference must not be empty when provided");
   }
-  if (input.communityReference !== undefined && !communityReference) {
-    throw new Error("communityReference must not be empty when provided");
+  if (input.contentReference !== undefined && !contentReference) {
+    throw new Error("contentReference must not be empty when provided");
   }
-  if (input.experienceReference !== undefined && !experienceReference) {
-    throw new Error("experienceReference must not be empty when provided");
+  if (input.templateReference !== undefined && !templateReference) {
+    throw new Error("templateReference must not be empty when provided");
   }
   if (input.channelReference !== undefined && !channelReference) {
     throw new Error("channelReference must not be empty when provided");
+  }
+  if (
+    input.parentNotificationReference !== undefined &&
+    !parentNotificationReference
+  ) {
+    throw new Error(
+      "parentNotificationReference must not be empty when provided",
+    );
   }
 
   if (boundTenant !== undefined && tenantReference !== boundTenant) {
@@ -98,23 +108,27 @@ export function createNotification(
     ...(actorReference !== undefined && actorReference.length > 0
       ? { actorReference }
       : {}),
-    ...(bookingReference !== undefined && bookingReference.length > 0
-      ? { bookingReference }
+    ...(customerReference !== undefined && customerReference.length > 0
+      ? { customerReference }
       : {}),
-    ...(paymentReference !== undefined && paymentReference.length > 0
-      ? { paymentReference }
+    ...(memberReference !== undefined && memberReference.length > 0
+      ? { memberReference }
       : {}),
-    ...(membershipReference !== undefined && membershipReference.length > 0
-      ? { membershipReference }
+    ...(contextReference !== undefined && contextReference.length > 0
+      ? { contextReference }
       : {}),
-    ...(communityReference !== undefined && communityReference.length > 0
-      ? { communityReference }
+    ...(contentReference !== undefined && contentReference.length > 0
+      ? { contentReference }
       : {}),
-    ...(experienceReference !== undefined && experienceReference.length > 0
-      ? { experienceReference }
+    ...(templateReference !== undefined && templateReference.length > 0
+      ? { templateReference }
       : {}),
     ...(channelReference !== undefined && channelReference.length > 0
       ? { channelReference }
+      : {}),
+    ...(parentNotificationReference !== undefined &&
+    parentNotificationReference.length > 0
+      ? { parentNotificationReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

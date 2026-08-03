@@ -1,16 +1,13 @@
 /**
- * @motanos/notification — Notification Engine foundation.
+ * @motanos/notification — Notification Engine Boundary foundation.
  *
  * MotanOS Core → Shared Engines → @motanos/notification
  *
- * Notification = communication intent, business context, and lifecycle state.
- * Domain facts may trigger intents; delivery rails live elsewhere.
+ * Notification = communication existence for a business context.
+ * Must not depend on messaging vendors, outbound rails, content packages,
+ * template packages, process packages, or persistence vendors.
  *
- * Must not depend on booking, payment, commerce, community, experience,
- * identity, messaging vendors, or persistence vendors.
- *
- * Distinct from legacy `@motanos/notifications` package scaffolding
- * and from Booking Notification Boundary (opaque intent inside Booking).
+ * Distinct from legacy `@motanos/notifications` package scaffolding.
  *
  * @see DEC-NOTIFICATION-BOUNDARY-001
  */
