@@ -1935,3 +1935,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Measurement into Analytics/Reporting/BI; absorbing AI or recommendations; Measurement → dashboard/database/AI imports; Application → Metrics Provider; implementing calculations, aggregations, or visualizations in this phase.
 
 ---
+
+## DEC-PREFERENCE-BOUNDARY-001 — Preference Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-03
+
+**Context:** Fase 87 introduces the Preference Engine so MotanOS can represent declarative preferences for a given context — independently of recommendations, automatic personalization, behavior learning, preference inference, user tracking, analytics, and AI. Preference answers “what preferences exist for a given context?” — not what to suggest, learn, or predict.
+
+**Decision:**
+
+* **Ownership:** `Preference`, factories, and `PreferencePort` live in `@motanos/preference` (`packages/engines/preference`). Preference is an independent bounded context — not Identity, Membership, Recommendation, Analytics, Configuration, AI providers, or Database providers.
+* **Pipeline relation:** Actor / Tenant / Context → Preference Boundary → Future Experience / Recommendation / Personalization. Identity owns who the actor is; Membership owns relations; Preference owns declared preferences; Recommendation owns suggestions; Analytics owns what occurs and can be measured.
+* **Separations:** Preference declares and resolves existing preferences only. Preference does not learn, infer, calculate, recommend, personalize, predict, track behavior, analyze, or generate preferences. Opaque references only (`actorReference`, `contextReference`, `valueReference`, …) — never `userId` / `customerId` / `memberId` / `profileId` / `databaseId`.
+* **Kinds (foundation):** `preference.user`, `preference.tenant`, `preference.operational`, `preference.experience`, `preference.communication`, `preference.business`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled` (e.g. draft → active → inactive → archived).
+* **Contract shape:** Opaque `preferenceReference`, required `tenantReference`, `preferenceKind`, `preferenceStatus`; optional opaque `actorReference`, `contextReference`, `categoryReference`, `valueReference`, `sourceReference`, controlled `metadata`.
+* **Tenant isolation:** Preference may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createPreference` / `resolvePreference` only. No learnPreference, inferPreference, calculatePreference, recommend, personalize, predict, trackBehavior, analyze, or generatePreference methods in this foundation.
+* **Runtime:** Composition root for future `Preference Port → Adapter`. No database, AI clients, or cross-engine imports in this foundation.
+* **Dependencies:** `@motanos/preference` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** preference resolution policies, experience/recommendation handoff, communication-channel catalogs.
+
+**Rejected:** Turning Preference into CRM, full profiles, tracking, analytics, AI, or a recommendation engine; Preference → Identity/Membership/Recommendation/Analytics/OpenAI/database imports; implementing learning or inference in this phase.
+
+---
