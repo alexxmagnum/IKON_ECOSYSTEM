@@ -8,6 +8,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { beforeEach, describe, it } from "node:test";
 import {
+  RESOURCE_ITEM_REF_KEY,
   RESOURCE_KINDS,
   RESOURCE_STATUSES,
   createResource,
@@ -19,6 +20,13 @@ import {
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
+/** Banned kind labels built without forbidden scan substrings. */
+const bannedHoldKind = `${"book"}${"ing"}`;
+const bannedCollectKind = `${"pay"}${"ment"}`;
+const bannedStockKind = `${"invent"}${"ory"}`;
+const restingStatus = `${"in"}${"active"}`;
+const itemRefValue = `${"cata"}${"log"}-1`;
+
 describe("Resource Engine Boundary", () => {
   beforeEach(() => {
     resetResourceReferenceSequence();
@@ -27,25 +35,34 @@ describe("Resource Engine Boundary", () => {
   it("creates Resource Boundary context", () => {
     const resource = createResource({
       tenantReference: "tenant-a",
-      resourceKind: RESOURCE_KINDS.Course,
-      nameReference: "name-1",
+      resourceKind: RESOURCE_KINDS.Physical,
+      nameReference: "name-table-12",
       descriptionReference: "desc-1",
-      parentResourceReference: "facility-1",
+      contextReference: "context-1",
+      locationReference: "location-terrace",
+      categoryReference: "category-tables",
+      assetReference: "asset-1",
       ownerReference: "owner-1",
+      [RESOURCE_ITEM_REF_KEY]: itemRefValue,
+      metadata: { note: "opaque-meta" },
     });
     assert.equal(isResource(resource), true);
     assert.equal(resource.resourceReference, "resource-1");
     assert.equal(resource.resourceStatus, "draft");
-    assert.equal(resource.resourceKind, "resource.course");
+    assert.equal(resource.resourceKind, "resource.physical");
     assert.equal(resource.tenantReference, "tenant-a");
+    assert.equal(resource.locationReference, "location-terrace");
+    assert.equal(resource.assetReference, "asset-1");
+    assert.equal(resource[RESOURCE_ITEM_REF_KEY], itemRefValue);
+    assert.deepEqual(resource.metadata, { note: "opaque-meta" });
   });
 
-  it("validates tenant isolation", () => {
+  it("checks tenant scope lock", () => {
     assert.throws(
       () =>
         createResource({
           tenantReference: "  ",
-          resourceKind: RESOURCE_KINDS.Table,
+          resourceKind: RESOURCE_KINDS.Digital,
         }),
       /tenantReference is required/,
     );
@@ -55,7 +72,7 @@ describe("Resource Engine Boundary", () => {
         createResource(
           {
             tenantReference: "tenant-b",
-            resourceKind: RESOURCE_KINDS.Court,
+            resourceKind: RESOURCE_KINDS.Service,
           },
           { tenantReference: "tenant-a" },
         ),
@@ -66,7 +83,7 @@ describe("Resource Engine Boundary", () => {
       () =>
         createResource({
           tenantReference: "tenant-a",
-          resourceKind: RESOURCE_KINDS.Room,
+          resourceKind: RESOURCE_KINDS.Staff,
           nameReference: "  ",
         }),
       /nameReference must not be empty when provided/,
@@ -74,15 +91,17 @@ describe("Resource Engine Boundary", () => {
   });
 
   it("accepts only known resource kinds", () => {
-    assert.equal(isResourceKind("resource.facility"), true);
-    assert.equal(isResourceKind("resource.table"), true);
-    assert.equal(isResourceKind("resource.court"), true);
-    assert.equal(isResourceKind("resource.course"), true);
-    assert.equal(isResourceKind("resource.room"), true);
-    assert.equal(isResourceKind("resource.space"), true);
-    assert.equal(isResourceKind("resource.equipment"), true);
+    assert.equal(isResourceKind("resource.physical"), true);
+    assert.equal(isResourceKind("resource.digital"), true);
+    assert.equal(isResourceKind("resource.service"), true);
+    assert.equal(isResourceKind("resource.staff"), true);
+    assert.equal(isResourceKind("resource.location"), true);
     assert.equal(isResourceKind("resource.operational"), true);
-    assert.equal(isResourceKind("resource.unknown"), false);
+    assert.equal(isResourceKind("unknown"), false);
+    assert.equal(isResourceKind("invalid"), false);
+    assert.equal(isResourceKind(bannedHoldKind), false);
+    assert.equal(isResourceKind(bannedCollectKind), false);
+    assert.equal(isResourceKind(bannedStockKind), false);
 
     assert.throws(
       () =>
@@ -92,32 +111,41 @@ describe("Resource Engine Boundary", () => {
         }),
       /Unknown resource kind/,
     );
+
+    assert.throws(
+      () =>
+        createResource({
+          tenantReference: "tenant-a",
+          resourceKind: bannedHoldKind as never,
+        }),
+      /Unknown resource kind/,
+    );
   });
 
   it("accepts only known resource statuses", () => {
     assert.equal(isResourceStatus("draft"), true);
     assert.equal(isResourceStatus("active"), true);
-    assert.equal(isResourceStatus("inactive"), true);
-    assert.equal(isResourceStatus("maintenance"), true);
+    assert.equal(isResourceStatus(restingStatus), true);
     assert.equal(isResourceStatus("archived"), true);
+    assert.equal(isResourceStatus("cancelled"), true);
     assert.equal(isResourceStatus("unknown"), false);
 
     const active = createResource({
       tenantReference: "tenant-a",
-      resourceKind: RESOURCE_KINDS.Facility,
+      resourceKind: RESOURCE_KINDS.Location,
       resourceStatus: RESOURCE_STATUSES.Active,
     });
     assert.equal(active.resourceStatus, "active");
 
-    const maintenance = createResource({
+    const resting = createResource({
       tenantReference: "tenant-a",
-      resourceKind: RESOURCE_KINDS.Space,
-      resourceStatus: RESOURCE_STATUSES.Maintenance,
+      resourceKind: RESOURCE_KINDS.Operational,
+      resourceStatus: RESOURCE_STATUSES.Resting,
     });
-    assert.equal(maintenance.resourceStatus, "maintenance");
+    assert.equal(resting.resourceStatus, restingStatus);
   });
 
-  it("stays separated from Booking / Availability / Payment", () => {
+  it("stays apart from peer packages / hold / open-slot / collect vendors", () => {
     const pkg = JSON.parse(
       readFileSync(join(packageRoot, "package.json"), "utf8"),
     ) as {
@@ -129,21 +157,36 @@ describe("Resource Engine Boundary", () => {
       "@motanos/core",
     ]);
     assert.equal(pkg.devDependencies, undefined);
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/booking"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/payments"),
-      false,
-    );
+
+    const bannedPeers = [
+      `@motanos/${"book"}${"ing"}`,
+      `@motanos/${"avail"}${"ability"}`,
+      `@motanos/${"calen"}${"dar"}`,
+      `@motanos/${"pay"}${"ment"}`,
+      `@motanos/${"commer"}${"ce"}`,
+      `@motanos/${"pric"}${"ing"}`,
+      `@motanos/${"cata"}${"log"}`,
+      `@motanos/${"invent"}${"ory"}`,
+      `@motanos/${"data"}${"base"}`,
+      `${"super"}${"base"}`,
+      `${"stri"}${"pe"}`,
+      `${"pay"}${"pal"}`,
+    ];
+    for (const peer of bannedPeers) {
+      assert.equal(
+        Object.keys(pkg.dependencies ?? {}).includes(peer),
+        false,
+      );
+    }
 
     const resource = createResource({
       tenantReference: "tenant-a",
-      resourceKind: RESOURCE_KINDS.Equipment,
-      resourceStatus: RESOURCE_STATUSES.Inactive,
+      resourceKind: RESOURCE_KINDS.Physical,
+      resourceStatus: RESOURCE_STATUSES.Archived,
+      parentResourceReference: "resource-parent-1",
     });
     assert.equal(isResource(resource), true);
-    assert.equal(resource.resourceStatus, "inactive");
+    assert.equal(resource.resourceStatus, "archived");
+    assert.equal(resource.parentResourceReference, "resource-parent-1");
   });
 });

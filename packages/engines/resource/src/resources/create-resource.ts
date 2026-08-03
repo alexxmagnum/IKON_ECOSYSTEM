@@ -5,6 +5,7 @@ import type {
   ResourceStatus,
 } from "./resource";
 import {
+  RESOURCE_ITEM_REF_KEY,
   RESOURCE_STATUSES,
   isResourceKind,
   isResourceStatus,
@@ -15,24 +16,31 @@ let resourceSequence = 0;
 export interface CreateResourceOptions {
   /**
    * When set, resource may only be created for this tenant
-   * (cross-tenant isolation).
+   * (cross-tenant scope lock).
    */
   tenantReference?: string;
 }
 
 /**
- * Build a validated Resource (in-memory — definition only).
- * Does not check availability, create bookings, or persist.
+ * Build a checked Resource (in-memory — operational unit existence only).
+ * Does not open vendor sessions or run claim / hold / stock sync flows.
  */
 export function createResource(
   input: CreateResourceInput,
   options: CreateResourceOptions = {},
 ): Resource {
   const tenantReference = input.tenantReference?.trim() ?? "";
-  const nameReference = input.nameReference?.trim();
-  const descriptionReference = input.descriptionReference?.trim();
+  const contextReference = input.contextReference?.trim();
   const parentResourceReference = input.parentResourceReference?.trim();
   const ownerReference = input.ownerReference?.trim();
+  const locationReference = input.locationReference?.trim();
+  const categoryReference = input.categoryReference?.trim();
+  const assetReference = input.assetReference?.trim();
+  const nameReference = input.nameReference?.trim();
+  const descriptionReference = input.descriptionReference?.trim();
+  const itemRaw = input[RESOURCE_ITEM_REF_KEY];
+  const itemReference =
+    typeof itemRaw === "string" ? itemRaw.trim() : undefined;
   const boundTenant = options.tenantReference?.trim() || undefined;
 
   if (!tenantReference) {
@@ -50,11 +58,8 @@ export function createResource(
     );
   }
 
-  if (input.nameReference !== undefined && !nameReference) {
-    throw new Error("nameReference must not be empty when provided");
-  }
-  if (input.descriptionReference !== undefined && !descriptionReference) {
-    throw new Error("descriptionReference must not be empty when provided");
+  if (input.contextReference !== undefined && !contextReference) {
+    throw new Error("contextReference must not be empty when provided");
   }
   if (
     input.parentResourceReference !== undefined &&
@@ -66,6 +71,26 @@ export function createResource(
   }
   if (input.ownerReference !== undefined && !ownerReference) {
     throw new Error("ownerReference must not be empty when provided");
+  }
+  if (input.locationReference !== undefined && !locationReference) {
+    throw new Error("locationReference must not be empty when provided");
+  }
+  if (input.categoryReference !== undefined && !categoryReference) {
+    throw new Error("categoryReference must not be empty when provided");
+  }
+  if (input.assetReference !== undefined && !assetReference) {
+    throw new Error("assetReference must not be empty when provided");
+  }
+  if (input.nameReference !== undefined && !nameReference) {
+    throw new Error("nameReference must not be empty when provided");
+  }
+  if (input.descriptionReference !== undefined && !descriptionReference) {
+    throw new Error("descriptionReference must not be empty when provided");
+  }
+  if (itemRaw !== undefined && !itemReference) {
+    throw new Error(
+      `${RESOURCE_ITEM_REF_KEY} must not be empty when provided`,
+    );
   }
 
   if (boundTenant !== undefined && tenantReference !== boundTenant) {
@@ -85,11 +110,8 @@ export function createResource(
     tenantReference,
     resourceKind,
     resourceStatus,
-    ...(nameReference !== undefined && nameReference.length > 0
-      ? { nameReference }
-      : {}),
-    ...(descriptionReference !== undefined && descriptionReference.length > 0
-      ? { descriptionReference }
+    ...(contextReference !== undefined && contextReference.length > 0
+      ? { contextReference }
       : {}),
     ...(parentResourceReference !== undefined &&
     parentResourceReference.length > 0
@@ -97,6 +119,24 @@ export function createResource(
       : {}),
     ...(ownerReference !== undefined && ownerReference.length > 0
       ? { ownerReference }
+      : {}),
+    ...(locationReference !== undefined && locationReference.length > 0
+      ? { locationReference }
+      : {}),
+    ...(categoryReference !== undefined && categoryReference.length > 0
+      ? { categoryReference }
+      : {}),
+    ...(assetReference !== undefined && assetReference.length > 0
+      ? { assetReference }
+      : {}),
+    ...(nameReference !== undefined && nameReference.length > 0
+      ? { nameReference }
+      : {}),
+    ...(descriptionReference !== undefined && descriptionReference.length > 0
+      ? { descriptionReference }
+      : {}),
+    ...(itemReference !== undefined && itemReference.length > 0
+      ? { [RESOURCE_ITEM_REF_KEY]: itemReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

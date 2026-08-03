@@ -1361,25 +1361,25 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-03
 
-**Context:** Fase 65 introduces the Resource Engine so MotanOS can define usable/reservable capacity independently of Booking. Resource = usable capacity; Booking = usage intent. Per DEC-BOOKING-FREEZE-001, physical resource ownership must not live inside `@motanos/booking`. Booking only consumes opaque `resourceReference`.
+**Context:** Fase 94 (evolving Fase 65) consolidates the Resource Boundary so MotanOS can represent operational resources within a business context — independently of availability, reservations, assigned users, payments, pricing, inventory, physical storage, calendars, and external providers. Resource answers “what operational resource exists within a business context?” — not when it may be used, who reserves it, or how it is charged. Per DEC-BOOKING-FREEZE-001, physical resource ownership must not live inside `@motanos/booking`. Booking only consumes opaque `resourceReference`.
 
 **Decision:**
 
-* **Ownership:** `Resource`, factories, and `ResourcePort` live in `@motanos/resource` (`packages/engines/resource`). Resource Engine is independent of Booking, Availability, Experience, Payment, and Runtime adapters.
-* **Pipeline relation:** Resource Definition → Resource Availability (future) → Booking Intent → Booking Lifecycle. Resource answers “what usable capacity exists?”
-* **Separations:** Resource ≠ Availability (free/busy). Resource ≠ Booking (who wants to use it). Resource ≠ Experience (product/offering). Resource ≠ Payment. Resource Engine ≠ Booking Resource Boundary (Booking-side opaque context/policy only).
-* **Kinds (foundation):** `resource.facility`, `resource.table`, `resource.court`, `resource.course`, `resource.room`, `resource.space`, `resource.equipment`, `resource.operational`.
-* **Statuses (foundation):** `draft`, `active`, `inactive`, `maintenance`, `archived` (e.g. draft → active ↔ maintenance, or active → archived).
-* **Contract shape:** Opaque `resourceReference`, required `tenantReference`, `resourceKind`, `resourceStatus`; optional opaque `nameReference`, `descriptionReference`, `parentResourceReference`, `ownerReference`, controlled `metadata`. No PII, payment data, or credentials.
+* **Ownership:** `Resource`, factories, and `ResourcePort` live in `@motanos/resource` (`packages/engines/resource`). Resource is an independent bounded context — not Catalog, Availability, Booking, Calendar, Pricing, Payment, Commerce, Inventory, Membership, Experience, Content, Asset, Template, Analytics, Identity, AI providers, or Database providers.
+* **Pipeline relation:** Business Context → Resource Boundary → Future Availability / Booking Systems. Resource defines existence, tenant, kind, status, and related opaque refs only.
+* **Separations:** Resource ≠ Catalog. Resource ≠ Availability. Resource ≠ Booking. Resource ≠ Pricing. Resource ≠ Payment. Resource ≠ Inventory / Calendar / Assignment engines. Resource Engine ≠ Booking Resource Boundary (Booking-side opaque context/policy only). Opaque refs only — never `bookingId`, `userId`, `calendarId`, `stripeId`, `databaseId`, `inventoryId`.
+* **Kinds (foundation):** `resource.physical`, `resource.digital`, `resource.service`, `resource.staff`, `resource.location`, `resource.operational`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled` (e.g. draft → active → inactive → archived).
+* **Contract shape:** Opaque `resourceReference`, required `tenantReference`, `resourceKind`, `resourceStatus`; optional opaque `catalogReference`, `contextReference`, `parentResourceReference`, `ownerReference`, `locationReference`, `categoryReference`, `assetReference`, `nameReference`, `descriptionReference`, controlled `metadata`.
 * **Tenant isolation:** Resource may be bound to a tenant; cross-tenant creation is denied.
-* **Booking integration:** Booking consumes `resourceReference` only — never a full Resource object graph.
-* **Runtime:** Composition root for future `Resource Port → Adapter` (`createResource` / `resolveResource`). No CRUD store, availability engine, booking creation, or vendor SDKs in this foundation.
+* **Port surface:** `createResource` / `resolveResource` only. No assign, reserve, book, release, allocate, lock, schedule, calculateAvailability, syncInventory, or syncCalendar in this foundation.
+* **Runtime:** Composition root for future `Resource Port → Adapter`. No process runners, AI clients, or cross-engine imports in this foundation.
 * **Dependencies:** `@motanos/resource` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** hierarchy queries, inventory sync, availability linkage, Booking Runtime wiring.
+* **Deferred:** Resource Runtime, Availability/Booking handoff, hierarchy queries, inventory sync.
 
-**Rejected:** Embedding Resource Engine inside Booking; Resource → Booking/Availability/Payment imports; Application → Resource Provider; implementing availability slots, reservations, or persistence adapters in this phase.
+**Rejected:** Turning Resource into Booking, Availability, Calendar, Inventory, Payment, Assignment, or Scheduling; Resource → Catalog/Availability/Booking/Calendar/Pricing/Payment/Commerce/Inventory/Membership/Experience/Content/Asset/Template/Analytics/Identity/OpenAI/database imports; implementing reserve, assign, lock, or availability calculation in this phase.
 
 ---
 

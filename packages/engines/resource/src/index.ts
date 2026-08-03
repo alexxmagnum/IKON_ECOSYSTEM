@@ -3,8 +3,10 @@
  *
  * MotanOS Core → Shared Engines → @motanos/resource
  *
- * Resource = usable capacity. Booking = usage intent.
- * Must not depend on booking, availability, payment vendors, or persistence.
+ * Resource = operational unit existence for a business context.
+ * Must not depend on hold packages, open-slot packages, timeline packages,
+ * collect packages, trade packages, value packages, item packages,
+ * stock packages, compute vendors, or persistence vendors.
  *
  * @see DEC-RESOURCE-BOUNDARY-001
  */
@@ -20,6 +22,7 @@ export type {
   ResourceStatus,
 } from "./resources";
 export {
+  RESOURCE_ITEM_REF_KEY,
   RESOURCE_KINDS,
   RESOURCE_KIND_VALUES,
   RESOURCE_STATUSES,

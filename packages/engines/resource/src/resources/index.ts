@@ -6,6 +6,7 @@ export type {
   ResourceStatus,
 } from "./resource";
 export {
+  RESOURCE_ITEM_REF_KEY,
   RESOURCE_KINDS,
   RESOURCE_KIND_VALUES,
   RESOURCE_STATUSES,
