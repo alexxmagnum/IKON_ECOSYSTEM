@@ -1987,3 +1987,29 @@ They are **provisional** until real execution workflows exist. A later phase may
 **Rejected:** Turning Template into CMS, page builder, frontend framework, workflow engine, AI engine, or automation; Template → Experience/Workflow/Notification/Localization/Asset/Recommendation/Analytics/Identity/Membership/OpenAI/database imports; implementing render, publish, send, or generation in this phase.
 
 ---
+
+## DEC-CONTENT-BOUNDARY-001 — Content Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-03
+
+**Context:** Fase 90 introduces the Content Engine so MotanOS can represent reusable business information within a context — independently of CMS, rich-text editors, blog engines, publishing systems, file storage, automatic translation, frontend rendering, multimedia management, and AI generation. Content answers “what business information exists within a context?” — not how to publish, translate, render, or generate.
+
+**Decision:**
+
+* **Ownership:** `Content`, factories, and `ContentPort` live in `@motanos/content` (`packages/engines/content`). Content is an independent bounded context — not Template, Asset, Localization, Experience, Workflow, Notification, Recommendation, Analytics, Identity, Membership, AI providers, or Database providers.
+* **Pipeline relation:** Business / Tenant Context → Content Boundary → Future Experience / Template / Localization Systems. Content defines existence, context, kind, and status only.
+* **Separations:** Content ≠ Template. Content ≠ Asset. Content ≠ Localization. Content ≠ Experience. Content ≠ Notification. Content ≠ CMS / blog / page builder / multimedia store. Opaque refs only — never `experienceId`, `userId`, `bookingId`, `fileId`, `databaseId`, `translationId`.
+* **Kinds (foundation):** `content.business`, `content.product`, `content.operational`, `content.communication`, `content.help`, `content.system`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled` (e.g. draft → active → inactive → archived).
+* **Contract shape:** Opaque `contentReference`, required `tenantReference`, `contentKind`, `contentStatus`; optional opaque `titleReference`, `descriptionReference`, `bodyReference`, `contextReference`, `ownerReference`, `templateReference`, `assetReference`, controlled `metadata`.
+* **Tenant isolation:** Content may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createContent` / `resolveContent` only. No publishContent, renderContent, translateContent, generateContent, editContent, searchContent, syncContent, or uploadContent in this foundation.
+* **Runtime:** Composition root for future `Content Port → Adapter`. No process runners, AI clients, or cross-engine imports in this foundation.
+* **Dependencies:** `@motanos/content` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Content Runtime, Template/Experience handoff, Localization linkage, Asset binary storage.
+
+**Rejected:** Turning Content into CMS, blog engine, visual editor, page builder, AI engine, publishing system, or multimedia storage; Content → Template/Asset/Localization/Experience/Workflow/Notification/Recommendation/Analytics/Identity/Membership/OpenAI/database imports; implementing publish, translate, render, upload, or generation in this phase.
+
+---
