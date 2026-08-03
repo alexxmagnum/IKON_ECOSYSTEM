@@ -1748,25 +1748,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-03
 
-**Context:** Fase 78 introduces the Policy Engine so MotanOS can express configurable business rules, conditions that must hold, and future decision criteria independently of user permissions, roles, authentication, workflow runtime, domain engine internals, and hardcoded rules inside other engines. Policy answers “under what conditions may something occur?” — not which action to run.
+**Context:** Fase 104 (evolving Fase 78) consolidates Policy as a pure declarative-condition boundary — “what condition or rule exists?” — independently of how it is evaluated or executed, who has permission, authentication, authorization, workflows, configuration, feature flags, billing plans, analytics, and decision engines. MotanOS needs an opaque policy record so future Policy Evaluation Engines can plug in as adapters. No policy-lifecycle split was required: `@motanos/policy` was already a slim boundary.
 
 **Decision:**
 
-* **Ownership:** `Policy`, factories, and `PolicyPort` live in `@motanos/policy` (`packages/engines/policy`). Policy is an independent bounded context — not Booking, Membership, Commerce, Workflow, Permissions, Identity, or Database.
-* **Pipeline relation:** Authorization (“may they?”) → Policy (“under what conditions?”) → Domain Engine (“what operation exists?”) → Workflow (“what process connects steps?”). Context → Policy Boundary → Decision Context (Booking / Membership / Commerce / Community / Experience) → future Policy Evaluation Runtime.
-* **Separations:** Policy ≠ Permissions. Policy ≠ Workflow. Policy ≠ Domain Logic. Policy ≠ Authorization. No roles, users, auth, execution, scheduler, database rules, or feature flags in this foundation.
-* **Kinds (foundation):** `policy.business`, `policy.membership`, `policy.booking`, `policy.commerce`, `policy.resource`, `policy.operational`.
-* **Statuses (foundation):** `draft`, `active`, `paused`, `expired`, `archived`, `cancelled` (e.g. draft → active → expired).
-* **Contract shape:** Opaque `policyReference`, required `tenantReference`, `policyKind`, `policyStatus`; optional opaque `nameReference`, `descriptionReference`, `contextReference`, `ownerReference`, `parentPolicyReference`, controlled `metadata`. No passwords, tokens, credentials, or secrets. Future opaque links to booking/membership/commerce/resource/workflow/identity — never engine imports.
+* **Ownership:** `Policy`, factories, and `PolicyPort` live in `@motanos/policy` (`packages/engines/policy`). Policy is an independent bounded context — not Permissions, Workflow, Configuration, or Decision Engine.
+* **Pipeline relation:** Context / Rule Definition → Policy Boundary → Future Policy Evaluation Engine. Policy answers “under what conditions does a constraint apply?”
+* **Separations:** Policy ≠ Permissions. Policy ≠ Workflow. Policy ≠ Configuration. Policy ≠ Decision Engine. Opaque refs only — never live evaluation sessions, rule ASTs, or capacity catalogs.
+* **Kinds (foundation):** `policy.access`, `policy.business`, `policy.operational`, `policy.security`, `policy.resource`, `policy.system`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `policyReference`, required `tenantReference`, `policyKind`, `policyStatus`; optional opaque `actorReference`, `membershipReference`, `permissionReference`, `contextReference`, `resourceReference`, `conditionReference`, `actionReference`, `parentPolicyReference`, controlled `metadata`.
 * **Tenant isolation:** Policy may be bound to a tenant; cross-tenant creation is denied.
-* **Port surface:** `createPolicy` / `resolvePolicy` only. No evaluatePolicy, executePolicy, validateDecision, applyPolicy, or runRule methods in this foundation.
-* **Runtime:** Composition root for future `Policy Port → Adapter`. No database, evaluation runtime, or providers in this foundation.
+* **Port surface:** `createPolicy` / `resolvePolicy` only. No evaluatePolicy, executePolicy, checkRule, decide, authorize, createRule, runWorkflow, calculateDecision, or applyPolicy.
 * **Dependencies:** `@motanos/policy` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** condition expression language, evaluation runtime, decision adapters, cross-engine policy application.
+* **Deferred:** evaluation adapters, expression language, Runtime wiring. No `@motanos/policy-lifecycle` in this phase.
 
-**Rejected:** Substituting Permissions with Policy; absorbing domain logic into Policy; Policy → Permissions/Auth/Database imports; Application → Policy Evaluation Runtime; implementing real evaluation or rule execution in this phase.
+**Rejected:** Absorbing Permissions/Workflow/Configuration into Policy; Policy → Permissions/Auth/Workflow/Configuration/evaluation imports; implementing evaluation or rule execution in this phase.
 
 ---
 

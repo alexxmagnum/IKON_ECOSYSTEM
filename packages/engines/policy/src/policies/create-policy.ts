@@ -5,6 +5,7 @@ import type {
   PolicyStatus,
 } from "./policy";
 import {
+  POLICY_CAPACITY_REF_KEY,
   POLICY_STATUSES,
   isPolicyKind,
   isPolicyStatus,
@@ -15,25 +16,30 @@ let policySequence = 0;
 export interface CreatePolicyOptions {
   /**
    * When set, policy may only be created for this tenant
-   * (cross-tenant isolation).
+   * (cross-tenant scope lock).
    */
   tenantReference?: string;
 }
 
 /**
- * Build a validated Policy (in-memory — rule definition / context only).
- * Does not score decisions, apply rules, or open vendor sessions.
+ * Build a checked Policy (in-memory — condition / constraint existence only).
+ * Does not score outcomes, apply constraints, or open vendor sessions.
  */
 export function createPolicy(
   input: CreatePolicyInput,
   options: CreatePolicyOptions = {},
 ): Policy {
   const tenantReference = input.tenantReference?.trim() ?? "";
-  const nameReference = input.nameReference?.trim();
-  const descriptionReference = input.descriptionReference?.trim();
+  const actorReference = input.actorReference?.trim();
+  const membershipReference = input.membershipReference?.trim();
   const contextReference = input.contextReference?.trim();
-  const ownerReference = input.ownerReference?.trim();
+  const resourceReference = input.resourceReference?.trim();
+  const conditionReference = input.conditionReference?.trim();
+  const actionReference = input.actionReference?.trim();
   const parentPolicyReference = input.parentPolicyReference?.trim();
+  const capacityRaw = input[POLICY_CAPACITY_REF_KEY];
+  const capacityReference =
+    typeof capacityRaw === "string" ? capacityRaw.trim() : undefined;
   const boundTenant = options.tenantReference?.trim() || undefined;
 
   if (!tenantReference) {
@@ -49,20 +55,31 @@ export function createPolicy(
     throw new Error(`Unknown policy status: ${String(input.policyStatus)}`);
   }
 
-  if (input.nameReference !== undefined && !nameReference) {
-    throw new Error("nameReference must not be empty when provided");
+  if (input.actorReference !== undefined && !actorReference) {
+    throw new Error("actorReference must not be empty when provided");
   }
-  if (input.descriptionReference !== undefined && !descriptionReference) {
-    throw new Error("descriptionReference must not be empty when provided");
+  if (input.membershipReference !== undefined && !membershipReference) {
+    throw new Error("membershipReference must not be empty when provided");
   }
   if (input.contextReference !== undefined && !contextReference) {
     throw new Error("contextReference must not be empty when provided");
   }
-  if (input.ownerReference !== undefined && !ownerReference) {
-    throw new Error("ownerReference must not be empty when provided");
+  if (input.resourceReference !== undefined && !resourceReference) {
+    throw new Error("resourceReference must not be empty when provided");
+  }
+  if (input.conditionReference !== undefined && !conditionReference) {
+    throw new Error("conditionReference must not be empty when provided");
+  }
+  if (input.actionReference !== undefined && !actionReference) {
+    throw new Error("actionReference must not be empty when provided");
   }
   if (input.parentPolicyReference !== undefined && !parentPolicyReference) {
     throw new Error("parentPolicyReference must not be empty when provided");
+  }
+  if (capacityRaw !== undefined && !capacityReference) {
+    throw new Error(
+      `${POLICY_CAPACITY_REF_KEY} must not be empty when provided`,
+    );
   }
 
   if (boundTenant !== undefined && tenantReference !== boundTenant) {
@@ -82,21 +99,30 @@ export function createPolicy(
     tenantReference,
     policyKind,
     policyStatus,
-    ...(nameReference !== undefined && nameReference.length > 0
-      ? { nameReference }
+    ...(actorReference !== undefined && actorReference.length > 0
+      ? { actorReference }
       : {}),
-    ...(descriptionReference !== undefined && descriptionReference.length > 0
-      ? { descriptionReference }
+    ...(membershipReference !== undefined && membershipReference.length > 0
+      ? { membershipReference }
       : {}),
     ...(contextReference !== undefined && contextReference.length > 0
       ? { contextReference }
       : {}),
-    ...(ownerReference !== undefined && ownerReference.length > 0
-      ? { ownerReference }
+    ...(resourceReference !== undefined && resourceReference.length > 0
+      ? { resourceReference }
+      : {}),
+    ...(conditionReference !== undefined && conditionReference.length > 0
+      ? { conditionReference }
+      : {}),
+    ...(actionReference !== undefined && actionReference.length > 0
+      ? { actionReference }
       : {}),
     ...(parentPolicyReference !== undefined &&
     parentPolicyReference.length > 0
       ? { parentPolicyReference }
+      : {}),
+    ...(capacityReference !== undefined && capacityReference.length > 0
+      ? { [POLICY_CAPACITY_REF_KEY]: capacityReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

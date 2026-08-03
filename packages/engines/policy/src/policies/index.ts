@@ -6,6 +6,7 @@ export type {
   PolicyStatus,
 } from "./policy";
 export {
+  POLICY_CAPACITY_REF_KEY,
   POLICY_KINDS,
   POLICY_KIND_VALUES,
   POLICY_STATUSES,

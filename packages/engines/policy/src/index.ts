@@ -1,19 +1,16 @@
 /**
- * @motanos/policy — Policy Engine foundation.
+ * @motanos/policy — Policy Boundary foundation.
  *
- * MotanOS Core → Shared Engines → @motanos/policy
+ * MotanOS Core → Shared packages → @motanos/policy
  *
- * Policy = configurable business rules and decision conditions.
- * Domain engines own operations; access control owns who may act;
- * process orchestration owns step sequences.
- *
- * Must not depend on booking, membership, commerce, identity,
- * access-control packages, or persistence vendors.
+ * Policy = declarative condition / constraint existence for a context.
+ * Must not depend on capacity packages, sign-in packages, process packages,
+ * settings packages, or scoring runners.
  *
  * @see DEC-POLICY-BOUNDARY-001
  */
 
-export const POLICY_ENGINE = "@motanos/policy" as const;
+export const POLICY_BOUNDARY = "@motanos/policy" as const;
 
 export type {
   CreatePolicyInput,
@@ -24,6 +21,7 @@ export type {
   PolicyStatus,
 } from "./policies";
 export {
+  POLICY_CAPACITY_REF_KEY,
   POLICY_KINDS,
   POLICY_KIND_VALUES,
   POLICY_STATUSES,
