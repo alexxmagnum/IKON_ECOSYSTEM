@@ -1646,25 +1646,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-03
 
-**Context:** Fase 75 introduces the Audit Engine so MotanOS can represent audit events, traceability, action context, and future history independently of authentication, authorization, RBAC, user management, database logging, SIEM, and monitoring infrastructure. Audit answers “what happened” — not “who is allowed to do it.”
+**Context:** Fase 103 (evolving Fase 75) consolidates Audit as a pure auditable-event boundary — “what auditable action or event exists?” — independently of where it is stored, how it is persisted, technical logging, observability, SIEM, external compliance systems, analytics, reporting, alerts, fraud detection, and monitoring. MotanOS needs an opaque audit record so future Audit Storage / Compliance Providers can plug in as adapters. No audit-lifecycle split was required: `@motanos/audit` was already a slim boundary. Entity renamed to `AuditEntry`; port is `createAudit` / `resolveAudit`.
 
 **Decision:**
 
-* **Ownership:** `AuditEvent`, factories, and `AuditPort` live in `@motanos/audit` (`packages/engines/audit`). Audit is an independent bounded context — not Identity, Auth, Permissions, Database, or Analytics.
-* **Pipeline relation:** Authorization (“may they?”) → Domain Action (“they did”) → Audit Boundary (“it is recorded”) → future Audit Storage / Analytics. Any engine action (Booking, Payment, Community, Membership, Commerce, …) may emit opaque audit events.
-* **Separations:** Audit ≠ Authentication. Audit ≠ Authorization. Audit ≠ RBAC. Audit ≠ User management. Audit ≠ Database logging. Audit ≠ SIEM. Audit ≠ Monitoring infrastructure.
-* **Kinds (foundation):** `audit.creation`, `audit.update`, `audit.deletion`, `audit.access`, `audit.lifecycle`, `audit.operational`.
-* **Statuses (foundation):** `pending`, `recorded`, `archived`, `failed`, `cancelled` (e.g. pending → recorded).
-* **Contract shape:** Opaque `auditReference`, required `tenantReference`, `auditKind`, `auditStatus`; optional opaque `actorReference`, `entityReference`, `entityKind`, `actionReference`, `sourceReference`, controlled `metadata`. No passwords, tokens, JWTs, credentials, or capability catalogs.
-* **Tenant isolation:** Audit events may be bound to a tenant; cross-tenant creation is denied.
-* **Port surface:** `createAuditEvent` / `resolveAuditEvent` only. No storeAudit, writeDatabaseLog, or sendLog methods in this foundation.
-* **Runtime:** Composition root for future `Audit Port → Adapter`. No database, external APIs, or analytics SDKs in this foundation.
+* **Ownership:** `AuditEntry`, factories, and `AuditPort` live in `@motanos/audit` (`packages/engines/audit`). Audit is an independent bounded context — not Measurement, Analytics, Logging, Compliance, Reporting, or Runtime adapters.
+* **Pipeline relation:** Actor / Domain Event → Audit Boundary → Future Audit Storage / Compliance Provider. Audit answers “what fact occurred?”
+* **Separations:** Audit ≠ Logging. Audit ≠ Analytics. Audit ≠ Reporting. Audit ≠ Compliance. Opaque refs only — never live persistence sessions, log payloads, or report documents.
+* **Kinds (foundation):** `audit.security`, `audit.access`, `audit.business`, `audit.operational`, `audit.system`, `audit.compliance`.
+* **Statuses (foundation):** `draft`, `active`, `processed`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `auditReference`, required `tenantReference`, `auditKind`, `auditStatus`; optional opaque `actorReference`, `identityReference`, `membershipReference`, `permissionReference`, `entityReference`, `entityKind`, `actionReference`, `contextReference`, `parentAuditReference`, controlled `metadata`.
+* **Tenant isolation:** Audit may be bound to a tenant; cross-tenant creation is denied.
+* **Port surface:** `createAudit` / `resolveAudit` only. No writeLog, storeAudit, persistAudit, sendReport, generateComplianceReport, trackAnalytics, monitorActivity, detectFraud, or exportAudit.
 * **Dependencies:** `@motanos/audit` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** audit storage adapters, analytics pipelines, history query APIs, SIEM integrations.
+* **Deferred:** storage adapters, compliance provider adapters, history query APIs. No `@motanos/audit-lifecycle` in this phase.
 
-**Rejected:** Turning Audit into auth/permissions; Audit → database/Supabase imports; Application → Audit Storage; implementing real persistence or monitoring in this phase.
+**Rejected:** Turning Audit into logging/analytics/reporting/compliance; Audit → database/logger/analytics/monitoring imports; implementing persistence or fraud detection in this phase.
 
 ---
 

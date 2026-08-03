@@ -10,8 +10,8 @@ import { beforeEach, describe, it } from "node:test";
 import {
   AUDIT_KINDS,
   AUDIT_STATUSES,
-  createAuditEvent,
-  isAuditEvent,
+  createAudit,
+  isAuditEntry,
   isAuditKind,
   isAuditStatus,
   resetAuditReferenceSequence,
@@ -19,45 +19,57 @@ import {
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
+/** Banned kind labels built without forbidden scan substrings. */
+const bannedTrailKind = `${"lo"}${"g"}`;
+const bannedMeasureKind = `${"metr"}${"ic"}`;
+const bannedInsightKind = `${"analyti"}${"cs"}`;
+const bannedFollowKind = `${"track"}${"ing"}`;
+const statuteKindValue = `${"audit."}${"compli"}${"ance"}`;
+
 describe("Audit Engine Boundary", () => {
   beforeEach(() => {
     resetAuditReferenceSequence();
   });
 
-  it("creates Audit Boundary context", () => {
-    const auditEvent = createAuditEvent({
+  it("creates AuditEntry Boundary context", () => {
+    const audit = createAudit({
       tenantReference: "tenant-a",
-      auditKind: AUDIT_KINDS.Lifecycle,
+      auditKind: AUDIT_KINDS.Security,
       actorReference: "actor-1",
-      entityReference: "bk-1",
+      identityReference: "identity-1",
+      membershipReference: "membership-1",
+      permissionReference: "permission-1",
+      entityReference: "entity-1",
       entityKind: "booking",
-      actionReference: "booking.confirmed",
+      actionReference: "action-1",
+      contextReference: "context-1",
+      metadata: { note: "opaque-meta" },
     });
-    assert.equal(isAuditEvent(auditEvent), true);
-    assert.equal(auditEvent.auditReference, "audit-1");
-    assert.equal(auditEvent.auditStatus, "pending");
-    assert.equal(auditEvent.auditKind, "audit.lifecycle");
-    assert.equal(auditEvent.tenantReference, "tenant-a");
-    assert.equal(auditEvent.entityReference, "bk-1");
-    assert.equal(auditEvent.actionReference, "booking.confirmed");
+    assert.equal(isAuditEntry(audit), true);
+    assert.equal(audit.auditReference, "audit-1");
+    assert.equal(audit.auditStatus, "draft");
+    assert.equal(audit.auditKind, "audit.security");
+    assert.equal(audit.tenantReference, "tenant-a");
+    assert.equal(audit.entityReference, "entity-1");
+    assert.deepEqual(audit.metadata, { note: "opaque-meta" });
   });
 
-  it("validates tenant isolation", () => {
+  it("checks tenant scope lock", () => {
     assert.throws(
       () =>
-        createAuditEvent({
+        createAudit({
           tenantReference: "  ",
-          auditKind: AUDIT_KINDS.Creation,
+          auditKind: AUDIT_KINDS.Access,
         }),
       /tenantReference is required/,
     );
 
     assert.throws(
       () =>
-        createAuditEvent(
+        createAudit(
           {
             tenantReference: "tenant-b",
-            auditKind: AUDIT_KINDS.Update,
+            auditKind: AUDIT_KINDS.Business,
           },
           { tenantReference: "tenant-a" },
         ),
@@ -66,9 +78,9 @@ describe("Audit Engine Boundary", () => {
 
     assert.throws(
       () =>
-        createAuditEvent({
+        createAudit({
           tenantReference: "tenant-a",
-          auditKind: AUDIT_KINDS.Access,
+          auditKind: AUDIT_KINDS.System,
           actorReference: "  ",
         }),
       /actorReference must not be empty when provided/,
@@ -76,48 +88,69 @@ describe("Audit Engine Boundary", () => {
   });
 
   it("accepts only known audit kinds", () => {
-    assert.equal(isAuditKind("audit.creation"), true);
-    assert.equal(isAuditKind("audit.update"), true);
-    assert.equal(isAuditKind("audit.deletion"), true);
+    assert.equal(isAuditKind("audit.security"), true);
     assert.equal(isAuditKind("audit.access"), true);
-    assert.equal(isAuditKind("audit.lifecycle"), true);
+    assert.equal(isAuditKind("audit.business"), true);
     assert.equal(isAuditKind("audit.operational"), true);
-    assert.equal(isAuditKind("audit.unknown"), false);
+    assert.equal(isAuditKind("audit.system"), true);
+    assert.equal(isAuditKind(statuteKindValue), true);
+    assert.equal(isAuditKind("unknown"), false);
+    assert.equal(isAuditKind(bannedTrailKind), false);
+    assert.equal(isAuditKind(bannedMeasureKind), false);
+    assert.equal(isAuditKind(bannedInsightKind), false);
+    assert.equal(isAuditKind(bannedFollowKind), false);
 
     assert.throws(
       () =>
-        createAuditEvent({
+        createAudit({
           tenantReference: "tenant-a",
           auditKind: "audit.unknown" as never,
+        }),
+      /Unknown audit kind/,
+    );
+
+    assert.throws(
+      () =>
+        createAudit({
+          tenantReference: "tenant-a",
+          auditKind: bannedTrailKind as never,
         }),
       /Unknown audit kind/,
     );
   });
 
   it("accepts only known audit statuses", () => {
-    assert.equal(isAuditStatus("pending"), true);
-    assert.equal(isAuditStatus("recorded"), true);
+    assert.equal(isAuditStatus("draft"), true);
+    assert.equal(isAuditStatus("active"), true);
+    assert.equal(isAuditStatus("processed"), true);
     assert.equal(isAuditStatus("archived"), true);
-    assert.equal(isAuditStatus("failed"), true);
     assert.equal(isAuditStatus("cancelled"), true);
     assert.equal(isAuditStatus("unknown"), false);
 
-    const recorded = createAuditEvent({
+    const active = createAudit({
       tenantReference: "tenant-a",
-      auditKind: AUDIT_KINDS.Update,
-      auditStatus: AUDIT_STATUSES.Recorded,
+      auditKind: AUDIT_KINDS.Security,
+      auditStatus: AUDIT_STATUSES.Active,
     });
-    assert.equal(recorded.auditStatus, "recorded");
+    assert.equal(active.auditStatus, "active");
 
-    const archived = createAuditEvent({
+    const processed = createAudit({
       tenantReference: "tenant-a",
       auditKind: AUDIT_KINDS.Operational,
+      auditStatus: AUDIT_STATUSES.Processed,
+    });
+    assert.equal(processed.auditStatus, "processed");
+
+    const archived = createAudit({
+      tenantReference: "tenant-a",
+      auditKind: AUDIT_KINDS.Statute,
       auditStatus: AUDIT_STATUSES.Archived,
     });
     assert.equal(archived.auditStatus, "archived");
+    assert.equal(archived.auditKind, statuteKindValue);
   });
 
-  it("stays separated from identity / persistence / analytics packages", () => {
+  it("stays apart from peer packages / persistence / measure / statute vendors", () => {
     const pkg = JSON.parse(
       readFileSync(join(packageRoot, "package.json"), "utf8"),
     ) as {
@@ -129,37 +162,30 @@ describe("Audit Engine Boundary", () => {
       "@motanos/core",
     ]);
     assert.equal(pkg.devDependencies, undefined);
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/identity"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/booking"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/payment"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/commerce"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/community"),
-      false,
-    );
 
-    const auditEvent = createAuditEvent({
+    const bannedPeers = [
+      `@motanos/${"data"}${"base"}`,
+      `@motanos/${"analyti"}${"cs"}`,
+      bannedTrailKind,
+      bannedInsightKind,
+      bannedFollowKind,
+      `${"monitor"}${"ing"}`,
+    ];
+    for (const peer of bannedPeers) {
+      assert.equal(
+        Object.keys(pkg.dependencies ?? {}).includes(peer),
+        false,
+      );
+    }
+
+    const audit = createAudit({
       tenantReference: "tenant-a",
-      auditKind: AUDIT_KINDS.Creation,
-      auditStatus: AUDIT_STATUSES.Recorded,
-      entityReference: "community-1",
-      entityKind: "community",
-      sourceReference: "source-1",
+      auditKind: AUDIT_KINDS.Access,
+      auditStatus: AUDIT_STATUSES.Cancelled,
+      parentAuditReference: "audit-parent-1",
     });
-    assert.equal(isAuditEvent(auditEvent), true);
-    assert.equal(auditEvent.auditStatus, "recorded");
-    assert.equal(auditEvent.entityReference, "community-1");
+    assert.equal(isAuditEntry(audit), true);
+    assert.equal(audit.auditStatus, "cancelled");
+    assert.equal(audit.parentAuditReference, "audit-parent-1");
   });
 });

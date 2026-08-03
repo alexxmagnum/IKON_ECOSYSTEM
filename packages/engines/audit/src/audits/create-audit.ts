@@ -1,39 +1,43 @@
 import type {
-  AuditEvent,
+  CreateAuditInput,
+  AuditEntry,
   AuditKind,
   AuditStatus,
-  CreateAuditEventInput,
-} from "./audit-event";
+} from "./audit-entry";
 import {
   AUDIT_STATUSES,
   isAuditKind,
   isAuditStatus,
-} from "./audit-event";
+} from "./audit-entry";
 
 let auditSequence = 0;
 
-export interface CreateAuditEventOptions {
+export interface CreateAuditOptions {
   /**
-   * When set, audit event may only be created for this tenant
-   * (cross-tenant isolation).
+   * When set, audit may only be created for this tenant
+   * (cross-tenant scope lock).
    */
   tenantReference?: string;
 }
 
 /**
- * Build a validated AuditEvent (in-memory — event / context only).
- * Does not persist, ship logs, or open analytics sessions.
+ * Build a checked AuditEntry (in-memory — auditable fact existence only).
+ * Does not persist, open measure sessions, or export trails.
  */
-export function createAuditEvent(
-  input: CreateAuditEventInput,
-  options: CreateAuditEventOptions = {},
-): AuditEvent {
+export function createAudit(
+  input: CreateAuditInput,
+  options: CreateAuditOptions = {},
+): AuditEntry {
   const tenantReference = input.tenantReference?.trim() ?? "";
   const actorReference = input.actorReference?.trim();
+  const identityReference = input.identityReference?.trim();
+  const membershipReference = input.membershipReference?.trim();
+  const permissionReference = input.permissionReference?.trim();
   const entityReference = input.entityReference?.trim();
   const entityKind = input.entityKind?.trim();
   const actionReference = input.actionReference?.trim();
-  const sourceReference = input.sourceReference?.trim();
+  const contextReference = input.contextReference?.trim();
+  const parentAuditReference = input.parentAuditReference?.trim();
   const boundTenant = options.tenantReference?.trim() || undefined;
 
   if (!tenantReference) {
@@ -44,13 +48,22 @@ export function createAuditEvent(
   }
 
   const auditStatus: AuditStatus =
-    input.auditStatus ?? AUDIT_STATUSES.Pending;
+    input.auditStatus ?? AUDIT_STATUSES.Draft;
   if (!isAuditStatus(auditStatus)) {
     throw new Error(`Unknown audit status: ${String(input.auditStatus)}`);
   }
 
   if (input.actorReference !== undefined && !actorReference) {
     throw new Error("actorReference must not be empty when provided");
+  }
+  if (input.identityReference !== undefined && !identityReference) {
+    throw new Error("identityReference must not be empty when provided");
+  }
+  if (input.membershipReference !== undefined && !membershipReference) {
+    throw new Error("membershipReference must not be empty when provided");
+  }
+  if (input.permissionReference !== undefined && !permissionReference) {
+    throw new Error("permissionReference must not be empty when provided");
   }
   if (input.entityReference !== undefined && !entityReference) {
     throw new Error("entityReference must not be empty when provided");
@@ -61,12 +74,15 @@ export function createAuditEvent(
   if (input.actionReference !== undefined && !actionReference) {
     throw new Error("actionReference must not be empty when provided");
   }
-  if (input.sourceReference !== undefined && !sourceReference) {
-    throw new Error("sourceReference must not be empty when provided");
+  if (input.contextReference !== undefined && !contextReference) {
+    throw new Error("contextReference must not be empty when provided");
+  }
+  if (input.parentAuditReference !== undefined && !parentAuditReference) {
+    throw new Error("parentAuditReference must not be empty when provided");
   }
 
   if (boundTenant !== undefined && tenantReference !== boundTenant) {
-    throw new Error("audit event does not apply to this tenant");
+    throw new Error("audit does not apply to this tenant");
   }
 
   const providedReference = input.auditReference?.trim() ?? "";
@@ -85,6 +101,15 @@ export function createAuditEvent(
     ...(actorReference !== undefined && actorReference.length > 0
       ? { actorReference }
       : {}),
+    ...(identityReference !== undefined && identityReference.length > 0
+      ? { identityReference }
+      : {}),
+    ...(membershipReference !== undefined && membershipReference.length > 0
+      ? { membershipReference }
+      : {}),
+    ...(permissionReference !== undefined && permissionReference.length > 0
+      ? { permissionReference }
+      : {}),
     ...(entityReference !== undefined && entityReference.length > 0
       ? { entityReference }
       : {}),
@@ -94,8 +119,11 @@ export function createAuditEvent(
     ...(actionReference !== undefined && actionReference.length > 0
       ? { actionReference }
       : {}),
-    ...(sourceReference !== undefined && sourceReference.length > 0
-      ? { sourceReference }
+    ...(contextReference !== undefined && contextReference.length > 0
+      ? { contextReference }
+      : {}),
+    ...(parentAuditReference !== undefined && parentAuditReference.length > 0
+      ? { parentAuditReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

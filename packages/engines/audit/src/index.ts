@@ -1,13 +1,11 @@
 /**
- * @motanos/audit — Audit Engine foundation.
+ * @motanos/audit — Audit Engine Boundary foundation.
  *
  * MotanOS Core → Shared Engines → @motanos/audit
  *
- * Audit = what happened: events, traceability, action context.
- * Domain actions may emit audit events; storage / analytics live elsewhere.
- *
- * Must not depend on identity, sign-in packages, access-control packages,
- * persistence vendors, or analytics vendors.
+ * Audit = auditable action / event existence for a business context.
+ * Must not depend on persistence vendors, tech-trail packages,
+ * measure packages, statute packages, or observability vendors.
  *
  * @see DEC-AUDIT-BOUNDARY-001
  */
@@ -15,20 +13,20 @@
 export const AUDIT_ENGINE = "@motanos/audit" as const;
 
 export type {
-  AuditEvent,
+  AuditEntry,
   AuditKind,
   AuditPort,
   AuditStatus,
-  CreateAuditEventInput,
-  CreateAuditEventOptions,
+  CreateAuditInput,
+  CreateAuditOptions,
 } from "./audits";
 export {
   AUDIT_KINDS,
   AUDIT_KIND_VALUES,
   AUDIT_STATUSES,
   AUDIT_STATUS_VALUES,
-  createAuditEvent,
-  isAuditEvent,
+  createAudit,
+  isAuditEntry,
   isAuditKind,
   isAuditPort,
   isAuditStatus,

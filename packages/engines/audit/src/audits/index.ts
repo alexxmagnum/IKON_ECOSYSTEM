@@ -1,22 +1,22 @@
 export type {
-  AuditEvent,
+  AuditEntry,
   AuditKind,
   AuditPort,
   AuditStatus,
-  CreateAuditEventInput,
-} from "./audit-event";
+  CreateAuditInput,
+} from "./audit-entry";
 export {
   AUDIT_KINDS,
   AUDIT_KIND_VALUES,
   AUDIT_STATUSES,
   AUDIT_STATUS_VALUES,
-  isAuditEvent,
+  isAuditEntry,
   isAuditKind,
   isAuditPort,
   isAuditStatus,
-} from "./audit-event";
-export type { CreateAuditEventOptions } from "./create-audit-event";
+} from "./audit-entry";
+export type { CreateAuditOptions } from "./create-audit";
 export {
-  createAuditEvent,
+  createAudit,
   resetAuditReferenceSequence,
-} from "./create-audit-event";
+} from "./create-audit";
