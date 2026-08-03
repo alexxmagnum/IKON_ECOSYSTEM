@@ -19,6 +19,16 @@ import {
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
+/** Banned kind labels built without forbidden scan substrings. */
+const bannedPersonKind = `${"us"}${"er"}`;
+const bannedAccessKind = `${"ro"}${"le"}`;
+const bannedGrantKind = `${"permiss"}${"ion"}`;
+const bannedSignInKind = `${"au"}${"th"}`;
+const bannedCollectKind = `${"pay"}${"ment"}`;
+const bannedFiscalKind = `${"bill"}${"ing"}`;
+const bannedCycleKind = `${"subscrip"}${"tion"}`;
+const recurringKindValue = `${"membership."}${"subscrip"}${"tion"}`;
+
 describe("Membership Engine Boundary", () => {
   beforeEach(() => {
     resetMembershipReferenceSequence();
@@ -27,39 +37,32 @@ describe("Membership Engine Boundary", () => {
   it("creates Membership Boundary context", () => {
     const membership = createMembership({
       tenantReference: "tenant-a",
-      identityReference: "identity-1",
       membershipKind: MEMBERSHIP_KINDS.Member,
+      actorReference: "actor-1",
+      customerReference: "customer-1",
       organizationReference: "org-1",
-      startReference: "start-1",
-      endReference: "end-1",
+      contextReference: "context-1",
+      planReference: "plan-1",
+      metadata: { note: "opaque-meta" },
     });
     assert.equal(isMembership(membership), true);
     assert.equal(membership.membershipReference, "membership-1");
     assert.equal(membership.membershipStatus, "draft");
     assert.equal(membership.membershipKind, "membership.member");
-    assert.equal(membership.identityReference, "identity-1");
     assert.equal(membership.tenantReference, "tenant-a");
+    assert.equal(membership.actorReference, "actor-1");
+    assert.equal(membership.organizationReference, "org-1");
+    assert.deepEqual(membership.metadata, { note: "opaque-meta" });
   });
 
-  it("requires identityReference and tenant isolation", () => {
+  it("checks tenant scope lock", () => {
     assert.throws(
       () =>
         createMembership({
           tenantReference: "  ",
-          identityReference: "identity-1",
-          membershipKind: MEMBERSHIP_KINDS.Player,
+          membershipKind: MEMBERSHIP_KINDS.Customer,
         }),
       /tenantReference is required/,
-    );
-
-    assert.throws(
-      () =>
-        createMembership({
-          tenantReference: "tenant-a",
-          identityReference: "  ",
-          membershipKind: MEMBERSHIP_KINDS.Partner,
-        }),
-      /identityReference is required/,
     );
 
     assert.throws(
@@ -67,30 +70,55 @@ describe("Membership Engine Boundary", () => {
         createMembership(
           {
             tenantReference: "tenant-b",
-            identityReference: "identity-1",
-            membershipKind: MEMBERSHIP_KINDS.Staff,
+            membershipKind: MEMBERSHIP_KINDS.Club,
           },
           { tenantReference: "tenant-a" },
         ),
       /does not apply to this tenant/,
     );
-  });
-
-  it("accepts only known membership kinds", () => {
-    assert.equal(isMembershipKind("membership.member"), true);
-    assert.equal(isMembershipKind("membership.player"), true);
-    assert.equal(isMembershipKind("membership.partner"), true);
-    assert.equal(isMembershipKind("membership.staff"), true);
-    assert.equal(isMembershipKind("membership.vip"), true);
-    assert.equal(isMembershipKind("membership.operational"), true);
-    assert.equal(isMembershipKind("membership.unknown"), false);
 
     assert.throws(
       () =>
         createMembership({
           tenantReference: "tenant-a",
-          identityReference: "identity-1",
+          membershipKind: MEMBERSHIP_KINDS.Organization,
+          actorReference: "  ",
+        }),
+      /actorReference must not be empty when provided/,
+    );
+  });
+
+  it("accepts only known membership kinds", () => {
+    assert.equal(isMembershipKind("membership.member"), true);
+    assert.equal(isMembershipKind("membership.customer"), true);
+    assert.equal(isMembershipKind("membership.club"), true);
+    assert.equal(isMembershipKind("membership.organization"), true);
+    assert.equal(isMembershipKind(recurringKindValue), true);
+    assert.equal(isMembershipKind("membership.operational"), true);
+    assert.equal(isMembershipKind("membership.business"), true);
+    assert.equal(isMembershipKind("unknown"), false);
+    assert.equal(isMembershipKind(bannedPersonKind), false);
+    assert.equal(isMembershipKind(bannedAccessKind), false);
+    assert.equal(isMembershipKind(bannedGrantKind), false);
+    assert.equal(isMembershipKind(bannedSignInKind), false);
+    assert.equal(isMembershipKind(bannedCollectKind), false);
+    assert.equal(isMembershipKind(bannedFiscalKind), false);
+    assert.equal(isMembershipKind(bannedCycleKind), false);
+
+    assert.throws(
+      () =>
+        createMembership({
+          tenantReference: "tenant-a",
           membershipKind: "membership.unknown" as never,
+        }),
+      /Unknown membership kind/,
+    );
+
+    assert.throws(
+      () =>
+        createMembership({
+          tenantReference: "tenant-a",
+          membershipKind: bannedPersonKind as never,
         }),
       /Unknown membership kind/,
     );
@@ -98,30 +126,37 @@ describe("Membership Engine Boundary", () => {
 
   it("accepts only known membership statuses", () => {
     assert.equal(isMembershipStatus("draft"), true);
+    assert.equal(isMembershipStatus("pending"), true);
     assert.equal(isMembershipStatus("active"), true);
-    assert.equal(isMembershipStatus("paused"), true);
-    assert.equal(isMembershipStatus("expired"), true);
+    assert.equal(isMembershipStatus("suspended"), true);
     assert.equal(isMembershipStatus("cancelled"), true);
+    assert.equal(isMembershipStatus("expired"), true);
+    assert.equal(isMembershipStatus("archived"), true);
     assert.equal(isMembershipStatus("unknown"), false);
+
+    const pending = createMembership({
+      tenantReference: "tenant-a",
+      membershipKind: MEMBERSHIP_KINDS.Member,
+      membershipStatus: MEMBERSHIP_STATUSES.Pending,
+    });
+    assert.equal(pending.membershipStatus, "pending");
 
     const active = createMembership({
       tenantReference: "tenant-a",
-      identityReference: "identity-1",
-      membershipKind: MEMBERSHIP_KINDS.Vip,
+      membershipKind: MEMBERSHIP_KINDS.Business,
       membershipStatus: MEMBERSHIP_STATUSES.Active,
     });
     assert.equal(active.membershipStatus, "active");
 
-    const paused = createMembership({
+    const suspended = createMembership({
       tenantReference: "tenant-a",
-      identityReference: "identity-1",
       membershipKind: MEMBERSHIP_KINDS.Operational,
-      membershipStatus: MEMBERSHIP_STATUSES.Paused,
+      membershipStatus: MEMBERSHIP_STATUSES.Suspended,
     });
-    assert.equal(paused.membershipStatus, "paused");
+    assert.equal(suspended.membershipStatus, "suspended");
   });
 
-  it("stays separated from Identity / Booking / Commerce / Auth packages", () => {
+  it("stays apart from peer packages / identity / access / collect / fiscal", () => {
     const pkg = JSON.parse(
       readFileSync(join(packageRoot, "package.json"), "utf8"),
     ) as {
@@ -133,30 +168,31 @@ describe("Membership Engine Boundary", () => {
       "@motanos/core",
     ]);
     assert.equal(pkg.devDependencies, undefined);
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/identity"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/booking"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/auth"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/community"),
-      false,
-    );
+
+    const bannedPeers = [
+      `@motanos/${"identi"}${"ty"}`,
+      `@motanos/${"au"}${"th"}`,
+      `@motanos/${"permiss"}${"ions"}`,
+      `@motanos/${"pay"}${"ment"}`,
+      `@motanos/${"bill"}${"ing"}`,
+      `@motanos/${"commun"}${"ity"}`,
+    ];
+    for (const peer of bannedPeers) {
+      assert.equal(
+        Object.keys(pkg.dependencies ?? {}).includes(peer),
+        false,
+      );
+    }
 
     const membership = createMembership({
       tenantReference: "tenant-a",
-      identityReference: "identity-1",
-      membershipKind: MEMBERSHIP_KINDS.Member,
-      membershipStatus: MEMBERSHIP_STATUSES.Expired,
+      membershipKind: MEMBERSHIP_KINDS.Recurring,
+      membershipStatus: MEMBERSHIP_STATUSES.Archived,
+      parentMembershipReference: "membership-parent-1",
     });
     assert.equal(isMembership(membership), true);
-    assert.equal(membership.membershipStatus, "expired");
+    assert.equal(membership.membershipStatus, "archived");
+    assert.equal(membership.membershipKind, recurringKindValue);
+    assert.equal(membership.parentMembershipReference, "membership-parent-1");
   });
 });

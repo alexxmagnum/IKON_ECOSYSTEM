@@ -15,31 +15,30 @@ let membershipSequence = 0;
 export interface CreateMembershipOptions {
   /**
    * When set, membership may only be created for this tenant
-   * (cross-tenant isolation).
+   * (cross-tenant scope lock).
    */
   tenantReference?: string;
 }
 
 /**
- * Build a validated Membership (in-memory — relation only).
- * Does not charge members, create plans, or assign permissions.
+ * Build a checked Membership (in-memory — belonging-relation existence only).
+ * Does not open person profiles, grant access, or run charge flows.
  */
 export function createMembership(
   input: CreateMembershipInput,
   options: CreateMembershipOptions = {},
 ): Membership {
   const tenantReference = input.tenantReference?.trim() ?? "";
-  const identityReference = input.identityReference?.trim() ?? "";
+  const actorReference = input.actorReference?.trim();
+  const customerReference = input.customerReference?.trim();
   const organizationReference = input.organizationReference?.trim();
-  const startReference = input.startReference?.trim();
-  const endReference = input.endReference?.trim();
+  const contextReference = input.contextReference?.trim();
+  const planReference = input.planReference?.trim();
+  const parentMembershipReference = input.parentMembershipReference?.trim();
   const boundTenant = options.tenantReference?.trim() || undefined;
 
   if (!tenantReference) {
     throw new Error("tenantReference is required");
-  }
-  if (!identityReference) {
-    throw new Error("identityReference is required");
   }
   if (!isMembershipKind(input.membershipKind)) {
     throw new Error(
@@ -55,14 +54,28 @@ export function createMembership(
     );
   }
 
+  if (input.actorReference !== undefined && !actorReference) {
+    throw new Error("actorReference must not be empty when provided");
+  }
+  if (input.customerReference !== undefined && !customerReference) {
+    throw new Error("customerReference must not be empty when provided");
+  }
   if (input.organizationReference !== undefined && !organizationReference) {
     throw new Error("organizationReference must not be empty when provided");
   }
-  if (input.startReference !== undefined && !startReference) {
-    throw new Error("startReference must not be empty when provided");
+  if (input.contextReference !== undefined && !contextReference) {
+    throw new Error("contextReference must not be empty when provided");
   }
-  if (input.endReference !== undefined && !endReference) {
-    throw new Error("endReference must not be empty when provided");
+  if (input.planReference !== undefined && !planReference) {
+    throw new Error("planReference must not be empty when provided");
+  }
+  if (
+    input.parentMembershipReference !== undefined &&
+    !parentMembershipReference
+  ) {
+    throw new Error(
+      "parentMembershipReference must not be empty when provided",
+    );
   }
 
   if (boundTenant !== undefined && tenantReference !== boundTenant) {
@@ -81,17 +94,26 @@ export function createMembership(
   return {
     membershipReference,
     tenantReference,
-    identityReference,
     membershipKind,
     membershipStatus,
+    ...(actorReference !== undefined && actorReference.length > 0
+      ? { actorReference }
+      : {}),
+    ...(customerReference !== undefined && customerReference.length > 0
+      ? { customerReference }
+      : {}),
     ...(organizationReference !== undefined && organizationReference.length > 0
       ? { organizationReference }
       : {}),
-    ...(startReference !== undefined && startReference.length > 0
-      ? { startReference }
+    ...(contextReference !== undefined && contextReference.length > 0
+      ? { contextReference }
       : {}),
-    ...(endReference !== undefined && endReference.length > 0
-      ? { endReference }
+    ...(planReference !== undefined && planReference.length > 0
+      ? { planReference }
+      : {}),
+    ...(parentMembershipReference !== undefined &&
+    parentMembershipReference.length > 0
+      ? { parentMembershipReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

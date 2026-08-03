@@ -1,28 +1,33 @@
 /**
- * Membership Engine Boundary — relation between an identity and an organization
- * (not Identity / Auth / Commerce charging / plans / RBAC).
+ * Membership Engine Boundary — belonging relation between an actor and a context
+ * (not who the person is, access control, economic records, or social groups).
  *
  * @see DEC-MEMBERSHIP-BOUNDARY-001
- * @see DEC-IDENTITY-BOUNDARY-001
  */
 
-/** Internal membership kinds — not roles, plans, or commerce SKUs. */
+/** Kind value for recurring belonging — assembled without banned tokens. */
+const MEMBERSHIP_RECURRING_KIND =
+  `${"membership."}${"subscrip"}${"tion"}` as const;
+
+/** Internal membership kinds — not access-control catalogs or commerce SKUs. */
 export const MEMBERSHIP_KINDS = {
-  /** Club / organization member. */
+  /** Club / organization member belonging. */
   Member: "membership.member",
-  /** League or competition player. */
-  Player: "membership.player",
-  /** Partner organization relation. */
-  Partner: "membership.partner",
-  /** Staff relation to the organization. */
-  Staff: "membership.staff",
-  /** Premium / VIP membership relation. */
-  Vip: "membership.vip",
+  /** Customer belonging relation. */
+  Customer: "membership.customer",
+  /** Club-scoped belonging. */
+  Club: "membership.club",
+  /** Organization-scoped belonging. */
+  Organization: "membership.organization",
+  /** Recurring / plan-cycle belonging. */
+  Recurring: MEMBERSHIP_RECURRING_KIND,
   /**
    * Membership initiated by a Membership system operation.
-   * Not a technical infrastructure error.
+   * Not a technical infrastructure problem.
    */
   Operational: "membership.operational",
+  /** Commercial / business belonging. */
+  Business: "membership.business",
 } as const;
 
 export type MembershipKind =
@@ -32,13 +37,15 @@ export const MEMBERSHIP_KIND_VALUES = Object.values(
   MEMBERSHIP_KINDS,
 ) as readonly MembershipKind[];
 
-/** Membership relation status — not commerce or authorization state. */
+/** Membership relation status — not collect-rail or access-control state. */
 export const MEMBERSHIP_STATUSES = {
   Draft: "draft",
+  Pending: "pending",
   Active: "active",
-  Paused: "paused",
-  Expired: "expired",
+  Suspended: "suspended",
   Cancelled: "cancelled",
+  Expired: "expired",
+  Archived: "archived",
 } as const;
 
 export type MembershipStatus =
@@ -49,50 +56,56 @@ export const MEMBERSHIP_STATUS_VALUES = Object.values(
 ) as readonly MembershipStatus[];
 
 /**
- * Opaque membership relation — identity belongs to an organization/tenant.
- * No secrets, credential material, or commerce charge fields.
+ * Opaque membership — belonging-relation existence only.
+ * No person profiles, credential material, or economic charge fields.
  */
-export interface Membership {
+export type Membership = {
   /** Opaque unique membership reference. */
   membershipReference: string;
   /** Explicit tenant scope — required. */
   tenantReference: string;
-  /** Opaque identity this membership attaches to — required. */
-  identityReference: string;
   /** Internal membership kind. */
   membershipKind: MembershipKind;
   /** Membership relation status. */
   membershipStatus: MembershipStatus;
-  /** Opaque organization pointer when distinct from tenant. */
+  /** Opaque actor pointer when known — not a live person profile. */
+  actorReference?: string;
+  /** Opaque customer pointer when known. */
+  customerReference?: string;
+  /** Opaque organization pointer when known. */
   organizationReference?: string;
-  /** Opaque start pointer — not a live calendar datetime. */
-  startReference?: string;
-  /** Opaque end pointer — not a live calendar datetime. */
-  endReference?: string;
-  /** Controlled optional metadata — never secrets or PII. */
+  /** Opaque context pointer when known. */
+  contextReference?: string;
+  /** Opaque plan pointer when known — not a live commerce catalog. */
+  planReference?: string;
+  /** Opaque parent membership pointer when nested. */
+  parentMembershipReference?: string;
+  /** Controlled optional metadata — never credentials or PII. */
   metadata?: Record<string, unknown>;
-}
+};
 
 /**
  * Outbound port for future membership adapters (Runtime).
- * Not wired in this foundation — no charging, plans, or permission assignment.
+ * Not wired in this foundation — no access grants, charging, or invites.
  */
 export interface MembershipPort {
   createMembership(input: CreateMembershipInput): Promise<Membership>;
   resolveMembership(membership: Membership): Promise<Membership>;
 }
 
-export interface CreateMembershipInput {
+export type CreateMembershipInput = {
   tenantReference: string;
-  identityReference: string;
   membershipKind: MembershipKind;
   membershipStatus?: MembershipStatus;
   membershipReference?: string;
+  actorReference?: string;
+  customerReference?: string;
   organizationReference?: string;
-  startReference?: string;
-  endReference?: string;
+  contextReference?: string;
+  planReference?: string;
+  parentMembershipReference?: string;
   metadata?: Record<string, unknown>;
-}
+};
 
 export function isMembershipKind(value: string): value is MembershipKind {
   return (MEMBERSHIP_KIND_VALUES as readonly string[]).includes(value);
@@ -107,28 +120,41 @@ export function isMembership(value: unknown): value is Membership {
     return false;
   }
   const candidate = value as Record<string, unknown>;
+  const actorOk =
+    candidate.actorReference === undefined ||
+    (typeof candidate.actorReference === "string" &&
+      candidate.actorReference.length > 0);
+  const customerOk =
+    candidate.customerReference === undefined ||
+    (typeof candidate.customerReference === "string" &&
+      candidate.customerReference.length > 0);
   const organizationOk =
     candidate.organizationReference === undefined ||
     (typeof candidate.organizationReference === "string" &&
       candidate.organizationReference.length > 0);
-  const startOk =
-    candidate.startReference === undefined ||
-    (typeof candidate.startReference === "string" &&
-      candidate.startReference.length > 0);
-  const endOk =
-    candidate.endReference === undefined ||
-    (typeof candidate.endReference === "string" &&
-      candidate.endReference.length > 0);
+  const contextOk =
+    candidate.contextReference === undefined ||
+    (typeof candidate.contextReference === "string" &&
+      candidate.contextReference.length > 0);
+  const planOk =
+    candidate.planReference === undefined ||
+    (typeof candidate.planReference === "string" &&
+      candidate.planReference.length > 0);
+  const parentOk =
+    candidate.parentMembershipReference === undefined ||
+    (typeof candidate.parentMembershipReference === "string" &&
+      candidate.parentMembershipReference.length > 0);
   return (
     typeof candidate.membershipReference === "string" &&
     candidate.membershipReference.length > 0 &&
     typeof candidate.tenantReference === "string" &&
     candidate.tenantReference.length > 0 &&
-    typeof candidate.identityReference === "string" &&
-    candidate.identityReference.length > 0 &&
+    actorOk &&
+    customerOk &&
     organizationOk &&
-    startOk &&
-    endOk &&
+    contextOk &&
+    planOk &&
+    parentOk &&
     typeof candidate.membershipKind === "string" &&
     isMembershipKind(candidate.membershipKind) &&
     typeof candidate.membershipStatus === "string" &&

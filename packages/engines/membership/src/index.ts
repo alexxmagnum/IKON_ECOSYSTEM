@@ -1,15 +1,11 @@
 /**
- * @motanos/membership — Membership Engine foundation.
+ * @motanos/membership — Membership Engine Boundary foundation.
  *
  * MotanOS Core → Shared Engines → @motanos/membership
  *
- * Membership = relation between an identity and an organization.
- * Identity / Community / Experience / Booking / Commerce live elsewhere.
- *
- * Must not depend on identity, community, experience, booking, commerce,
- * auth packages, or persistence vendors.
- *
- * Distinct from Booking Membership Boundary (opaque context inside Booking).
+ * Membership = belonging relation between an actor and a context.
+ * Must not depend on identity packages, access-control packages,
+ * economic-record packages, collect-rail packages, or persistence vendors.
  *
  * @see DEC-MEMBERSHIP-BOUNDARY-001
  */

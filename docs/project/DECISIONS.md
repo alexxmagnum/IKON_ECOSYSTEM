@@ -1468,26 +1468,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-03
 
-**Context:** Fase 69 introduces the Membership Engine so MotanOS can express the relation between an identity and an organization/club/business, independently of Identity (who you are), commercial plans/charging, Authorization (what you may do), Community, Experience, and Booking. Membership must not become Billing or RBAC. Distinct from the Booking Membership Boundary (opaque context inside `@motanos/booking`).
+**Context:** Fase 99 (evolving Fase 69) consolidates Membership as a pure belonging-relation boundary — “what belonging relation exists between an actor and a context?” — independently of who the person is (Identity), sign-in, access control / technical roles, quota charging, Billing, recommendations, and social Community. Multi-tenant MotanOS requires Membership to stay opaque and tenant-scoped so Community / Experience / Commerce can consume belonging without absorbing Identity or Permissions. No membership-lifecycle split was required: `@motanos/membership` was already a slim boundary.
 
 **Decision:**
 
-* **Ownership:** `Membership`, factories, and `MembershipPort` live in `@motanos/membership` (`packages/engines/membership`). Membership is an independent bounded context — not Identity, Community, Experience, Booking, Commerce, Auth, or Runtime adapters.
-* **Pipeline relation:** Identity → Membership Relation → Organization / Tenant → Community / Experience / Benefits. Membership answers “what relation does this identity have with the organization?”
-* **Separations:** Membership ≠ Identity (holds opaque `identityReference` only). Membership ≠ commercial charging / plans (related but distinct). Membership ≠ Authorization/RBAC. Membership ≠ Community (“you’re a member” vs “you’re in the group”). Membership Engine ≠ Booking Membership Boundary.
-* **Kinds (foundation):** `membership.member`, `membership.player`, `membership.partner`, `membership.staff`, `membership.vip`, `membership.operational`.
-* **Statuses (foundation):** `draft`, `active`, `paused`, `expired`, `cancelled` (e.g. draft → active → expired, or active ↔ paused).
-* **Contract shape:** Opaque `membershipReference`, required `tenantReference`, required `identityReference`, `membershipKind`, `membershipStatus`; optional opaque `organizationReference`, `startReference`, `endReference`, controlled `metadata`. No secrets, credential material, or commerce charge fields.
+* **Ownership:** `Membership`, factories, and `MembershipPort` live in `@motanos/membership` (`packages/engines/membership`). Membership is an independent bounded context — not Identity, Permissions, Billing, Payment, Community, or Runtime adapters.
+* **Pipeline relation:** Identity → Membership Boundary → Community / Experience / Commerce. Membership answers “what belonging exists?”
+* **Separations:** Membership ≠ Identity. Membership ≠ Permissions. Membership ≠ Billing. Membership ≠ Payment. Opaque refs only — never live person profiles, credential material, or economic documents.
+* **Kinds (foundation):** `membership.member`, `membership.customer`, `membership.club`, `membership.organization`, `membership.subscription`, `membership.operational`, `membership.business`.
+* **Statuses (foundation):** `draft`, `pending`, `active`, `suspended`, `cancelled`, `expired`, `archived`.
+* **Contract shape:** Opaque `membershipReference`, required `tenantReference`, `membershipKind`, `membershipStatus`; optional opaque `actorReference`, `customerReference`, `organizationReference`, `contextReference`, `planReference`, `parentMembershipReference`, controlled `metadata`.
 * **Tenant isolation:** Membership may be bound to a tenant; cross-tenant creation is denied.
-* **Future refs:** May later hold opaque `communityReference`, `experienceReference`, plan refs — never full foreign aggregates.
-* **Port surface:** `createMembership` / `resolveMembership` only. No charge, plan-creation, or permission-assignment methods in this foundation.
-* **Runtime:** Composition root for future `Membership Port → Adapter`. No vendor SDKs or persistence adapters in this foundation.
+* **Port surface:** `createMembership` / `resolveMembership` only. No createUser, assignRole, grantPermission, chargeMembership, createSubscription, inviteMember, or authenticate.
 * **Dependencies:** `@motanos/membership` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** plan catalogs, commercial charging linkage, benefit catalogs, Community/Identity Runtime wiring.
+* **Deferred:** Community/Experience wiring, plan catalogs, charging linkage. No `@motanos/membership-lifecycle` in this phase.
 
-**Rejected:** Turning Membership into Billing or RBAC; embedding Identity/User objects; Membership → Identity/Booking/Commerce/Auth package imports; Application → Membership Provider; implementing charge/plan/permission adapters in this phase.
+**Rejected:** Turning Membership into Identity, RBAC, Billing, or Community; Membership → Identity/Auth/Permissions/Payment/Billing imports; implementing user creation, role assignment, charging, or invites in this phase.
 
 ---
 
