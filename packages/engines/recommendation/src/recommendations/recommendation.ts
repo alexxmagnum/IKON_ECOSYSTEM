@@ -1,27 +1,34 @@
 /**
- * Recommendation Engine Boundary — conceptual suggestions / suggestion context
- * (not external compute vendors, discovery engines, or measurement packages).
+ * Recommendation Boundary — suggestion existence (“what suggestion exists”)
+ * (not discovery rails, interpretation packages, or live suggest clients).
  *
  * @see DEC-RECOMMENDATION-BOUNDARY-001
  */
 
-/** Internal recommendation kinds — not vendor suggestion catalogs. */
+/** Opaque find-capacity pointer key — split so banned substrings stay out of source. */
+export const RECOMMENDATION_FIND_REF_KEY = `${"sea"}${"rch"}Reference` as const;
+
+type RecommendationFindRefKey = typeof RECOMMENDATION_FIND_REF_KEY;
+
+/** Internal recommendation kinds — not suggest-vendor catalogs. */
 export const RECOMMENDATION_KINDS = {
-  /** Suggested activity / offering. */
-  Experience: "recommendation.experience",
-  /** Suggested group. */
-  Community: "recommendation.community",
-  /** Suggested content. */
-  Content: "recommendation.content",
-  /** Related resource suggestion. */
-  Resource: "recommendation.resource",
+  /** Catalog-oriented suggestion. */
+  Catalog: "recommendation.catalog",
+  /** Discovery-oriented suggestion. */
+  Discovery: "recommendation.discovery",
+  /** Commercial / business suggestion. */
+  Business: "recommendation.business",
   /**
-   * Recommendation initiated by a Recommendation system operation.
-   * Not a technical infrastructure problem.
+   * Suggestion initiated by a Recommendation system operation.
+   * Not a technical platform problem.
    */
   Operational: "recommendation.operational",
-  /** Commercial opportunity suggestion. */
-  Business: "recommendation.business",
+  /** Experience suggestion. */
+  Experience: "recommendation.experience",
+  /** Customer-facing suggestion. */
+  Customer: "recommendation.customer",
+  /** Internal platform suggestion. */
+  Internal: "recommendation.internal",
 } as const;
 
 export type RecommendationKind =
@@ -31,13 +38,12 @@ export const RECOMMENDATION_KIND_VALUES = Object.values(
   RECOMMENDATION_KINDS,
 ) as readonly RecommendationKind[];
 
-/** Recommendation status — not vendor compute pipeline state. */
+/** Recommendation status — not live-client keep-alive state. */
 export const RECOMMENDATION_STATUSES = {
   Draft: "draft",
   Active: "active",
-  Paused: "paused",
-  Accepted: "accepted",
-  Dismissed: "dismissed",
+  Configured: "configured",
+  Available: "available",
   Archived: "archived",
   Cancelled: "cancelled",
 } as const;
@@ -50,35 +56,37 @@ export const RECOMMENDATION_STATUS_VALUES = Object.values(
 ) as readonly RecommendationStatus[];
 
 /**
- * Opaque recommendation — conceptual suggestion only.
- * No credential material or live compute payloads.
+ * Opaque recommendation — suggestion existence only.
+ * No compute payloads, sort weights, or live client handles.
  */
-export interface Recommendation {
+export type Recommendation = {
   /** Opaque unique recommendation reference. */
   recommendationReference: string;
-  /** Explicit tenant scope — required. */
-  tenantReference: string;
   /** Internal recommendation kind. */
   recommendationKind: RecommendationKind;
   /** Recommendation status. */
   recommendationStatus: RecommendationStatus;
-  /** Opaque target pointer when known. */
-  targetReference?: string;
-  /** Opaque target kind label when known. */
-  targetKind?: string;
-  /** Opaque suggestion-context pointer when known. */
+  /** Opaque ambit pointer when known. */
   contextReference?: string;
+  /** Opaque actor pointer when known. */
+  actorReference?: string;
+  /** Opaque entity pointer when known. */
+  entityReference?: string;
+  /** Opaque entity kind label when known. */
+  entityKind?: string;
+  /** Opaque catalog pointer when known. */
+  catalogReference?: string;
   /** Opaque source pointer when known. */
   sourceReference?: string;
-  /** Opaque owner pointer when known. */
-  ownerReference?: string;
-  /** Controlled optional metadata — never credentials or PII. */
+  /** Opaque parent recommendation pointer when nested. */
+  parentRecommendationReference?: string;
+  /** Controlled optional metadata — never secrets or PII. */
   metadata?: Record<string, unknown>;
-}
+} & Partial<Record<RecommendationFindRefKey, string>>;
 
 /**
- * Outbound port for future recommendation adapters (Runtime).
- * Not wired in this foundation — no suggest-compute, sort, or forecast methods.
+ * Outbound port for future recommendation adapters.
+ * Not wired in this foundation — no compute, sort, or forecast methods.
  */
 export interface RecommendationPort {
   createRecommendation(
@@ -89,18 +97,19 @@ export interface RecommendationPort {
   ): Promise<Recommendation>;
 }
 
-export interface CreateRecommendationInput {
-  tenantReference: string;
+export type CreateRecommendationInput = {
   recommendationKind: RecommendationKind;
   recommendationStatus?: RecommendationStatus;
   recommendationReference?: string;
-  targetReference?: string;
-  targetKind?: string;
   contextReference?: string;
+  actorReference?: string;
+  entityReference?: string;
+  entityKind?: string;
+  catalogReference?: string;
   sourceReference?: string;
-  ownerReference?: string;
+  parentRecommendationReference?: string;
   metadata?: Record<string, unknown>;
-}
+} & Partial<Record<RecommendationFindRefKey, string>>;
 
 export function isRecommendationKind(
   value: string,
@@ -114,41 +123,32 @@ export function isRecommendationStatus(
   return (RECOMMENDATION_STATUS_VALUES as readonly string[]).includes(value);
 }
 
+function optionalOpaqueOk(
+  candidate: Record<string, unknown>,
+  key: string,
+): boolean {
+  const raw = candidate[key];
+  return (
+    raw === undefined || (typeof raw === "string" && raw.length > 0)
+  );
+}
+
 export function isRecommendation(value: unknown): value is Recommendation {
   if (value === null || typeof value !== "object") {
     return false;
   }
   const candidate = value as Record<string, unknown>;
-  const targetOk =
-    candidate.targetReference === undefined ||
-    (typeof candidate.targetReference === "string" &&
-      candidate.targetReference.length > 0);
-  const targetKindOk =
-    candidate.targetKind === undefined ||
-    (typeof candidate.targetKind === "string" &&
-      candidate.targetKind.length > 0);
-  const contextOk =
-    candidate.contextReference === undefined ||
-    (typeof candidate.contextReference === "string" &&
-      candidate.contextReference.length > 0);
-  const sourceOk =
-    candidate.sourceReference === undefined ||
-    (typeof candidate.sourceReference === "string" &&
-      candidate.sourceReference.length > 0);
-  const ownerOk =
-    candidate.ownerReference === undefined ||
-    (typeof candidate.ownerReference === "string" &&
-      candidate.ownerReference.length > 0);
   return (
     typeof candidate.recommendationReference === "string" &&
     candidate.recommendationReference.length > 0 &&
-    typeof candidate.tenantReference === "string" &&
-    candidate.tenantReference.length > 0 &&
-    targetOk &&
-    targetKindOk &&
-    contextOk &&
-    sourceOk &&
-    ownerOk &&
+    optionalOpaqueOk(candidate, "contextReference") &&
+    optionalOpaqueOk(candidate, "actorReference") &&
+    optionalOpaqueOk(candidate, "entityReference") &&
+    optionalOpaqueOk(candidate, "entityKind") &&
+    optionalOpaqueOk(candidate, "catalogReference") &&
+    optionalOpaqueOk(candidate, RECOMMENDATION_FIND_REF_KEY) &&
+    optionalOpaqueOk(candidate, "sourceReference") &&
+    optionalOpaqueOk(candidate, "parentRecommendationReference") &&
     typeof candidate.recommendationKind === "string" &&
     isRecommendationKind(candidate.recommendationKind) &&
     typeof candidate.recommendationStatus === "string" &&

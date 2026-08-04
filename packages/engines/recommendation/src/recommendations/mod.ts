@@ -6,6 +6,7 @@ export type {
   RecommendationStatus,
 } from "./recommendation";
 export {
+  RECOMMENDATION_FIND_REF_KEY,
   RECOMMENDATION_KINDS,
   RECOMMENDATION_KIND_VALUES,
   RECOMMENDATION_STATUSES,

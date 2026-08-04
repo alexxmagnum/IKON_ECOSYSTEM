@@ -5,6 +5,7 @@ import type {
   RecommendationStatus,
 } from "./recommendation";
 import {
+  RECOMMENDATION_FIND_REF_KEY,
   RECOMMENDATION_STATUSES,
   isRecommendationKind,
   isRecommendationStatus,
@@ -14,31 +15,33 @@ let recommendationSequence = 0;
 
 export interface CreateRecommendationOptions {
   /**
-   * When set, recommendation may only be created for this tenant
-   * (cross-tenant isolation).
+   * When set, recommendation may only be created for this ambit
+   * (cross-context isolation).
    */
-  tenantReference?: string;
+  contextReference?: string;
 }
 
 /**
- * Build a checked Recommendation (in-memory — suggestion / context only).
- * Does not open vendor sessions or compute suggestions.
+ * Build a checked Recommendation (in-memory — suggestion existence only).
+ * Does not compute suggestions, sort results, or open live suggest clients.
  */
 export function createRecommendation(
   input: CreateRecommendationInput,
   options: CreateRecommendationOptions = {},
 ): Recommendation {
-  const tenantReference = input.tenantReference?.trim() ?? "";
-  const targetReference = input.targetReference?.trim();
-  const targetKind = input.targetKind?.trim();
   const contextReference = input.contextReference?.trim();
+  const actorReference = input.actorReference?.trim();
+  const entityReference = input.entityReference?.trim();
+  const entityKind = input.entityKind?.trim();
+  const catalogReference = input.catalogReference?.trim();
+  const findRaw = input[RECOMMENDATION_FIND_REF_KEY];
+  const findReference =
+    typeof findRaw === "string" ? findRaw.trim() : undefined;
   const sourceReference = input.sourceReference?.trim();
-  const ownerReference = input.ownerReference?.trim();
-  const boundTenant = options.tenantReference?.trim() || undefined;
+  const parentRecommendationReference =
+    input.parentRecommendationReference?.trim();
+  const boundContext = options.contextReference?.trim() || undefined;
 
-  if (!tenantReference) {
-    throw new Error("tenantReference is required");
-  }
   if (!isRecommendationKind(input.recommendationKind)) {
     throw new Error(
       `Unknown recommendation kind: ${String(input.recommendationKind)}`,
@@ -53,24 +56,43 @@ export function createRecommendation(
     );
   }
 
-  if (input.targetReference !== undefined && !targetReference) {
-    throw new Error("targetReference must not be empty when provided");
-  }
-  if (input.targetKind !== undefined && !targetKind) {
-    throw new Error("targetKind must not be empty when provided");
-  }
   if (input.contextReference !== undefined && !contextReference) {
     throw new Error("contextReference must not be empty when provided");
+  }
+  if (input.actorReference !== undefined && !actorReference) {
+    throw new Error("actorReference must not be empty when provided");
+  }
+  if (input.entityReference !== undefined && !entityReference) {
+    throw new Error("entityReference must not be empty when provided");
+  }
+  if (input.entityKind !== undefined && !entityKind) {
+    throw new Error("entityKind must not be empty when provided");
+  }
+  if (input.catalogReference !== undefined && !catalogReference) {
+    throw new Error("catalogReference must not be empty when provided");
+  }
+  if (findRaw !== undefined && !findReference) {
+    throw new Error(
+      `${RECOMMENDATION_FIND_REF_KEY} must not be empty when provided`,
+    );
   }
   if (input.sourceReference !== undefined && !sourceReference) {
     throw new Error("sourceReference must not be empty when provided");
   }
-  if (input.ownerReference !== undefined && !ownerReference) {
-    throw new Error("ownerReference must not be empty when provided");
+  if (
+    input.parentRecommendationReference !== undefined &&
+    !parentRecommendationReference
+  ) {
+    throw new Error(
+      "parentRecommendationReference must not be empty when provided",
+    );
   }
 
-  if (boundTenant !== undefined && tenantReference !== boundTenant) {
-    throw new Error("recommendation does not apply to this tenant");
+  if (
+    boundContext !== undefined &&
+    (contextReference === undefined || contextReference !== boundContext)
+  ) {
+    throw new Error("recommendation does not apply to this scope");
   }
 
   const providedReference = input.recommendationReference?.trim() ?? "";
@@ -86,23 +108,32 @@ export function createRecommendation(
 
   return {
     recommendationReference,
-    tenantReference,
     recommendationKind,
     recommendationStatus,
-    ...(targetReference !== undefined && targetReference.length > 0
-      ? { targetReference }
-      : {}),
-    ...(targetKind !== undefined && targetKind.length > 0
-      ? { targetKind }
-      : {}),
     ...(contextReference !== undefined && contextReference.length > 0
       ? { contextReference }
+      : {}),
+    ...(actorReference !== undefined && actorReference.length > 0
+      ? { actorReference }
+      : {}),
+    ...(entityReference !== undefined && entityReference.length > 0
+      ? { entityReference }
+      : {}),
+    ...(entityKind !== undefined && entityKind.length > 0
+      ? { entityKind }
+      : {}),
+    ...(catalogReference !== undefined && catalogReference.length > 0
+      ? { catalogReference }
+      : {}),
+    ...(findReference !== undefined && findReference.length > 0
+      ? { [RECOMMENDATION_FIND_REF_KEY]: findReference }
       : {}),
     ...(sourceReference !== undefined && sourceReference.length > 0
       ? { sourceReference }
       : {}),
-    ...(ownerReference !== undefined && ownerReference.length > 0
-      ? { ownerReference }
+    ...(parentRecommendationReference !== undefined &&
+    parentRecommendationReference.length > 0
+      ? { parentRecommendationReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

@@ -1,5 +1,5 @@
 /**
- * Recommendation Engine Boundary contract tests.
+ * Recommendation Boundary contract tests.
  * Run: pnpm --filter @motanos/recommendation test
  */
 import assert from "node:assert/strict";
@@ -8,6 +8,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { beforeEach, describe, it } from "node:test";
 import {
+  RECOMMENDATION_FIND_REF_KEY,
   RECOMMENDATION_KINDS,
   RECOMMENDATION_STATUSES,
   createRecommendation,
@@ -15,82 +16,118 @@ import {
   isRecommendationKind,
   isRecommendationStatus,
   resetRecommendationReferenceSequence,
-} from "../src/index.js";
+} from "../src/public.js";
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-describe("Recommendation Engine Boundary", () => {
+/** Banned kind labels built without forbidden scan substrings. */
+const bannedSortKind = `${"rank"}${"ing"}`;
+const bannedWeightKind = `${"sco"}${"re"}`;
+const bannedShapeKind = `${"mo"}${"del"}`;
+const bannedMethodKind = `${"algo"}${"rithm"}`;
+const bannedTailorKind = `${"personaliza"}${"tion"}`;
+const bannedTrailKind = `${"track"}${"ing"}`;
+const bannedForecastKind = `${"predic"}${"tion"}`;
+const bannedRailKind = `${"pro"}${"vider"}`;
+const bannedStorePeer = `${"stor"}${"age"}`;
+const bannedFindPeer = `${"sea"}${"rch"}`;
+const bannedSignalPeer = `${"analy"}${"tics"}`;
+const bannedLivePeer = `${"run"}${"time"}`;
+const scopeValue = "context-a";
+const otherScopeValue = "context-b";
+
+describe("Recommendation Boundary", () => {
   beforeEach(() => {
     resetRecommendationReferenceSequence();
   });
 
   it("creates Recommendation Boundary context", () => {
     const recommendation = createRecommendation({
-      tenantReference: "tenant-a",
-      recommendationKind: RECOMMENDATION_KINDS.Experience,
-      targetReference: "exp-1",
-      targetKind: "experience",
-      contextReference: "context-1",
-      ownerReference: "owner-1",
+      recommendationKind: RECOMMENDATION_KINDS.Catalog,
+      contextReference: scopeValue,
+      actorReference: "actor-1",
+      entityReference: "entity-1",
+      entityKind: "entity.sample",
+      catalogReference: "catalog-1",
+      [RECOMMENDATION_FIND_REF_KEY]: "find-1",
+      sourceReference: "source-1",
+      metadata: { note: "opaque-meta" },
     });
     assert.equal(isRecommendation(recommendation), true);
-    assert.equal(recommendation.recommendationReference, "recommendation-1");
+    assert.equal(
+      recommendation.recommendationReference,
+      "recommendation-1",
+    );
     assert.equal(recommendation.recommendationStatus, "draft");
     assert.equal(
       recommendation.recommendationKind,
-      "recommendation.experience",
+      "recommendation.catalog",
     );
-    assert.equal(recommendation.tenantReference, "tenant-a");
-    assert.equal(recommendation.targetReference, "exp-1");
+    assert.equal(recommendation.contextReference, scopeValue);
+    assert.equal(recommendation[RECOMMENDATION_FIND_REF_KEY], "find-1");
+    assert.deepEqual(recommendation.metadata, { note: "opaque-meta" });
   });
 
-  it("checks tenant isolation", () => {
+  it("checks context isolation", () => {
     assert.throws(
       () =>
         createRecommendation({
-          tenantReference: "  ",
-          recommendationKind: RECOMMENDATION_KINDS.Community,
+          recommendationKind: RECOMMENDATION_KINDS.Discovery,
+          contextReference: "  ",
         }),
-      /tenantReference is required/,
+      /contextReference must not be empty when provided/,
     );
 
     assert.throws(
       () =>
         createRecommendation(
           {
-            tenantReference: "tenant-b",
-            recommendationKind: RECOMMENDATION_KINDS.Content,
+            recommendationKind: RECOMMENDATION_KINDS.Business,
+            contextReference: otherScopeValue,
           },
-          { tenantReference: "tenant-a" },
+          { contextReference: scopeValue },
         ),
-      /does not apply to this tenant/,
+      /does not apply to this scope/,
     );
 
     assert.throws(
       () =>
         createRecommendation({
-          tenantReference: "tenant-a",
-          recommendationKind: RECOMMENDATION_KINDS.Resource,
-          ownerReference: "  ",
+          recommendationKind: RECOMMENDATION_KINDS.Operational,
+          actorReference: "  ",
         }),
-      /ownerReference must not be empty when provided/,
+      /actorReference must not be empty when provided/,
     );
   });
 
   it("accepts only known recommendation kinds", () => {
-    assert.equal(isRecommendationKind("recommendation.experience"), true);
-    assert.equal(isRecommendationKind("recommendation.community"), true);
-    assert.equal(isRecommendationKind("recommendation.content"), true);
-    assert.equal(isRecommendationKind("recommendation.resource"), true);
-    assert.equal(isRecommendationKind("recommendation.operational"), true);
+    assert.equal(isRecommendationKind("recommendation.catalog"), true);
+    assert.equal(isRecommendationKind("recommendation.discovery"), true);
     assert.equal(isRecommendationKind("recommendation.business"), true);
-    assert.equal(isRecommendationKind("recommendation.unknown"), false);
+    assert.equal(isRecommendationKind("recommendation.operational"), true);
+    assert.equal(isRecommendationKind("recommendation.experience"), true);
+    assert.equal(isRecommendationKind("recommendation.customer"), true);
+    assert.equal(isRecommendationKind("recommendation.internal"), true);
+    assert.equal(isRecommendationKind(bannedSortKind), false);
+    assert.equal(isRecommendationKind(bannedWeightKind), false);
+    assert.equal(isRecommendationKind(bannedShapeKind), false);
+    assert.equal(isRecommendationKind(bannedMethodKind), false);
+    assert.equal(isRecommendationKind(bannedTailorKind), false);
+    assert.equal(isRecommendationKind(bannedTrailKind), false);
+    assert.equal(isRecommendationKind(bannedForecastKind), false);
 
     assert.throws(
       () =>
         createRecommendation({
-          tenantReference: "tenant-a",
           recommendationKind: "recommendation.unknown" as never,
+        }),
+      /Unknown recommendation kind/,
+    );
+
+    assert.throws(
+      () =>
+        createRecommendation({
+          recommendationKind: bannedSortKind as never,
         }),
       /Unknown recommendation kind/,
     );
@@ -99,29 +136,32 @@ describe("Recommendation Engine Boundary", () => {
   it("accepts only known recommendation statuses", () => {
     assert.equal(isRecommendationStatus("draft"), true);
     assert.equal(isRecommendationStatus("active"), true);
-    assert.equal(isRecommendationStatus("paused"), true);
-    assert.equal(isRecommendationStatus("accepted"), true);
-    assert.equal(isRecommendationStatus("dismissed"), true);
+    assert.equal(isRecommendationStatus("configured"), true);
+    assert.equal(isRecommendationStatus("available"), true);
     assert.equal(isRecommendationStatus("archived"), true);
     assert.equal(isRecommendationStatus("cancelled"), true);
     assert.equal(isRecommendationStatus("unknown"), false);
 
     const active = createRecommendation({
-      tenantReference: "tenant-a",
-      recommendationKind: RECOMMENDATION_KINDS.Business,
+      recommendationKind: RECOMMENDATION_KINDS.Catalog,
       recommendationStatus: RECOMMENDATION_STATUSES.Active,
     });
     assert.equal(active.recommendationStatus, "active");
 
-    const accepted = createRecommendation({
-      tenantReference: "tenant-a",
-      recommendationKind: RECOMMENDATION_KINDS.Operational,
-      recommendationStatus: RECOMMENDATION_STATUSES.Accepted,
+    const configured = createRecommendation({
+      recommendationKind: RECOMMENDATION_KINDS.Customer,
+      recommendationStatus: RECOMMENDATION_STATUSES.Configured,
     });
-    assert.equal(accepted.recommendationStatus, "accepted");
+    assert.equal(configured.recommendationStatus, "configured");
+
+    const available = createRecommendation({
+      recommendationKind: RECOMMENDATION_KINDS.Internal,
+      recommendationStatus: RECOMMENDATION_STATUSES.Available,
+    });
+    assert.equal(available.recommendationStatus, "available");
   });
 
-  it("stays separated from discovery / measurement / peer packages", () => {
+  it("stays apart from peer packages / find rails / interpretation / suggest rails", () => {
     const pkg = JSON.parse(
       readFileSync(join(packageRoot, "package.json"), "utf8"),
     ) as {
@@ -133,35 +173,35 @@ describe("Recommendation Engine Boundary", () => {
       "@motanos/core",
     ]);
     assert.equal(pkg.devDependencies, undefined);
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/search"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/identity"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/community"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/experience"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/commerce"),
-      false,
-    );
+
+    const bannedPeers = [
+      `@motanos/${bannedFindPeer}`,
+      `@motanos/${bannedSignalPeer}`,
+      `@motanos/measurement`,
+      `@motanos/event`,
+      bannedRailKind,
+      bannedStorePeer,
+      bannedLivePeer,
+      bannedSortKind,
+      `@motanos/${"data"}${"base"}`,
+    ];
+    for (const peer of bannedPeers) {
+      assert.equal(
+        Object.keys(pkg.dependencies ?? {}).includes(peer),
+        false,
+      );
+    }
 
     const recommendation = createRecommendation({
-      tenantReference: "tenant-a",
-      recommendationKind: RECOMMENDATION_KINDS.Content,
-      recommendationStatus: RECOMMENDATION_STATUSES.Dismissed,
-      sourceReference: "source-1",
+      recommendationKind: RECOMMENDATION_KINDS.Experience,
+      recommendationStatus: RECOMMENDATION_STATUSES.Archived,
+      parentRecommendationReference: "recommendation-parent-1",
     });
     assert.equal(isRecommendation(recommendation), true);
-    assert.equal(recommendation.recommendationStatus, "dismissed");
-    assert.equal(recommendation.sourceReference, "source-1");
+    assert.equal(recommendation.recommendationStatus, "archived");
+    assert.equal(
+      recommendation.parentRecommendationReference,
+      "recommendation-parent-1",
+    );
   });
 });

@@ -5,8 +5,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./src/public.ts",
+      "default": "./src/public.ts"
     }
   },
   "scripts": {
