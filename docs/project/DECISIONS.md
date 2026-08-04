@@ -2194,6 +2194,33 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ORDER-CONTEXT-001 — Hospitality Order Management Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 125 introduces Order Management as the third operative Smart Table OS capacity inside `@motanos/hospitality`, completing the initial transactional nucleus Table → Carta → Pedido. An order is an operative hospitality purchase intent — not a horizontal Core/commerce engine, and not kitchen execution, print, payment, TPV, stock, recipe cost, or staff assignment. MotanOS needs opaque order and order-line records so future kitchen, payment, and TPV adapters can reference them without absorbing those concerns in this foundation.
+
+**Decision:**
+
+* **Ownership:** `HospitalityOrder`, `OrderLine`, factories, `OrderPort`, and `OrderLinePort` live in `@motanos/hospitality` under `src/orders`. Order belongs to Hospitality — no `@motanos/order`, `@motanos/order-management`, or `@motanos/commerce-order` packages.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Order Management → Smart Table Operating System. Conceptual flow: Table → Order → OrderLine → MenuItem (opaque refs only).
+* **Separations:** Order ≠ Core Commerce. Order ≠ Kitchen / Payment / TPV / Inventory / Pricing Engine / Staff Runtime. Order consumes future opaque Table and Menu references. No totals (`subtotal` / `tax` / `discount` / `total`), no pricing calculation, no kitchen workflow in this foundation.
+* **Kinds (order):** `order.dining`, `order.takeaway`, `order.delivery`, `order.bar`, `order.internal`, `order.special`.
+* **Statuses (order):** `draft`, `confirmed`, `preparing`, `ready`, `served`, `cancelled`, `paid`.
+* **Statuses (line):** `draft`, `active`, `prepared`, `served`, `cancelled`.
+* **Contract shape:** Order — opaque `orderReference`, required `orderKind` / `orderStatus`; optional `hospitalityReference`, `contextReference`, `tableReference`, `customerReference`, `sessionReference`, `parentOrderReference`, `metadata`. Line — opaque `lineReference`, required `lineStatus`; optional `orderReference`, `itemReference`, `quantityReference`, `priceReference`, `notesReference`, `metadata`.
+* **Opaque economics:** `priceReference` points at a future Pricing Engine — no pricing engine or totals here. `customerReference` is opaque — no Customer entity here.
+* **Scope isolation:** Optional bound hospitality business may require an exact opaque hospitality reference match (orders do not mix across businesses).
+* **Port surface:** `createOrder` / `resolveOrder` and `createOrderLine` / `resolveOrderLine` only. No confirmOrder, sendKitchen, printOrder, assignWaiter, chargeOrder, calculateCost, or syncTPV.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Deferred:** kitchen workflow, payment/TPV, inventory, pricing totals, staff assignment, and reservation linkage.
+
+**Rejected:** Creating a horizontal order engine; implementing kitchen, payment, TPV, inventory, pricing calculation, or staff runtime inside Order; turning Order into a full transactional POS product in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

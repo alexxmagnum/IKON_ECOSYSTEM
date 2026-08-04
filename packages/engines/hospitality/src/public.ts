@@ -1,18 +1,18 @@
 /**
  * @motanos/hospitality — Hospitality Domain foundation.
  *
- * MotanOS Platform → Hospitality Domain → Table / Menu → Smart Table OS
+ * MotanOS Platform → Hospitality Domain → Table / Menu / Order → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
  *
- * Implemented: hospitality business, tables, menu.
- * Prepared (not implemented): orders, reservations, staff,
- * kitchen, cost-control.
+ * Implemented: hospitality business, tables, menu, orders.
+ * Prepared (not implemented): reservations, staff, kitchen, cost-control.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
  * @see DEC-HOSPITALITY-TABLE-CONTEXT-001
  * @see DEC-HOSPITALITY-MENU-CONTEXT-001
+ * @see DEC-HOSPITALITY-ORDER-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -98,3 +98,35 @@ export {
   resetMenuItemReferenceSequence,
   resetMenuReferenceSequence,
 } from "./menu/mod";
+
+export type {
+  CreateOrderInput,
+  CreateOrderLineInput,
+  CreateOrderOptions,
+  HospitalityOrder,
+  OrderKind,
+  OrderLine,
+  OrderLinePort,
+  OrderLineStatus,
+  OrderPort,
+  OrderStatus,
+} from "./orders/mod";
+export {
+  ORDER_KINDS,
+  ORDER_KIND_VALUES,
+  ORDER_LINE_STATUSES,
+  ORDER_LINE_STATUS_VALUES,
+  ORDER_STATUSES,
+  ORDER_STATUS_VALUES,
+  createOrder,
+  createOrderLine,
+  isHospitalityOrder,
+  isOrderKind,
+  isOrderLine,
+  isOrderLinePort,
+  isOrderLineStatus,
+  isOrderPort,
+  isOrderStatus,
+  resetOrderLineReferenceSequence,
+  resetOrderReferenceSequence,
+} from "./orders/mod";
