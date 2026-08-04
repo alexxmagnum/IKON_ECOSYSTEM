@@ -2066,6 +2066,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-EXPERIMENTATION-BOUNDARY-001 — Experimentation Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 120 introduces Experimentation as a pure experiment-existence boundary — “what experiment exists?” — independently of Feature functional capacity, Analytics interpretation, Measurement values, Assignment of participants, Experimentation Runtime execution, A/B variant splitting, statistical significance, tracking, rollout, and external providers. MotanOS needs an opaque experimentation record so future Experimentation Runtimes can plug in without absorbing Feature, Analytics, or Measurement. No experimentation-lifecycle split was required: `@motanos/experimentation` is a new slim boundary.
+
+**Decision:**
+
+* **Ownership:** `Experimentation`, factories, and `ExperimentationPort` live in `@motanos/experimentation` (`packages/engines/experimentation`). Experimentation is an independent bounded context — not Feature, Analytics, Measurement, Assignment, Rollout, or Runtime.
+* **Pipeline relation:** Feature Boundary → Experimentation Boundary → Future Experimentation Runtime. Experimentation answers “what experiment exists?”
+* **Separations:** Experimentation ≠ Feature. Experimentation ≠ Analytics. Experimentation ≠ Measurement. Experimentation ≠ Runtime. Experimentation represents an existing experiment, not technical execution. Opaque refs only — prepared for future experimentation runtimes.
+* **Kinds (foundation):** `experimentation.product`, `experimentation.business`, `experimentation.operational`, `experimentation.experience`, `experimentation.customer`, `experimentation.system`, `experimentation.internal`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `configured`, `available`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `experimentationReference`, required `experimentationKind`, `experimentationStatus`; optional opaque `contextReference`, `actorReference`, `entityReference`, `entityKind`, `featureReference`, `configurationReference`, `hypothesisReference`, `parentExperimentationReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound context may require an exact opaque context reference match.
+* **Port surface:** `createExperimentation` / `resolveExperimentation` only. No executeExperiment, assignVariant, assignParticipant, runExperiment, calculateStatistics, evaluateExperiment, trackExperiment, measureExperiment, activateFeature, rolloutExperiment, or connectProvider.
+* **Dependencies:** `@motanos/experimentation` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Experimentation Runtime adapters. No `@motanos/experimentation-lifecycle` in this phase.
+
+**Rejected:** Absorbing Feature/Analytics/Measurement/Assignment/Rollout into Experimentation; Experimentation → variant/assignment/cohort/participant/ab/testing/statistics/metric/tracking/rollout/evaluation/provider/runtime/analytics/measurement imports; implementing real trial run, split, or score execution in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
