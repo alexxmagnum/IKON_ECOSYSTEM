@@ -2398,6 +2398,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ACTIVITY-CONTEXT-001 — Hospitality Activities Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 133 introduces Activities as the organized-experience boundary inside `@motanos/hospitality`. An activity is an opaque experience within a hospitality business that may originate from the business or from a community proposal — not a horizontal activity/event/calendar engine, and not schedule runtime, seat holds, payments, alerts, badges, or scores. MotanOS needs Community → Activity before Participation / Engagement.
+
+**Decision:**
+
+* **Ownership:** `HospitalityActivity`, factory, and `ActivityPort` live in `@motanos/hospitality` under `src/activities`. Activity belongs to Hospitality — no `@motanos/activity`, `@motanos/event`, or `@motanos/calendar` packages for this capacity. It is not a horizontal Core capability.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community → Activities Foundation → future Participation / Events / Engagement → Smart Table Operating System. Conceptual flows: Owner → Activity → Approved → Published → Participants; Member → Proposal → Activity → Review → Approved/Rejected → Published (approval not implemented in this foundation — opaque refs only).
+* **Isolation:** Each hospitality business owns its activities (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `activity.business`, `activity.community`, `activity.event`, `activity.sport`, `activity.social`, `activity.internal`.
+* **Statuses (foundation):** `draft`, `proposed`, `review`, `approved`, `published`, `cancelled`, `archived`.
+* **Contract shape:** Opaque `activityReference`, required `activityKind` / `activityStatus`; optional opaque `hospitalityReference`, `communityReference`, `contextReference`, `creatorReference`, `proposalReference`, `locationReference`, `reservationReference`, `parentActivityReference`, controlled `metadata`.
+* **Port surface:** `createActivity` / `resolveActivity` only. No approveActivity, publishActivity, joinActivity, reserveActivity, or payActivity.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only (no community/reservation/notification/payment runtime imports).
+* **Consequences (+):** active community experiences; prepares future occasions; connects business and guests; prepares future engagement; can fill tables via experiences. **(−):** Activity depends on Hospitality context.
+* **Deferred:** participants, seats, reservations runtime, payments, alerts, badges/scores (base for Fase 134 Participation).
+
+**Rejected:** Creating horizontal activity/event/calendar packages; implementing approval, publication, join, reserve, or pay runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
