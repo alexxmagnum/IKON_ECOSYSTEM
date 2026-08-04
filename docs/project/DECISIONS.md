@@ -2297,6 +2297,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-COST-CONTROL-CONTEXT-001 — Hospitality Cost Control Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 129 introduces Cost Control as the seventh operative Smart Table OS capacity inside `@motanos/hospitality`, adding the first economic-vision layer: Product → Sale → Cost → Margin. A hospitality cost record is an opaque operative economic value associated with a hospitality activity or element — not a horizontal cost-control/inventory/recipe/purchasing/supply-chain engine, and not warehouse, vendor catalogs, complete recipe trees, automatic escandallo, or fiscal bookkeeping. MotanOS needs an opaque cost record so Smart Table OS can represent economic existence without absorbing monetary engines or stock systems yet.
+
+**Decision:**
+
+* **Ownership:** `HospitalityCostRecord`, factory, and `CostControlPort` live in `@motanos/hospitality` under `src/cost-control`. Cost Control belongs to Hospitality — no `@motanos/cost-control`, `@motanos/inventory`, `@motanos/recipe`, `@motanos/purchasing`, or `@motanos/supply-chain` packages. It is not a horizontal Core capability.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Cost Control → Smart Table Operating System. Future conceptual flow: Product → Order → Cost → Margin (opaque refs only; no margin computation in this foundation).
+* **Separations:** Cost Control ≠ stock / warehouse. Cost Control ≠ vendor / buy-order engines. Cost Control ≠ complete recipe trees or automatic escandallo. Cost Control ≠ fiscal ledger. Cost Control ≠ till / payment rails. Economic magnitudes use opaque `valueReference` / `currencyReference` — never `amount:number` (full monetary models belong to a future financial layer). Base for future escandallo and margin.
+* **Kinds (foundation):** `cost.product`, `cost.operation`, `cost.order`, `cost.menu`, `cost.internal`, `cost.estimated`.
+* **Statuses (foundation):** `draft`, `active`, `calculated`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `costReference`, required `costKind` / `costStatus`; optional opaque `hospitalityReference`, `contextReference`, `menuItemReference`, `orderReference`, `orderLineReference`, `operationReference`, `valueReference`, `currencyReference`, `parentCostReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound hospitality business may require an exact opaque hospitality reference match (costs do not mix across businesses).
+* **Port surface:** `createCostRecord` / `resolveCostRecord` only. No calculateMargin, calculateFoodCost, createRecipe, updateInventory, syncSupplier, createPurchase, or calculateProfit.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Deferred:** margin/food-cost engines, escandallo automation, stock/vendor adapters, and full monetary/financial models.
+
+**Rejected:** Creating horizontal cost/inventory/recipe/purchasing engines; implementing stock, buy-orders, vendors, recipes, fiscal ledger, or payment rails in this phase; putting Cost Control outside Hospitality; modeling amounts as bare numbers.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

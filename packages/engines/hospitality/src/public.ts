@@ -2,14 +2,15 @@
  * @motanos/hospitality — Hospitality Domain foundation.
  *
  * MotanOS Platform → Identity / Actor / Membership → Hospitality Domain
- * → Table / Menu / Order / Reservation / Staff / Operations → Smart Table OS
+ * → Table / Menu / Order / Reservation / Staff / Operations / Cost Control
+ * → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
  *
  * Implemented: hospitality business, tables, menu, orders, reservations,
- * staff, service operations.
- * Prepared (not implemented): kitchen, bar, cost-control.
+ * staff, service operations, cost control.
+ * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
  * @see DEC-HOSPITALITY-TABLE-CONTEXT-001
@@ -18,6 +19,7 @@
  * @see DEC-HOSPITALITY-RESERVATION-CONTEXT-001
  * @see DEC-HOSPITALITY-STAFF-CONTEXT-001
  * @see DEC-HOSPITALITY-SERVICE-OPERATIONS-CONTEXT-001
+ * @see DEC-HOSPITALITY-COST-CONTROL-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -198,3 +200,24 @@ export {
   isOperationStatus,
   resetOperationReferenceSequence,
 } from "./operations/mod";
+
+export type {
+  CostControlPort,
+  CostKind,
+  CostStatus,
+  CreateCostRecordInput,
+  CreateCostRecordOptions,
+  HospitalityCostRecord,
+} from "./cost-control/mod";
+export {
+  COST_KINDS,
+  COST_KIND_VALUES,
+  COST_STATUSES,
+  COST_STATUS_VALUES,
+  createCostRecord,
+  isCostControlPort,
+  isCostKind,
+  isCostStatus,
+  isHospitalityCostRecord,
+  resetCostReferenceSequence,
+} from "./cost-control/mod";
