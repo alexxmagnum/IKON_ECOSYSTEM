@@ -2,14 +2,14 @@
  * @motanos/hospitality — Hospitality Domain foundation.
  *
  * MotanOS Platform → Identity / Actor / Membership → Hospitality Domain
- * → Table / Menu / Order / Reservation / Staff / Operations / Cost Control
- * / Customer Experience → Smart Table OS
+ * → Channel / Table / Menu / Order / Reservation / Staff / Operations
+ * / Cost Control / Customer Experience → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
  *
- * Implemented: hospitality business, tables, menu, orders, reservations,
- * staff, service operations, cost control, customer experience.
+ * Implemented: hospitality business, channels, tables, menu, orders,
+ * reservations, staff, service operations, cost control, customer experience.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -21,6 +21,7 @@
  * @see DEC-HOSPITALITY-SERVICE-OPERATIONS-CONTEXT-001
  * @see DEC-HOSPITALITY-COST-CONTROL-CONTEXT-001
  * @see DEC-HOSPITALITY-CUSTOMER-EXPERIENCE-CONTEXT-001
+ * @see DEC-HOSPITALITY-CHANNEL-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -243,3 +244,24 @@ export {
   isHospitalityCustomerExperience,
   resetExperienceReferenceSequence,
 } from "./customer-experience/mod";
+
+export type {
+  ChannelKind,
+  ChannelPort,
+  ChannelStatus,
+  CreateChannelInput,
+  CreateChannelOptions,
+  HospitalityChannel,
+} from "./channels/mod";
+export {
+  CHANNEL_KINDS,
+  CHANNEL_KIND_VALUES,
+  CHANNEL_STATUSES,
+  CHANNEL_STATUS_VALUES,
+  createChannel,
+  isChannelKind,
+  isChannelPort,
+  isChannelStatus,
+  isHospitalityChannel,
+  resetChannelReferenceSequence,
+} from "./channels/mod";

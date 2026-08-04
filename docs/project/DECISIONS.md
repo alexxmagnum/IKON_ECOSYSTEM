@@ -2347,6 +2347,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-CHANNEL-CONTEXT-001 — Hospitality Channel Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 131 introduces Channel as the access-point boundary inside `@motanos/hospitality`: from which entry context a guest starts a Hospitality experience. A channel is an opaque access point (public web, table entry, staff tools, terminal, internal) — not a horizontal channel engine, not menu-web/menu-qr forks, and not QR emission, page render, PWA, payment, or order runtime. MotanOS needs a single Hospitality domain consumed by many channels so catalogs and capabilities stay one source of truth.
+
+**Decision:**
+
+* **Ownership:** `HospitalityChannel`, factory, and `ChannelPort` live in `@motanos/hospitality` under `src/channels`. Channel belongs to Hospitality — no `@motanos/channel`, `@motanos/menu-web`, or `@motanos/menu-qr` packages. It is not a horizontal Core capability.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Channel Boundary → Customer Experience → Smart Table Operating System. Conceptual flow: Guest → Channel → Experience → Hospitality capabilities (Menu, Tables, Orders, Reservations, Operations) via opaque refs — never duplicated catalogs per channel.
+* **Single source of truth:** One Hospitality Menu (and other capacities). Channels select context and future capability surface; they must not fork Menu Web / Menu QR / Menu App / Menu Staff products.
+* **Kinds (foundation):** `channel.public_web`, `channel.table_qr`, `channel.staff`, `channel.terminal`, `channel.internal`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `channelReference`, required `channelKind` / `channelStatus`; optional opaque `hospitalityReference`, `contextReference`, `tableReference`, `experienceReference`, `locationReference`, `parentChannelReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound hospitality business may require an exact opaque hospitality reference match (e.g. IKON ≠ Marina).
+* **Port surface:** `createChannel` / `resolveChannel` only. No generateQr, renderPage, createOrder, processPayment, or createMenu.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** one source of truth; synchronized changes; future channels without catalog duplication. **(−):** available capabilities depend on channel context.
+* **Deferred:** physical code emission, public URLs/pages, PWA, QR ordering, payments, Community/Activities/Events/Membership/Gamification runtimes, Smart Table Runtime.
+
+**Rejected:** Creating horizontal channel/menu-web/menu-qr packages; duplicating menus per channel; implementing QR emission, frontend, payments, or order runtime in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
