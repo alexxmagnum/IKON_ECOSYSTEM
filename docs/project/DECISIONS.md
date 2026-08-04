@@ -1437,6 +1437,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-REPORTING-BOUNDARY-001 — Reporting Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 116 consolidates Reporting as a pure information-representation boundary — “what information representation exists?” — independently of Analytics capacity, Measurement values, Audit recording, dashboard rendering, PDF/document generation, exports, queries, storage, delivery/scheduling, and external providers. MotanOS needs an opaque reporting record so future Reporting Runtimes can plug in without absorbing Analytics or Notification. No prior `@motanos/reporting` motor existed to split.
+
+**Decision:**
+
+* **Ownership:** `Reporting`, factories, and `ReportingPort` live in `@motanos/reporting` (`packages/engines/reporting`). Reporting is an independent bounded context — not Analytics, Measurement, Audit, Notification, or Runtime.
+* **Pipeline relation:** Analytics Boundary → Reporting Boundary → Future Reporting Runtime. Reporting answers “what information representation exists?”
+* **Separations:** Reporting ≠ Analytics. Reporting ≠ Measurement. Reporting ≠ Audit. Reporting represents information, not technical generation or delivery. Opaque refs only — prepared for future presentation runtimes.
+* **Kinds (foundation):** `reporting.business`, `reporting.operational`, `reporting.experience`, `reporting.domain`, `reporting.system`, `reporting.customer`, `reporting.internal`.
+* **Statuses (foundation):** `draft`, `active`, `configured`, `published`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `reportingReference`, required `reportingKind`, `reportingStatus`; optional opaque `contextReference`, `actorReference`, `entityReference`, `entityKind`, `analyticsReference`, `measurementReference`, `eventReference`, `templateReference`, `parentReportingReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound context may require an exact opaque context reference match.
+* **Port surface:** `createReporting` / `resolveReporting` only. No generateReport, renderReport, exportReport, createDashboard, executeQuery, calculateAnalytics, sendReport, scheduleReport, publishToProvider, or createDocument.
+* **Dependencies:** `@motanos/reporting` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Reporting Runtime adapters. No `@motanos/reporting-lifecycle` in this phase.
+
+**Rejected:** Absorbing Analytics/Measurement/Audit/Notification into Reporting; Reporting → dashboard/export/pdf/document/analytics/query/storage/delivery/provider/runtime imports; implementing generation, presentation, or outbound delivery in this phase.
+
+---
+
 ## DEC-EVENT-BOUNDARY-001 — Event Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
