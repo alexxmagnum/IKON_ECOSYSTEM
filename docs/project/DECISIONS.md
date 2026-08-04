@@ -1437,6 +1437,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-ACTOR-BOUNDARY-001 — Actor Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 111 consolidates Actor as a pure participant-representation boundary — “who acts?” — independently of Identity existence, Authentication proof schemes, Session temporal presence, Permissions capacity, Membership belonging, Policy evaluation, Workflow runs, and Tenant provisioning. MotanOS needs an opaque actor record so domain actions / future execution contexts can reference participants without absorbing Identity or Authentication. No prior `@motanos/actor` motor existed to split.
+
+**Decision:**
+
+* **Ownership:** `Actor`, factories, and `ActorPort` live in `@motanos/actor` (`packages/engines/actor`). Actor is an independent bounded context — not Identity, Authentication, Session, Permissions, Membership, Policy, or Workflow.
+* **Pipeline relation:** Identity Boundary → Actor Boundary → Domain Actions / Future Execution Context. Actor answers “who participates in an action?”
+* **Separations:** Actor ≠ Identity. Actor ≠ Authentication. Actor ≠ Session. Opaque refs only — prepared to represent domain participants without proving identity or assigning capacity.
+* **Kinds (foundation):** `actor.person`, `actor.organization`, `actor.service`, `actor.system`, `actor.external`, `actor.operational`, `actor.business`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `actorReference`, required `actorKind`, `actorStatus`; optional opaque `identityReference`, `tenantReference`, `organizationReference`, `contextReference`, `parentActorReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound scope may require an exact opaque scope reference match.
+* **Port surface:** `createActor` / `resolveActor` only. No createIdentity, authenticate, createSession, assignPermission, grantAccess, evaluatePolicy, executeAction, or runWorkflow.
+* **Dependencies:** `@motanos/actor` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Domain action wiring and future execution-context adapters. No `@motanos/actor-lifecycle` in this phase.
+
+**Rejected:** Absorbing Identity/Authentication/Session/Permissions into Actor; Actor → identity/authentication/session/permission/membership/workflow imports; implementing proof checks, capacity grants, or process runs in this phase.
+
+---
+
 ## DEC-SESSION-BOUNDARY-001 — Session Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
