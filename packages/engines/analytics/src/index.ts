@@ -1,34 +1,32 @@
 /**
- * @motanos/analytics — Analytics Engine foundation.
+ * @motanos/analytics — Analytics Boundary foundation.
  *
- * MotanOS Core → Shared Engines → @motanos/analytics
+ * MotanOS Core → Shared packages → @motanos/analytics
  *
- * Analytics = measurable business signals and metric context.
- * Domain / audit facts may emit signals; metrics, reporting, and BI live elsewhere.
- *
- * Must not depend on audit, booking, commerce, billing, persistence vendors,
- * or external metric vendors.
+ * Analytics = what analytical capacity exists.
+ * Must not depend on measurable-value packages, presentation packages,
+ * recorded-fact packages, or technical observation engines.
  *
  * @see DEC-ANALYTICS-BOUNDARY-001
  */
 
-export const ANALYTICS_ENGINE = "@motanos/analytics" as const;
+export const ANALYTICS_BOUNDARY = "@motanos/analytics" as const;
 
 export type {
-  AnalyticsEvent,
+  Analytics,
   AnalyticsKind,
   AnalyticsPort,
   AnalyticsStatus,
-  CreateAnalyticsEventInput,
-  CreateAnalyticsEventOptions,
+  CreateAnalyticsInput,
+  CreateAnalyticsOptions,
 } from "./analytics";
 export {
   ANALYTICS_KINDS,
   ANALYTICS_KIND_VALUES,
   ANALYTICS_STATUSES,
   ANALYTICS_STATUS_VALUES,
-  createAnalyticsEvent,
-  isAnalyticsEvent,
+  createAnalytics,
+  isAnalytics,
   isAnalyticsKind,
   isAnalyticsPort,
   isAnalyticsStatus,

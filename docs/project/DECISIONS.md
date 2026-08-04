@@ -1819,25 +1819,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-04
 
-**Context:** Fase 76 introduces the Analytics Engine so MotanOS can express measurable business signals, metric context, and future aggregated activity independently of dashboards, external BI, Google Analytics, Mixpanel, data warehouses, SQL queries, and analytical storage. Analytics answers “what is happening in the system and what signals can we measure?” — not how information is stored, visualized, or exploited.
+**Context:** Fase 115 (evolving Fase 76) consolidates Analytics as a pure analytical-capacity boundary — “what analytical capacity exists?” — independently of Measurement value creation, Reporting presentation, Audit recording, dashboards, monitoring/observability, event processing, warehouses, pipelines, and technical analytical storage. MotanOS needs an opaque analytics record so future Analytics Runtimes can plug in without absorbing Measurement or Reporting. No analytics-lifecycle split was required: `@motanos/analytics` was already a slim boundary (evolved from AnalyticsEvent signal model to Analytics capacity model).
 
 **Decision:**
 
-* **Ownership:** `AnalyticsEvent`, factories, and `AnalyticsPort` live in `@motanos/analytics` (`packages/engines/analytics`). Analytics is an independent bounded context — not Audit, Database, Billing, Commerce, Booking, or external analytics providers.
-* **Pipeline relation:** Domain Event / Audit Event → Analytics Boundary → future Metrics / Reporting / BI. Analytics interprets business facts as measurable signals; visualization and storage live elsewhere.
-* **Separations:** Analytics ≠ Audit. Analytics ≠ Dashboard. Analytics ≠ BI Provider. Analytics ≠ Data Warehouse. No Google Analytics, Mixpanel, Amplitude, chart UIs, SQL queries, ETL pipelines, or fiscal reporting in this foundation.
-* **Kinds (foundation):** `analytics.usage`, `analytics.lifecycle`, `analytics.engagement`, `analytics.conversion`, `analytics.performance`, `analytics.operational`.
-* **Statuses (foundation):** `draft`, `pending`, `recorded`, `processed`, `archived`, `failed`, `cancelled` (e.g. draft → pending → recorded → processed).
-* **Contract shape:** Opaque `analyticsReference`, required `tenantReference`, `analyticsKind`, `analyticsStatus`; optional opaque `actorReference`, `entityReference`, `entityKind`, `sourceReference`, `metricReference`, controlled `metadata`. No personal data, credentials, tokens, or visitor/client identifiers. Future opaque links to audit/booking/payment/commerce/community/experience via `entityReference` / `sourceReference` — never engine imports.
-* **Tenant isolation:** Analytics events may be bound to a tenant; cross-tenant creation is denied.
-* **Port surface:** `createAnalyticsEvent` / `resolveAnalyticsEvent` only. No track, sendEvent, publishMetric, queryAnalytics, or generateReport methods in this foundation.
-* **Runtime:** Composition root for future `Analytics Port → Adapter`. No database, external APIs, or BI SDKs in this foundation.
+* **Ownership:** `Analytics`, factories, and `AnalyticsPort` live in `@motanos/analytics` (`packages/engines/analytics`). Analytics is an independent bounded context — not Measurement, Reporting, Audit, Monitoring, or Event Processing.
+* **Pipeline relation:** Measurement Boundary → Analytics Boundary → Future Analytics Runtime. Analytics answers “what analytical capacity exists?”
+* **Separations:** Analytics ≠ Measurement. Analytics ≠ Reporting. Analytics ≠ Audit. Analytics represents analytical capacities, not interpretation execution or presentation. Opaque refs only — prepared for future analytical runtimes.
+* **Kinds (foundation):** `analytics.business`, `analytics.operational`, `analytics.experience`, `analytics.domain`, `analytics.system`, `analytics.customer`, `analytics.performance`.
+* **Statuses (foundation):** `draft`, `active`, `configured`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `analyticsReference`, required `analyticsKind`, `analyticsStatus`; optional opaque `contextReference`, `actorReference`, `entityReference`, `entityKind`, `measurementReference`, `eventReference`, `dimensionReference`, `parentAnalyticsReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound context may require an exact opaque context reference match.
+* **Port surface:** `createAnalytics` / `resolveAnalytics` only. No calculateAnalytics, executeQuery, aggregateData, generateReport, createDashboard, processEvent, storeAnalytics, runPipeline, or monitorSystem.
 * **Dependencies:** `@motanos/analytics` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** metric aggregation, reporting adapters, BI provider integrations, query APIs.
+* **Deferred:** Analytics Runtime adapters. No `@motanos/analytics-lifecycle` in this phase.
 
-**Rejected:** Turning Analytics into a BI product; Analytics → Google/Mixpanel/Amplitude/warehouse imports; Application → Analytics Provider; implementing dashboards, SQL, or ETL in this phase.
+**Rejected:** Absorbing Measurement/Reporting/Audit/Monitoring into Analytics; Analytics → reporting/dashboard/monitoring/storage/pipeline/warehouse/runtime imports; implementing calculations, presentation, or technical observation in this phase.
 
 ---
 

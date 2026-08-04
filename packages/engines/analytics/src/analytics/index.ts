@@ -1,22 +1,22 @@
 export type {
-  AnalyticsEvent,
+  Analytics,
   AnalyticsKind,
   AnalyticsPort,
   AnalyticsStatus,
-  CreateAnalyticsEventInput,
-} from "./analytics-event";
+  CreateAnalyticsInput,
+} from "./analytics";
 export {
   ANALYTICS_KINDS,
   ANALYTICS_KIND_VALUES,
   ANALYTICS_STATUSES,
   ANALYTICS_STATUS_VALUES,
-  isAnalyticsEvent,
+  isAnalytics,
   isAnalyticsKind,
   isAnalyticsPort,
   isAnalyticsStatus,
-} from "./analytics-event";
-export type { CreateAnalyticsEventOptions } from "./create-analytics-event";
+} from "./analytics";
+export type { CreateAnalyticsOptions } from "./create-analytics";
 export {
-  createAnalyticsEvent,
+  createAnalytics,
   resetAnalyticsReferenceSequence,
-} from "./create-analytics-event";
+} from "./create-analytics";
