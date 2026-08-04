@@ -4,7 +4,8 @@
  * MotanOS Platform → Identity / Actor / Membership → Hospitality Domain
  * → Channel / Table / Menu / Order / Reservation / Staff / Operations
  * / Cost Control / Customer Experience / Community / Activities
- * / Participation / Scheduling / Capacity / Availability → Smart Table OS
+ * / Participation / Scheduling / Capacity / Availability / Booking Bridge
+ * → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -12,7 +13,7 @@
  * Implemented: hospitality business, channels, tables, menu, orders,
  * reservations, staff, service operations, cost control, customer experience,
  * community, activities, participation, activity scheduling, activity capacity,
- * activity availability.
+ * activity availability, booking bridge.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -31,6 +32,7 @@
  * @see DEC-HOSPITALITY-ACTIVITY-SCHEDULING-CONTEXT-001
  * @see DEC-HOSPITALITY-ACTIVITY-CAPACITY-CONTEXT-001
  * @see DEC-HOSPITALITY-ACTIVITY-AVAILABILITY-CONTEXT-001
+ * @see DEC-HOSPITALITY-BOOKING-BRIDGE-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -400,3 +402,24 @@ export {
   isHospitalityActivityAvailability,
   resetActivityAvailabilityReferenceSequence,
 } from "./availability/mod";
+
+export type {
+  BookingBridgePort,
+  BookingKind,
+  BookingStatus,
+  CreateBookingRequestInput,
+  CreateBookingRequestOptions,
+  HospitalityBookingRequest,
+} from "./booking-bridge/mod";
+export {
+  BOOKING_KINDS,
+  BOOKING_KIND_VALUES,
+  BOOKING_STATUSES,
+  BOOKING_STATUS_VALUES,
+  createBookingRequest,
+  isBookingBridgePort,
+  isBookingKind,
+  isBookingStatus,
+  isHospitalityBookingRequest,
+  resetBookingReferenceSequence,
+} from "./booking-bridge/mod";

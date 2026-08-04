@@ -2527,6 +2527,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-BOOKING-BRIDGE-CONTEXT-001 — Hospitality Booking Bridge Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 138 introduces Booking Bridge as the intent bridge between participation desire and future reservation operations inside `@motanos/hospitality`. A booking request is an opaque formalized intent to join an available hospitality experience — not a horizontal booking/reservation/ticketing engine, and not final holds, payments, room assignment, tickets, door scan, external agendas, alerts, or scores. MotanOS separates Activity / Schedule / Capacity / Availability / Participation / Booking Bridge.
+
+**Decision:**
+
+* **Ownership:** `HospitalityBookingRequest`, factory, and `BookingBridgePort` live in `@motanos/hospitality` under `src/booking-bridge`. Booking Bridge belongs to Hospitality — no `@motanos/booking`, `@motanos/reservation`, or `@motanos/ticketing` packages for this capacity. It is not a horizontal booking engine.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community → Activities → Scheduling → Capacity → Availability → Participation → Booking Bridge → future Reservation / Booking Runtime → Smart Table Operating System. Conceptual flow: Availability → Participation → Booking Request (confirm/pay/assign not implemented).
+* **Separations:** Booking Bridge ≠ Participation record. Booking Bridge ≠ HospitalityReservation (table/visit reservation capacity). Booking Bridge ≠ payment / ticket. Booking Bridge ≠ room assign / door scan. No `confirmedAt`, `paidAt`, `numberOfGuests:number`, `price:number`, or `seat:number` in this foundation.
+* **Isolation:** Each hospitality business owns its booking intents (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `booking.activity`, `booking.event`, `booking.session`, `booking.internal`.
+* **Statuses (foundation):** `draft`, `requested`, `pending`, `accepted`, `rejected`, `cancelled`, `archived`.
+* **Contract shape:** Opaque `bookingReference`, required `bookingKind` / `bookingStatus`; optional opaque `hospitalityReference`, `activityReference`, `scheduleReference`, `availabilityReference`, `participationReference`, `actorReference`, `contextReference`, `parentBookingReference`, controlled `metadata`.
+* **Port surface:** `createBookingRequest` / `resolveBookingRequest` only. No confirmBooking, cancelBooking, payBooking, assignTable, or checkIn.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** clear Participation / Booking / Reservation split; prepares future holds; avoids premature generic booking; keeps Smart Table OS clean. **(−):** Booking Bridge depends on Activity, Availability, and Participation.
+* **Deferred:** definitive holds, payments, rooms, tickets, door scan, waitlists, scores (base for Fase 139 Reservation Runtime).
+
+**Rejected:** Creating horizontal booking/reservation/ticketing packages; implementing confirm, cancel, pay, room assign, or door-scan runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
