@@ -2142,6 +2142,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-TABLE-CONTEXT-001 — Hospitality Table Management Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 123 introduces Table Management as the first operative Smart Table OS capacity inside `@motanos/hospitality`. A table is a physical operative position within a hospitality business — not a horizontal Core engine, and not an order, reservation, customer, staff, payment, or kitchen concept. MotanOS needs an opaque table record so future reservations, orders, and floor operations can reference tables without absorbing transactional logic in this foundation.
+
+**Decision:**
+
+* **Ownership:** `HospitalityTable`, factories, and `TablePort` live in `@motanos/hospitality` under `src/tables`. Table belongs to Hospitality — no `@motanos/table`, `@motanos/table-management`, or `@motanos/resource-table` packages.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Table Management → Smart Table Operating System.
+* **Separations:** Table ≠ Core Platform resource. Table ≠ Order / Reservation / Customer / Staff / Payment. Table is the first operative Smart Table capacity and will be an opaque reference for future orders, reservations, and operations. No transactional logic in this foundation.
+* **Kinds (foundation):** `table.dining`, `table.bar`, `table.terrace`, `table.private`, `table.external`, `table.internal`.
+* **Statuses (foundation):** `available`, `reserved`, `occupied`, `cleaning`, `blocked`, `inactive`.
+* **Contract shape:** Opaque `tableReference`, required `tableKind`, `tableStatus`; optional opaque `hospitalityReference`, `contextReference`, `areaReference`, `locationReference`, `capacityReference`, `parentTableReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound hospitality business may require an exact opaque hospitality reference match (tables do not mix across businesses).
+* **Port surface:** `createTable` / `resolveTable` only. No occupyTable, reserveTable, assignCustomer, moveOrder, cleanTable, calculateCapacity, or manageFloorPlan.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Deferred:** area entity, reservation/order/customer-session/staff-action links, floor-plan management, and transactional table workflows.
+
+**Rejected:** Creating a horizontal table engine; implementing reservation, order, customer, staff, payment, or kitchen logic inside Table; turning Table into a transactional Smart Table product in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
