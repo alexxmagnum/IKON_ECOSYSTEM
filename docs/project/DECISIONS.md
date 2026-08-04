@@ -1797,25 +1797,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-04
 
-**Context:** Fase 80 introduces the Tenant Engine so MotanOS can express the organization that uses the system, the primary multi-tenant isolation context, installation lifecycle, and the root reference shared by other engines — independently of users, identity, authentication, memberships, billing, permissions, configuration, and physical resources. Tenant answers “which organizational context does an operation live in?” — not who the person is or what they may do.
+**Context:** Fase 107 (evolving Fase 80) consolidates Tenant as a pure multi-tenant existence boundary — “what tenant exists?” — independently of infrastructure provisioning, user creation, permissions, billing, external service setup, onboarding execution, resource deployment, database administration, and subscriptions. MotanOS needs an opaque tenant root so Identity, Membership, Configuration, and Billing can reference it without absorbing platform operations. No tenant-lifecycle split was required: `@motanos/tenant` was already a slim boundary.
 
 **Decision:**
 
-* **Ownership:** `Tenant`, factories, and `TenantPort` live in `@motanos/tenant` (`packages/engines/tenant`). Tenant is an independent bounded context — not Identity, Membership, Permissions, Commerce, Payment, Configuration, or Database.
-* **Pipeline relation:** Tenant Definition → Tenant Boundary → Domain Engines (Identity / Membership / Community / Experience / Resource / Booking / Commerce / Configuration). Tenant owns organizational root context; other engines reference it opaquely via `tenantReference`.
-* **Separations:** Tenant ≠ Identity. Tenant ≠ Membership. Tenant ≠ Billing. Tenant ≠ Permissions. Tenant ≠ Configuration. No login, auth providers, roles, payments, subscriptions, internal config, or database in this foundation.
-* **Kinds (foundation):** `tenant.organization`, `tenant.business`, `tenant.club`, `tenant.restaurant`, `tenant.platform`, `tenant.operational`.
-* **Statuses (foundation):** `draft`, `active`, `suspended`, `inactive`, `archived`, `cancelled` (e.g. draft → active → suspended → archived).
-* **Contract shape:** Opaque `tenantReference`, required `tenantKind`, `tenantStatus`; optional opaque `nameReference`, `descriptionReference`, `ownerReference`, `parentTenantReference`, controlled `metadata`. No passwords, tokens, credentials, secrets, or API keys.
+* **Ownership:** `Tenant`, factories, and `TenantPort` live in `@motanos/tenant` (`packages/engines/tenant`). Tenant is an independent bounded context — not Identity, Membership, Billing, Configuration Runtime, or infrastructure.
+* **Pipeline relation:** Platform Context → Tenant Boundary → Future Tenant Runtime. Tenant answers “what tenant exists?”
+* **Separations:** Tenant ≠ Identity. Tenant ≠ Membership. Tenant ≠ Billing. Tenant ≠ Runtime. Opaque refs only — never live people, vaults, or provision sessions.
+* **Kinds (foundation):** `tenant.organization`, `tenant.business`, `tenant.club`, `tenant.platform`, `tenant.internal`, `tenant.operational`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `tenantReference`, required `tenantKind`, `tenantStatus`; optional opaque `organizationReference`, `ownerReference`, `parentTenantReference`, `contextReference`, `regionReference`, `planReference`, `configurationReference`, controlled `metadata`.
 * **Tenant isolation:** Empty `tenantReference` is denied; optional bound context may require an exact root reference match.
-* **Port surface:** `createTenant` / `resolveTenant` only. No createUser, inviteMember, assignRole, activateSubscription, or configureTenant methods in this foundation.
-* **Runtime:** Composition root for future `Tenant Port → Adapter`. No database, auth integration, or providers in this foundation.
+* **Port surface:** `createTenant` / `resolveTenant` only. No provisionTenant, createUser, assignMembership, createSubscription, configureTenantRuntime, deployTenant, migrateTenantDatabase, or activateBilling.
 * **Dependencies:** `@motanos/tenant` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** tenant hierarchy policies, provisioning adapters, billing linkage, admin consoles.
+* **Deferred:** hierarchy policies, provision adapters. No `@motanos/tenant-lifecycle` in this phase.
 
-**Rejected:** Turning Tenant into User Management; absorbing Billing or Authorization; Tenant → Identity/Auth/Stripe/database imports; Application → Tenant Provider; implementing people, subscriptions, or configuration inside Tenant in this phase.
+**Rejected:** Turning Tenant into User Management or Billing; Tenant → Identity/Membership/Billing/database/runtime imports; implementing people, subscriptions, or infrastructure inside Tenant in this phase.
 
 ---
 

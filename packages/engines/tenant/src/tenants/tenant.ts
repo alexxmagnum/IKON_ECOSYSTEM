@@ -1,6 +1,6 @@
 /**
- * Tenant Engine Boundary — organization / multi-tenant root context / lifecycle
- * (not people, sign-in, access control, invoicing, or physical resources).
+ * Tenant Boundary — tenant existence / multi-tenant root context
+ * (not people, sign-in, access control, economic records, or physical resources).
  *
  * @see DEC-TENANT-BOUNDARY-001
  */
@@ -13,13 +13,13 @@ export const TENANT_KINDS = {
   Business: "tenant.business",
   /** Club context (e.g. IKON). */
   Club: "tenant.club",
-  /** Hospitality venue. */
-  Restaurant: "tenant.restaurant",
   /** Internal MotanOS platform tenant. */
   Platform: "tenant.platform",
+  /** Internal operational tenant. */
+  Internal: "tenant.internal",
   /**
    * Tenant initiated by a Tenant system operation.
-   * Not a technical infrastructure error.
+   * Not a technical platform problem.
    */
   Operational: "tenant.operational",
 } as const;
@@ -30,12 +30,12 @@ export const TENANT_KIND_VALUES = Object.values(
   TENANT_KINDS,
 ) as readonly TenantKind[];
 
-/** Tenant lifecycle status — not invoicing or access-control state. */
+/** Tenant lifecycle status — not economic or access-control state. */
 export const TENANT_STATUSES = {
   Draft: "draft",
   Active: "active",
-  Suspended: "suspended",
   Inactive: "inactive",
+  Suspended: "suspended",
   Archived: "archived",
   Cancelled: "cancelled",
 } as const;
@@ -48,48 +48,57 @@ export const TENANT_STATUS_VALUES = Object.values(
 ) as readonly TenantStatus[];
 
 /**
- * Opaque tenant definition — organizational root context only.
+ * Opaque tenant — tenant existence / organizational root only.
  * No credential material or access catalogs.
  */
-export interface Tenant {
+export type Tenant = {
   /** Opaque unique tenant reference — multi-tenant root. */
   tenantReference: string;
   /** Internal tenant kind. */
   tenantKind: TenantKind;
   /** Tenant lifecycle status. */
   tenantStatus: TenantStatus;
-  /** Opaque name pointer when known. */
-  nameReference?: string;
-  /** Opaque description pointer when known. */
-  descriptionReference?: string;
-  /** Opaque owner pointer when known — not a live identity profile. */
+  /** Opaque organization pointer when known. */
+  organizationReference?: string;
+  /** Opaque owner pointer when known — not a live person profile. */
   ownerReference?: string;
   /** Opaque parent tenant pointer when nested. */
   parentTenantReference?: string;
+  /** Opaque context pointer when known. */
+  contextReference?: string;
+  /** Opaque region pointer when known. */
+  regionReference?: string;
+  /** Opaque plan pointer when known — not a live commerce catalog. */
+  planReference?: string;
+  /** Opaque settings pointer when known. */
+  configurationReference?: string;
   /** Controlled optional metadata — never credentials or PII. */
   metadata?: Record<string, unknown>;
-}
+};
 
 /**
- * Outbound port for future tenant adapters (Runtime).
+ * Outbound port for future tenant adapters.
  * Not wired in this foundation — no people invites, access assignment,
- * or invoicing activation.
+ * or economic activation.
  */
 export interface TenantPort {
   createTenant(input: CreateTenantInput): Promise<Tenant>;
   resolveTenant(tenant: Tenant): Promise<Tenant>;
 }
 
-export interface CreateTenantInput {
+export type CreateTenantInput = {
   tenantKind: TenantKind;
   tenantStatus?: TenantStatus;
   tenantReference?: string;
-  nameReference?: string;
-  descriptionReference?: string;
+  organizationReference?: string;
   ownerReference?: string;
   parentTenantReference?: string;
+  contextReference?: string;
+  regionReference?: string;
+  planReference?: string;
+  configurationReference?: string;
   metadata?: Record<string, unknown>;
-}
+};
 
 export function isTenantKind(value: string): value is TenantKind {
   return (TENANT_KIND_VALUES as readonly string[]).includes(value);
@@ -104,14 +113,10 @@ export function isTenant(value: unknown): value is Tenant {
     return false;
   }
   const candidate = value as Record<string, unknown>;
-  const nameOk =
-    candidate.nameReference === undefined ||
-    (typeof candidate.nameReference === "string" &&
-      candidate.nameReference.length > 0);
-  const descriptionOk =
-    candidate.descriptionReference === undefined ||
-    (typeof candidate.descriptionReference === "string" &&
-      candidate.descriptionReference.length > 0);
+  const organizationOk =
+    candidate.organizationReference === undefined ||
+    (typeof candidate.organizationReference === "string" &&
+      candidate.organizationReference.length > 0);
   const ownerOk =
     candidate.ownerReference === undefined ||
     (typeof candidate.ownerReference === "string" &&
@@ -120,13 +125,32 @@ export function isTenant(value: unknown): value is Tenant {
     candidate.parentTenantReference === undefined ||
     (typeof candidate.parentTenantReference === "string" &&
       candidate.parentTenantReference.length > 0);
+  const contextOk =
+    candidate.contextReference === undefined ||
+    (typeof candidate.contextReference === "string" &&
+      candidate.contextReference.length > 0);
+  const regionOk =
+    candidate.regionReference === undefined ||
+    (typeof candidate.regionReference === "string" &&
+      candidate.regionReference.length > 0);
+  const planOk =
+    candidate.planReference === undefined ||
+    (typeof candidate.planReference === "string" &&
+      candidate.planReference.length > 0);
+  const settingsOk =
+    candidate.configurationReference === undefined ||
+    (typeof candidate.configurationReference === "string" &&
+      candidate.configurationReference.length > 0);
   return (
     typeof candidate.tenantReference === "string" &&
     candidate.tenantReference.length > 0 &&
-    nameOk &&
-    descriptionOk &&
+    organizationOk &&
     ownerOk &&
     parentOk &&
+    contextOk &&
+    regionOk &&
+    planOk &&
+    settingsOk &&
     typeof candidate.tenantKind === "string" &&
     isTenantKind(candidate.tenantKind) &&
     typeof candidate.tenantStatus === "string" &&
