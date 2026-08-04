@@ -459,6 +459,15 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/engines/hospitality:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/engines/identity:
     dependencies:
       '@motanos/contracts':

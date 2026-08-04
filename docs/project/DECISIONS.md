@@ -2116,6 +2116,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-CONTEXT-001 — Hospitality Domain Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 122 introduces Hospitality as MotanOS’s first vertical business bounded context — restaurants, gastronomic clubs, beach clubs, hotels with food & beverage, bars, and catering spaces. Hospitality answers “what hospitality business exists?” and prepares the home for Smart Table and future hospitality modules (tables, menu, orders, reservations, staff, kitchen, cost-control). It must not become another horizontal Core engine, and must not absorb commerce/booking/payment logic in this foundation.
+
+**Decision:**
+
+* **Ownership:** `HospitalityBusiness`, factories, and `HospitalityPort` live in `@motanos/hospitality` (`packages/engines/hospitality`). Hospitality is a vertical domain context — not a horizontal Core capability.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Smart Table Operating System → Future Hospitality Modules.
+* **Separations:** Hospitality ≠ Core Platform. Hospitality groups hospitality-specific capabilities. Smart Table will be built on top of Hospitality. Hospitality reuses MotanOS Core capabilities via opaque refs later — it does not replace Core Platform. No `@motanos/table`, `@motanos/menu`, `@motanos/order`, or `@motanos/restaurant-boundary` horizontal engines.
+* **Kinds (foundation):** `hospitality.restaurant`, `hospitality.club`, `hospitality.hotel`, `hospitality.bar`, `hospitality.catering`, `hospitality.internal`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `hospitalityReference`, required `hospitalityKind`, `hospitalityStatus`; optional opaque `tenantReference`, `contextReference`, `organizationReference`, `locationReference`, `brandReference`, `parentHospitalityReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound context may require an exact opaque context reference match.
+* **Port surface:** `createHospitality` / `resolveHospitality` only. No createTable, createMenu, createOrder, createReservation, assignStaff, calculateCost, connectTPV, or processPayment in this foundation.
+* **Internal structure (prepared):** `tables`, `menu`, `orders`, `reservations`, `staff`, `kitchen`, `cost-control` folders reserved — not implemented yet.
+* **Dependencies:** `@motanos/hospitality` limited to `@motanos/contracts` + `@motanos/core`. Future opaque relations to commerce/booking/catalog/resource/payment/billing/notification/event — never imported in this phase.
+* **Deferred:** Smart Table OS, module implementations, and adapters to Core engines. `@motanos/domain-restaurant` remains a separate historical domain package and is not absorbed here.
+
+**Rejected:** Turning Hospitality into a horizontal Core engine; creating separate horizontal engines for table/menu/order/restaurant; implementing Smart Table, payments, or kitchen workflows in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
