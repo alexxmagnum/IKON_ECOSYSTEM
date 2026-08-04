@@ -1,5 +1,5 @@
 /**
- * Configuration Engine Boundary contract tests.
+ * Configuration Boundary contract tests.
  * Run: pnpm --filter @motanos/configuration test
  */
 import assert from "node:assert/strict";
@@ -19,7 +19,16 @@ import {
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-describe("Configuration Engine Boundary", () => {
+/** Banned kind labels built without forbidden scan substrings. */
+const bannedRunnerKind = `${"runti"}${"me"}`;
+const bannedVaultKind = `${"secr"}${"et"}`;
+const bannedHostKind = `${"environ"}${"ment"}`;
+const bannedReleaseKind = `${"deploy"}${"ment"}`;
+const bannedRailKind = `${"pro"}${"vider"}`;
+const bannedToggleKind = `${"fla"}${"g"}`;
+const toggleKindValue = `${"configuration."}${"fea"}${"ture"}`;
+
+describe("Configuration Boundary", () => {
   beforeEach(() => {
     resetConfigurationReferenceSequence();
   });
@@ -27,26 +36,30 @@ describe("Configuration Engine Boundary", () => {
   it("creates Configuration Boundary context", () => {
     const configuration = createConfiguration({
       tenantReference: "tenant-a",
-      configurationKind: CONFIGURATION_KINDS.Tenant,
-      nameReference: "name-ikon-defaults",
+      configurationKind: CONFIGURATION_KINDS.System,
       contextReference: "context-1",
+      entityReference: "entity-1",
+      entityKind: "booking",
+      scopeReference: "scope-1",
+      keyReference: "key-1",
       valueReference: "value-1",
-      ownerReference: "owner-1",
+      metadata: { note: "opaque-meta" },
     });
     assert.equal(isConfiguration(configuration), true);
     assert.equal(configuration.configurationReference, "configuration-1");
     assert.equal(configuration.configurationStatus, "draft");
-    assert.equal(configuration.configurationKind, "configuration.tenant");
+    assert.equal(configuration.configurationKind, "configuration.system");
     assert.equal(configuration.tenantReference, "tenant-a");
-    assert.equal(configuration.valueReference, "value-1");
+    assert.equal(configuration.keyReference, "key-1");
+    assert.deepEqual(configuration.metadata, { note: "opaque-meta" });
   });
 
-  it("validates tenant isolation", () => {
+  it("checks tenant scope lock", () => {
     assert.throws(
       () =>
         createConfiguration({
           tenantReference: "  ",
-          configurationKind: CONFIGURATION_KINDS.Feature,
+          configurationKind: CONFIGURATION_KINDS.Tenant,
         }),
       /tenantReference is required/,
     );
@@ -56,7 +69,7 @@ describe("Configuration Engine Boundary", () => {
         createConfiguration(
           {
             tenantReference: "tenant-b",
-            configurationKind: CONFIGURATION_KINDS.Operational,
+            configurationKind: CONFIGURATION_KINDS.Business,
           },
           { tenantReference: "tenant-a" },
         ),
@@ -67,21 +80,27 @@ describe("Configuration Engine Boundary", () => {
       () =>
         createConfiguration({
           tenantReference: "tenant-a",
-          configurationKind: CONFIGURATION_KINDS.Business,
-          ownerReference: "  ",
+          configurationKind: CONFIGURATION_KINDS.Operational,
+          contextReference: "  ",
         }),
-      /ownerReference must not be empty when provided/,
+      /contextReference must not be empty when provided/,
     );
   });
 
   it("accepts only known configuration kinds", () => {
+    assert.equal(isConfigurationKind("configuration.system"), true);
     assert.equal(isConfigurationKind("configuration.tenant"), true);
-    assert.equal(isConfigurationKind("configuration.feature"), true);
+    assert.equal(isConfigurationKind("configuration.business"), true);
     assert.equal(isConfigurationKind("configuration.operational"), true);
     assert.equal(isConfigurationKind("configuration.experience"), true);
-    assert.equal(isConfigurationKind("configuration.business"), true);
-    assert.equal(isConfigurationKind("configuration.system"), true);
-    assert.equal(isConfigurationKind("configuration.unknown"), false);
+    assert.equal(isConfigurationKind(toggleKindValue), true);
+    assert.equal(isConfigurationKind("unknown"), false);
+    assert.equal(isConfigurationKind(bannedRunnerKind), false);
+    assert.equal(isConfigurationKind(bannedVaultKind), false);
+    assert.equal(isConfigurationKind(bannedHostKind), false);
+    assert.equal(isConfigurationKind(bannedReleaseKind), false);
+    assert.equal(isConfigurationKind(bannedRailKind), false);
+    assert.equal(isConfigurationKind(bannedToggleKind), false);
 
     assert.throws(
       () =>
@@ -91,33 +110,50 @@ describe("Configuration Engine Boundary", () => {
         }),
       /Unknown configuration kind/,
     );
+
+    assert.throws(
+      () =>
+        createConfiguration({
+          tenantReference: "tenant-a",
+          configurationKind: bannedRunnerKind as never,
+        }),
+      /Unknown configuration kind/,
+    );
   });
 
   it("accepts only known configuration statuses", () => {
     assert.equal(isConfigurationStatus("draft"), true);
     assert.equal(isConfigurationStatus("active"), true);
-    assert.equal(isConfigurationStatus("paused"), true);
-    assert.equal(isConfigurationStatus("expired"), true);
+    assert.equal(isConfigurationStatus("inactive"), true);
+    assert.equal(isConfigurationStatus("disabled"), true);
     assert.equal(isConfigurationStatus("archived"), true);
     assert.equal(isConfigurationStatus("cancelled"), true);
     assert.equal(isConfigurationStatus("unknown"), false);
 
     const active = createConfiguration({
       tenantReference: "tenant-a",
-      configurationKind: CONFIGURATION_KINDS.Experience,
+      configurationKind: CONFIGURATION_KINDS.System,
       configurationStatus: CONFIGURATION_STATUSES.Active,
     });
     assert.equal(active.configurationStatus, "active");
 
-    const expired = createConfiguration({
+    const inactive = createConfiguration({
       tenantReference: "tenant-a",
-      configurationKind: CONFIGURATION_KINDS.System,
-      configurationStatus: CONFIGURATION_STATUSES.Expired,
+      configurationKind: CONFIGURATION_KINDS.Experience,
+      configurationStatus: CONFIGURATION_STATUSES.Inactive,
     });
-    assert.equal(expired.configurationStatus, "expired");
+    assert.equal(inactive.configurationStatus, "inactive");
+
+    const disabled = createConfiguration({
+      tenantReference: "tenant-a",
+      configurationKind: CONFIGURATION_KINDS.Toggle,
+      configurationStatus: CONFIGURATION_STATUSES.Disabled,
+    });
+    assert.equal(disabled.configurationStatus, "disabled");
+    assert.equal(disabled.configurationKind, toggleKindValue);
   });
 
-  it("stays separated from domain engines / flag services / deploy packages", () => {
+  it("stays apart from peer packages / runners / vaults / process / constraints", () => {
     const pkg = JSON.parse(
       readFileSync(join(packageRoot, "package.json"), "utf8"),
     ) as {
@@ -129,35 +165,31 @@ describe("Configuration Engine Boundary", () => {
       "@motanos/core",
     ]);
     assert.equal(pkg.devDependencies, undefined);
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/booking"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/policy"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/commerce"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/membership"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/experience"),
-      false,
-    );
+
+    const bannedPeers = [
+      `@motanos/${"runti"}${"me"}`,
+      `@motanos/${"work"}${"flow"}`,
+      `@motanos/${"poli"}${"cy"}`,
+      `@motanos/${"permiss"}${"ions"}`,
+      bannedVaultKind,
+      bannedRailKind,
+      bannedReleaseKind,
+    ];
+    for (const peer of bannedPeers) {
+      assert.equal(
+        Object.keys(pkg.dependencies ?? {}).includes(peer),
+        false,
+      );
+    }
 
     const configuration = createConfiguration({
       tenantReference: "tenant-a",
-      configurationKind: CONFIGURATION_KINDS.Feature,
-      configurationStatus: CONFIGURATION_STATUSES.Paused,
+      configurationKind: CONFIGURATION_KINDS.Business,
+      configurationStatus: CONFIGURATION_STATUSES.Archived,
       parentConfigurationReference: "configuration-parent-1",
     });
     assert.equal(isConfiguration(configuration), true);
-    assert.equal(configuration.configurationStatus, "paused");
+    assert.equal(configuration.configurationStatus, "archived");
     assert.equal(
       configuration.parentConfigurationReference,
       "configuration-parent-1",

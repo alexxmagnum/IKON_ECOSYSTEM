@@ -15,24 +15,26 @@ let configurationSequence = 0;
 export interface CreateConfigurationOptions {
   /**
    * When set, configuration may only be created for this tenant
-   * (cross-tenant isolation).
+   * (cross-tenant scope lock).
    */
   tenantReference?: string;
 }
 
 /**
- * Build a validated Configuration (in-memory — definition / context only).
- * Does not resolve runtime values, open flag services, or load deploy settings.
+ * Build a checked Configuration (in-memory — settings existence only).
+ * Does not interpret values, open vaults, or load deploy settings.
  */
 export function createConfiguration(
   input: CreateConfigurationInput,
   options: CreateConfigurationOptions = {},
 ): Configuration {
   const tenantReference = input.tenantReference?.trim() ?? "";
-  const nameReference = input.nameReference?.trim();
   const contextReference = input.contextReference?.trim();
+  const entityReference = input.entityReference?.trim();
+  const entityKind = input.entityKind?.trim();
+  const scopeReference = input.scopeReference?.trim();
+  const keyReference = input.keyReference?.trim();
   const valueReference = input.valueReference?.trim();
-  const ownerReference = input.ownerReference?.trim();
   const parentConfigurationReference =
     input.parentConfigurationReference?.trim();
   const boundTenant = options.tenantReference?.trim() || undefined;
@@ -54,17 +56,23 @@ export function createConfiguration(
     );
   }
 
-  if (input.nameReference !== undefined && !nameReference) {
-    throw new Error("nameReference must not be empty when provided");
-  }
   if (input.contextReference !== undefined && !contextReference) {
     throw new Error("contextReference must not be empty when provided");
   }
+  if (input.entityReference !== undefined && !entityReference) {
+    throw new Error("entityReference must not be empty when provided");
+  }
+  if (input.entityKind !== undefined && !entityKind) {
+    throw new Error("entityKind must not be empty when provided");
+  }
+  if (input.scopeReference !== undefined && !scopeReference) {
+    throw new Error("scopeReference must not be empty when provided");
+  }
+  if (input.keyReference !== undefined && !keyReference) {
+    throw new Error("keyReference must not be empty when provided");
+  }
   if (input.valueReference !== undefined && !valueReference) {
     throw new Error("valueReference must not be empty when provided");
-  }
-  if (input.ownerReference !== undefined && !ownerReference) {
-    throw new Error("ownerReference must not be empty when provided");
   }
   if (
     input.parentConfigurationReference !== undefined &&
@@ -95,17 +103,23 @@ export function createConfiguration(
     tenantReference,
     configurationKind,
     configurationStatus,
-    ...(nameReference !== undefined && nameReference.length > 0
-      ? { nameReference }
-      : {}),
     ...(contextReference !== undefined && contextReference.length > 0
       ? { contextReference }
       : {}),
+    ...(entityReference !== undefined && entityReference.length > 0
+      ? { entityReference }
+      : {}),
+    ...(entityKind !== undefined && entityKind.length > 0
+      ? { entityKind }
+      : {}),
+    ...(scopeReference !== undefined && scopeReference.length > 0
+      ? { scopeReference }
+      : {}),
+    ...(keyReference !== undefined && keyReference.length > 0
+      ? { keyReference }
+      : {}),
     ...(valueReference !== undefined && valueReference.length > 0
       ? { valueReference }
-      : {}),
-    ...(ownerReference !== undefined && ownerReference.length > 0
-      ? { ownerReference }
       : {}),
     ...(parentConfigurationReference !== undefined &&
     parentConfigurationReference.length > 0

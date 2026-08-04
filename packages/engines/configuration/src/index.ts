@@ -1,20 +1,18 @@
 /**
- * @motanos/configuration — Configuration Engine foundation.
+ * @motanos/configuration — Configuration Boundary foundation.
  *
- * MotanOS Core → Shared Engines → @motanos/configuration
+ * MotanOS Core → Shared packages → @motanos/configuration
  *
- * Configuration = contextual / tenant-scoped configurable values.
- * Domain engines own behaviour; flag providers and deploy settings live elsewhere.
- *
- * Must not depend on policy, process orchestration, access-control packages,
- * persistence vendors, or external config services.
+ * Configuration = declarative settings existence for a business context.
+ * Must not depend on process packages, constraint packages, capacity packages,
+ * vault packages, or persistence vendors.
  *
  * Distinct from shared `@motanos/config` tooling package.
  *
  * @see DEC-CONFIGURATION-BOUNDARY-001
  */
 
-export const CONFIGURATION_ENGINE = "@motanos/configuration" as const;
+export const CONFIGURATION_BOUNDARY = "@motanos/configuration" as const;
 
 export type {
   Configuration,

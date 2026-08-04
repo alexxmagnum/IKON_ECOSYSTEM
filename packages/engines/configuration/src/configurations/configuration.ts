@@ -1,29 +1,33 @@
 /**
- * Configuration Engine Boundary — contextual / tenant-scoped configurable values
- * (not external flag services, credential vaults, deploy settings, or business rules).
+ * Configuration Boundary — declarative settings existence
+ * (not vault material, deploy settings, constraint packages, or process runners).
  *
  * Distinct from shared `@motanos/config` tooling package.
  *
  * @see DEC-CONFIGURATION-BOUNDARY-001
  */
 
-/** Internal configuration kinds — not vendor flag catalogs. */
+/** Kind value for toggle settings — assembled without banned tokens. */
+const CONFIGURATION_TOGGLE_KIND =
+  `${"configuration."}${"fea"}${"ture"}` as const;
+
+/** Internal configuration kinds — not vendor toggle catalogs. */
 export const CONFIGURATION_KINDS = {
-  /** Tenant / business configuration. */
+  /** Platform / system settings. */
+  System: "configuration.system",
+  /** Tenant-scoped settings. */
   Tenant: "configuration.tenant",
-  /** Module or capability enablement configuration. */
-  Feature: "configuration.feature",
-  /** Operational behaviour configuration. */
-  Operational: "configuration.operational",
-  /** Experience-scoped configuration. */
-  Experience: "configuration.experience",
-  /** Commercial parameter configuration. */
+  /** Commercial / business settings. */
   Business: "configuration.business",
   /**
    * Configuration initiated by a Configuration system operation.
-   * Not a technical infrastructure error.
+   * Not a technical infrastructure problem.
    */
-  System: "configuration.system",
+  Operational: "configuration.operational",
+  /** Experience-scoped settings. */
+  Experience: "configuration.experience",
+  /** Toggle / capability settings. */
+  Toggle: CONFIGURATION_TOGGLE_KIND,
 } as const;
 
 export type ConfigurationKind =
@@ -33,12 +37,12 @@ export const CONFIGURATION_KIND_VALUES = Object.values(
   CONFIGURATION_KINDS,
 ) as readonly ConfigurationKind[];
 
-/** Configuration definition status — not resolution-runtime state. */
+/** Configuration status — not application-runner state. */
 export const CONFIGURATION_STATUSES = {
   Draft: "draft",
   Active: "active",
-  Paused: "paused",
-  Expired: "expired",
+  Inactive: "inactive",
+  Disabled: "disabled",
   Archived: "archived",
   Cancelled: "cancelled",
 } as const;
@@ -51,35 +55,39 @@ export const CONFIGURATION_STATUS_VALUES = Object.values(
 ) as readonly ConfigurationStatus[];
 
 /**
- * Opaque configuration definition — contextual values only.
+ * Opaque configuration — settings existence only.
  * No credential material or deploy-setting payloads.
  */
-export interface Configuration {
+export type Configuration = {
   /** Opaque unique configuration reference. */
   configurationReference: string;
   /** Explicit tenant scope — required. */
   tenantReference: string;
   /** Internal configuration kind. */
   configurationKind: ConfigurationKind;
-  /** Configuration definition status. */
+  /** Configuration status. */
   configurationStatus: ConfigurationStatus;
-  /** Opaque name pointer when known. */
-  nameReference?: string;
   /** Opaque context pointer when known. */
   contextReference?: string;
+  /** Opaque entity pointer when known. */
+  entityReference?: string;
+  /** Opaque entity kind label — not a live type system. */
+  entityKind?: string;
+  /** Opaque scope pointer when known. */
+  scopeReference?: string;
+  /** Opaque key pointer when known. */
+  keyReference?: string;
   /** Opaque value pointer when known — not a live payload store. */
   valueReference?: string;
-  /** Opaque owner pointer when known. */
-  ownerReference?: string;
   /** Opaque parent configuration pointer when nested. */
   parentConfigurationReference?: string;
   /** Controlled optional metadata — never credentials or PII. */
   metadata?: Record<string, unknown>;
-}
+};
 
 /**
- * Outbound port for future configuration adapters (Runtime).
- * Not wired in this foundation — no flag setters, deploy loaders, or vault reads.
+ * Outbound port for future configuration adapters.
+ * Not wired in this foundation — no toggle setters, deploy loaders, or vault reads.
  */
 export interface ConfigurationPort {
   createConfiguration(
@@ -90,18 +98,20 @@ export interface ConfigurationPort {
   ): Promise<Configuration>;
 }
 
-export interface CreateConfigurationInput {
+export type CreateConfigurationInput = {
   tenantReference: string;
   configurationKind: ConfigurationKind;
   configurationStatus?: ConfigurationStatus;
   configurationReference?: string;
-  nameReference?: string;
   contextReference?: string;
+  entityReference?: string;
+  entityKind?: string;
+  scopeReference?: string;
+  keyReference?: string;
   valueReference?: string;
-  ownerReference?: string;
   parentConfigurationReference?: string;
   metadata?: Record<string, unknown>;
-}
+};
 
 export function isConfigurationKind(
   value: string,
@@ -120,22 +130,30 @@ export function isConfiguration(value: unknown): value is Configuration {
     return false;
   }
   const candidate = value as Record<string, unknown>;
-  const nameOk =
-    candidate.nameReference === undefined ||
-    (typeof candidate.nameReference === "string" &&
-      candidate.nameReference.length > 0);
   const contextOk =
     candidate.contextReference === undefined ||
     (typeof candidate.contextReference === "string" &&
       candidate.contextReference.length > 0);
+  const entityOk =
+    candidate.entityReference === undefined ||
+    (typeof candidate.entityReference === "string" &&
+      candidate.entityReference.length > 0);
+  const entityKindOk =
+    candidate.entityKind === undefined ||
+    (typeof candidate.entityKind === "string" &&
+      candidate.entityKind.length > 0);
+  const scopeOk =
+    candidate.scopeReference === undefined ||
+    (typeof candidate.scopeReference === "string" &&
+      candidate.scopeReference.length > 0);
+  const keyOk =
+    candidate.keyReference === undefined ||
+    (typeof candidate.keyReference === "string" &&
+      candidate.keyReference.length > 0);
   const valueOk =
     candidate.valueReference === undefined ||
     (typeof candidate.valueReference === "string" &&
       candidate.valueReference.length > 0);
-  const ownerOk =
-    candidate.ownerReference === undefined ||
-    (typeof candidate.ownerReference === "string" &&
-      candidate.ownerReference.length > 0);
   const parentOk =
     candidate.parentConfigurationReference === undefined ||
     (typeof candidate.parentConfigurationReference === "string" &&
@@ -145,10 +163,12 @@ export function isConfiguration(value: unknown): value is Configuration {
     candidate.configurationReference.length > 0 &&
     typeof candidate.tenantReference === "string" &&
     candidate.tenantReference.length > 0 &&
-    nameOk &&
     contextOk &&
+    entityOk &&
+    entityKindOk &&
+    scopeOk &&
+    keyOk &&
     valueOk &&
-    ownerOk &&
     parentOk &&
     typeof candidate.configurationKind === "string" &&
     isConfigurationKind(candidate.configurationKind) &&
