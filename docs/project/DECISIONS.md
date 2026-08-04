@@ -1437,6 +1437,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-AUTHENTICATION-BOUNDARY-001 — Authentication Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 109 consolidates Authentication as a pure proof-of-identity boundary — “how does an actor prove who they are?” — independently of Identity creation, Session Runtime, credential storage, token issuance, OAuth provider administration, Permissions, Membership, Tenant provisioning, Billing, and Workflows. MotanOS needs an opaque authentication record so future Authentication Runtimes / external rails can plug in without absorbing Identity or Membership. No `@motanos/authentication` motor existed to split; legacy `@motanos/auth` remains historical runtime scaffolding (not renamed to authentication-lifecycle in this phase).
+
+**Decision:**
+
+* **Ownership:** `Authentication`, factories, and `AuthenticationPort` live in `@motanos/authentication` (`packages/engines/authentication`). Authentication is an independent bounded context — not Identity, Session Runtime, Permissions, Membership, Tenant, or Policy.
+* **Pipeline relation:** Identity Boundary → Authentication Boundary → Future Authentication Runtime. Authentication answers “how is identity proved?”
+* **Separations:** Authentication ≠ Identity. Authentication ≠ Session Runtime. Authentication ≠ Permissions. Authentication ≠ Membership. Opaque refs only — never live credentials, sessions, tokens, or provider SDKs.
+* **Kinds (foundation):** `authentication.password`, `authentication.external`, `authentication.service`, `authentication.system`, `authentication.operational`, `authentication.business`.
+* **Statuses (foundation):** `draft`, `pending`, `active`, `inactive`, `failed`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `authenticationReference`, required `authenticationKind`, `authenticationStatus`; optional opaque `identityReference`, `tenantReference`, `actorReference`, `methodReference`, `contextReference`, `providerReference`, `sessionReference`, `parentAuthenticationReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound scope may require an exact opaque scope reference match.
+* **Port surface:** `createAuthentication` / `resolveAuthentication` only. No authenticate, login, logout, createSession, validateCredential, issueToken, refreshToken, connectProvider, recoverAccess, or createIdentity.
+* **Dependencies:** `@motanos/authentication` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Authentication Runtime adapters, external rail wiring, Session Runtime. Legacy `@motanos/auth` unchanged. No `@motanos/authentication-lifecycle` in this phase.
+
+**Rejected:** Absorbing Identity/Session/Permissions/Membership into Authentication; Authentication → identity/session/token/credential/provider/membership/tenant imports; implementing real sign-in, credential validation, or session creation in this phase.
+
+---
+
 ## DEC-IDENTITY-BOUNDARY-001 — Identity Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
