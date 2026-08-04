@@ -2605,6 +2605,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-VISIT-CONTEXT-CONTEXT-001 — Hospitality Visit Context Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 141 introduces Visit Context as the ambient / spatial setting layer inside `@motanos/hospitality`. A visit context is an opaque record of where (or in which environment) a hospitality visit occurs — not a horizontal location/space/facility engine, and not rooms, seats, tickets, till, maps, auto-bind, alerts, or scores. MotanOS separates Activity / Schedule / Capacity / Availability / Participation / Booking Bridge / Reservation Runtime / Visit Experience / Visit Context.
+
+**Decision:**
+
+* **Ownership:** `HospitalityVisitContext`, factory (`createVisitContext`), and `VisitContextPort` live in `@motanos/hospitality` under `src/visit-context`. Visit Context belongs to Hospitality — no `@motanos/location`, `@motanos/space`, or `@motanos/facility` packages for this capacity. It is not a generic localization system.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community → Activities → Scheduling → Capacity → Availability → Participation → Booking Bridge → Reservation Runtime → Visit Experience → Visit Context → future Table / Order / Consumption → Smart Table Operating System. Conceptual flow: Reservation → Visit Experience → Visit Context (room/ticket/till not implemented).
+* **Separations:** Visit Context ≠ Visit Experience (presence). Visit Context ≠ room / seat / ticket rails. Visit Context ≠ hold / till. No `tableReference`, `seatReference`, or `orderReference` in this foundation.
+* **Isolation:** Each hospitality business owns its visit contexts (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `context.location`, `context.area`, `context.zone`, `context.experience`, `context.internal`.
+* **Statuses (foundation):** `draft`, `active`, `available`, `inactive`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `contextReference`, required `contextKind` / `contextStatus`; optional opaque `hospitalityReference`, `visitReference`, `locationReference`, `areaReference`, `zoneReference`, `experienceReference`, `parentContextReference`, controlled `metadata`.
+* **Port surface:** `createVisitContext` / `resolveVisitContext` only. No assignTable, moveGuest, reserveArea, createOrder, or processPayment.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Table OS; separates experience from operation; models spaces; enables future intelligent rules. **(−):** depends on Visit Experience.
+* **Deferred:** rooms, positions, maps, tickets, till, prep, consumption, IA copiloto, scores (base for Fase 142 Table Context).
+
+**Rejected:** Creating horizontal location/space/facility packages; implementing room bind, area hold, ticket, or till runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
