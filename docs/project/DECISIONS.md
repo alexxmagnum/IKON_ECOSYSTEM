@@ -1437,6 +1437,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-SESSION-BOUNDARY-001 — Session Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 110 consolidates Session as a pure temporal-interaction-existence boundary — “what session exists?” — independently of Authentication proof schemes, Identity creation, credential validation, token issuance, cookie/storage keep-alive, Permissions, Membership, and Tenant provisioning. MotanOS needs an opaque session record so future Session Runtimes can plug in without absorbing Authentication or Identity. No prior `@motanos/session` motor existed to split.
+
+**Decision:**
+
+* **Ownership:** `Session`, factories, and `SessionPort` live in `@motanos/session` (`packages/engines/session`). Session is an independent bounded context — not Authentication, Identity, Session Runtime, Permissions, Membership, or Tenant.
+* **Pipeline relation:** Authentication Boundary → Session Boundary → Future Session Runtime. Session answers “what temporal interaction exists?”
+* **Separations:** Session ≠ Authentication. Session ≠ Identity. Session ≠ Runtime. Opaque refs only — never live tokens, cookies, storage, or provider SDKs.
+* **Kinds (foundation):** `session.user`, `session.service`, `session.system`, `session.external`, `session.operational`, `session.business`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `expired`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `sessionReference`, required `sessionKind`, `sessionStatus`; optional opaque `identityReference`, `authenticationReference`, `tenantReference`, `contextReference`, `deviceReference`, `parentSessionReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound scope may require an exact opaque scope reference match.
+* **Port surface:** `createSession` / `resolveSession` only. No startSession, endSession, refreshSession, issueToken, revokeToken, persistSession, authenticate, createIdentity, or assignPermission.
+* **Dependencies:** `@motanos/session` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Session Runtime adapters and technical keep-alive mechanisms. No `@motanos/session-lifecycle` in this phase.
+
+**Rejected:** Absorbing Authentication/Identity/Runtime into Session; Session → authentication/identity/token/storage/permission/membership/tenant imports; implementing real start/end, renewal, or durable keep-alive in this phase.
+
+---
+
 ## DEC-AUTHENTICATION-BOUNDARY-001 — Authentication Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
