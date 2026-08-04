@@ -2553,6 +2553,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-RESERVATION-RUNTIME-CONTEXT-001 — Hospitality Reservation Runtime Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 139 introduces Reservation Runtime as the accepted participation commitment inside `@motanos/hospitality`. A reservation runtime record is an opaque formalized hold for a hospitality experience — not a horizontal reservation/booking/ticketing engine, and not payments, room bind, tickets, door scan, consumption, alerts, or scores. MotanOS separates Activity / Schedule / Capacity / Availability / Participation / Booking Bridge / Reservation Runtime. Distinct from legacy `HospitalityReservation` (table/visit capacity under `src/reservations`).
+
+**Decision:**
+
+* **Ownership:** `HospitalityReservationRuntime`, factory (`createReservationRuntime`), and `ReservationRuntimePort` live in `@motanos/hospitality` under `src/reservation-runtime`. Reservation Runtime belongs to Hospitality — no `@motanos/reservation`, `@motanos/booking`, or `@motanos/ticketing` packages for this capacity. It is not a generic reservation engine.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community → Activities → Scheduling → Capacity → Availability → Participation → Booking Bridge → Reservation Runtime → future Visit / Table / Order Experience → Smart Table Operating System. Conceptual flow: Booking Request → Reservation (visit/table/order/till not implemented).
+* **Separations:** Reservation Runtime ≠ Booking Request (intent). Reservation Runtime ≠ HospitalityReservation (dining/table visit capacity). Reservation Runtime ≠ till / ticket rails. Reservation Runtime ≠ room bind / door scan. No `price:number`, `paymentReference`, `tableNumber`, `seatNumber`, or `checkInTime` in this foundation.
+* **Isolation:** Each hospitality business owns its experience holds (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `reservation.activity`, `reservation.event`, `reservation.session`, `reservation.internal`.
+* **Statuses (foundation):** `draft`, `requested`, `confirmed`, `active`, `completed`, `cancelled`, `expired`, `archived`.
+* **Contract shape:** Opaque `reservationReference`, required `reservationKind` / `reservationStatus`; optional opaque `hospitalityReference`, `activityReference`, `scheduleReference`, `bookingReference`, `participationReference`, `availabilityReference`, `actorReference`, `guestReference`, `contextReference`, `parentReservationReference`, controlled `metadata`.
+* **Port surface:** `createReservation` / `resolveReservation` only (exported factory: `createReservationRuntime` to avoid collision with table-visit `createReservation`). No confirmReservation, cancelReservation, assignTable, processPayment, checkInGuest, or completeVisit.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** clear Booking / Reservation split; prepares real operations; keeps Smart Table OS scalable; connects experience and business. **(−):** Reservation depends on Activity, Schedule, and Participation.
+* **Deferred:** till, rooms, tickets, door scan, consumption, invoicing, waitlists, scores (base for Fase 140 Visit Experience).
+
+**Rejected:** Creating horizontal reservation/booking/ticketing packages; implementing confirm, cancel, room bind, till, or door-scan runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
