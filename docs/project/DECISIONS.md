@@ -2091,6 +2091,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-ROLLOUT-BOUNDARY-001 — Rollout Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 121 introduces Rollout as a pure distribution-strategy boundary — “what distribution strategy exists?” — independently of Feature functional capacity, Experimentation trial existence, Rollout Runtime application, deployment/release execution, user/tenant assignment, percentage calculation, infrastructure control, and external providers. MotanOS needs an opaque rollout record so future Rollout Runtimes can plug in without absorbing Feature or Experimentation. No rollout-lifecycle split was required: `@motanos/rollout` is a new slim boundary.
+
+**Decision:**
+
+* **Ownership:** `Rollout`, factories, and `RolloutPort` live in `@motanos/rollout` (`packages/engines/rollout`). Rollout is an independent bounded context — not Feature, Experimentation, or Runtime.
+* **Pipeline relation:** Feature Boundary → Experimentation Boundary → Rollout Boundary → Future Rollout Runtime. Rollout answers “what distribution strategy exists?”
+* **Separations:** Rollout ≠ Feature. Rollout ≠ Experimentation. Rollout ≠ Runtime. Rollout represents an existing distribution strategy, not technical application. Opaque refs only — prepared for future rollout runtimes.
+* **Kinds (foundation):** `rollout.feature`, `rollout.experiment`, `rollout.business`, `rollout.operational`, `rollout.customer`, `rollout.system`, `rollout.internal`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `configured`, `available`, `paused`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `rolloutReference`, required `rolloutKind`, `rolloutStatus`; optional opaque `contextReference`, `actorReference`, `entityReference`, `entityKind`, `featureReference`, `experimentationReference`, `configurationReference`, `scopeReference`, `parentRolloutReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound context may require an exact opaque context reference match.
+* **Port surface:** `createRollout` / `resolveRollout` only. No executeRollout, deployRollout, releaseRollout, assignRollout, calculatePercentage, activateFeature, evaluateExperiment, startRuntime, or connectProvider.
+* **Dependencies:** `@motanos/rollout` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Rollout Runtime adapters. No `@motanos/rollout-lifecycle` in this phase.
+
+**Rejected:** Absorbing Feature/Experimentation/Runtime into Rollout; Rollout → runtime/deployment/release/assign/assignment/percentage/target/evaluation/feature/experiment/provider imports; implementing real distribute, publish, or bind execution in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
