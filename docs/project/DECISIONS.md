@@ -2658,6 +2658,33 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-TABLE-CHANNEL-CONTEXT-001 — Hospitality Table Channel Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 143 introduces Table Channel as the access-mode layer that connects table experiences to shared hospitality catalogs inside `@motanos/hospitality`. A table channel is an opaque record of how a guest reaches a business (public web vs table QR vs staff) — not a horizontal channel/menu-channel/qr-menu engine, and not code emit, baskets, tickets, till, prep rails, tariff, or forked menus. MotanOS separates Menu (shared catalog) / Channel (access mode) / Table Context (where) / future Order. Distinct from `HospitalityChannel` (general entry under `src/channels`, DEC-HOSPITALITY-CHANNEL-CONTEXT-001).
+
+**Decision:**
+
+* **Ownership:** `HospitalityTableChannel`, factory (`createTableChannel`), and `TableChannelPort` live in `@motanos/hospitality` under `src/table-channel`. Table Channel belongs to Hospitality — no `@motanos/channel`, `@motanos/menu-channel`, or `@motanos/qr-menu` packages for this capacity.
+* **Shared catalog rule:** `menuReference` points at one shared Hospitality Menu. Public and QR channels may share the same `menuReference`. Never create `qrMenuReference` or `webMenuReference`. Difference is the channel, not the catalog.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Menu → Channel → Customer Experience → Visit Context → Table Context → Table Channel → future Order / Consumption → Smart Table Operating System. Public web = discovery/info; Table QR = future operational experience on the same catalog.
+* **Separations:** Table Channel ≠ HospitalityChannel (general entry). Table Channel ≠ forked menus. Table Channel ≠ ticket / till / basket / prep. No generateQR, scanQR, openCart, createOrder, or processPayment in this foundation.
+* **Isolation:** Each hospitality business owns its table channels (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `table-channel.public`, `table-channel.qr`, `table-channel.staff`, `table-channel.internal`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `channelReference`, required `channelKind` / `channelStatus`; optional opaque `hospitalityReference`, `tableContextReference`, `tableReference`, `visitContextReference`, `experienceReference`, `menuReference`, `parentChannelReference`, controlled `metadata`.
+* **Port surface:** `createTableChannel` / `resolveTableChannel` only.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** eliminates catalog duplication; prepares Smart Table OS; enables contextual experiences; single catalog evolution. **(−):** requires separating channel from operation.
+* **Deferred:** QR emit/scan, basket, tickets, till, prep, forked catalogs, TPV (base for Fase 144 Table Interaction).
+
+**Rejected:** Creating horizontal channel/menu-channel/qr-menu packages; duplicating menus per channel; implementing QR emit/scan, basket, ticket, or till runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
