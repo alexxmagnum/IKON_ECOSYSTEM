@@ -1,17 +1,18 @@
 /**
  * @motanos/hospitality — Hospitality Domain foundation.
  *
- * MotanOS Platform → Hospitality Domain → Table Management → Smart Table OS
+ * MotanOS Platform → Hospitality Domain → Table / Menu → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
  *
- * Implemented: hospitality business, tables.
- * Prepared (not implemented): menu, orders, reservations, staff,
+ * Implemented: hospitality business, tables, menu.
+ * Prepared (not implemented): orders, reservations, staff,
  * kitchen, cost-control.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
  * @see DEC-HOSPITALITY-TABLE-CONTEXT-001
+ * @see DEC-HOSPITALITY-MENU-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -57,3 +58,43 @@ export {
   isTableStatus,
   resetTableReferenceSequence,
 } from "./tables/mod";
+
+export type {
+  CreateMenuCategoryInput,
+  CreateMenuInput,
+  CreateMenuItemInput,
+  CreateMenuOptions,
+  HospitalityMenu,
+  MenuCategory,
+  MenuCategoryStatus,
+  MenuItem,
+  MenuItemPort,
+  MenuItemStatus,
+  MenuKind,
+  MenuPort,
+  MenuStatus,
+} from "./menu/mod";
+export {
+  MENU_CATEGORY_STATUSES,
+  MENU_CATEGORY_STATUS_VALUES,
+  MENU_ITEM_STATUSES,
+  MENU_ITEM_STATUS_VALUES,
+  MENU_KINDS,
+  MENU_KIND_VALUES,
+  MENU_STATUSES,
+  MENU_STATUS_VALUES,
+  createMenu,
+  createMenuCategory,
+  createMenuItem,
+  isHospitalityMenu,
+  isMenuCategory,
+  isMenuCategoryStatus,
+  isMenuItem,
+  isMenuItemPort,
+  isMenuItemStatus,
+  isMenuKind,
+  isMenuPort,
+  isMenuStatus,
+  resetMenuItemReferenceSequence,
+  resetMenuReferenceSequence,
+} from "./menu/mod";

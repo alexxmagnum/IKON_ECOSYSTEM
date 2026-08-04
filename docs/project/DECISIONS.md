@@ -2167,6 +2167,33 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-MENU-CONTEXT-001 — Hospitality Menu Management Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 124 introduces Menu Management as the second operative Smart Table OS capacity inside `@motanos/hospitality`. A menu is an operative carta within a hospitality business — not a horizontal Core engine, and not an order, inventory product, kitchen ticket, recipe cost sheet, TPV, payment, or customer concept. MotanOS needs opaque menu, category, and item records so future digital cartas and orders can reference them without absorbing transactional, pricing-engine, or inventory logic in this foundation.
+
+**Decision:**
+
+* **Ownership:** `HospitalityMenu`, `MenuCategory`, `MenuItem`, factories, `MenuPort`, and `MenuItemPort` live in `@motanos/hospitality` under `src/menu`. Menu belongs to Hospitality — no `@motanos/menu`, `@motanos/catalog-menu`, or `@motanos/product-menu` packages.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Menu Management → Smart Table Operating System.
+* **Separations:** Menu ≠ Core Catalog. Menu ≠ Order / Kitchen / Payment / Inventory / Pricing Engine / TPV / QR. Menu is the digital-carta foundation; future orders will consume opaque item references. Pricing, inventory, and TPV remain separate. No transactional logic in this foundation.
+* **Kinds (menu):** `menu.restaurant`, `menu.bar`, `menu.club`, `menu.hotel`, `menu.seasonal`, `menu.internal`.
+* **Statuses (menu):** `draft`, `active`, `inactive`, `available`, `archived`, `cancelled`.
+* **Statuses (item):** `draft`, `active`, `available`, `unavailable`, `archived`, `cancelled`.
+* **Contract shape:** Menu — opaque `menuReference`, required `menuKind` / `menuStatus`; optional `hospitalityReference`, `contextReference`, `nameReference`, `parentMenuReference`, `metadata`. Category — opaque `categoryReference`, required `categoryStatus`; optional `menuReference`, `nameReference`, `positionReference`, `metadata`. Item — opaque `itemReference`, required `itemStatus`; optional `menuReference`, `categoryReference`, `nameReference`, `descriptionReference`, `priceReference`, `imageReference`, `metadata`.
+* **Opaque economics / media:** `priceReference` points at a future Pricing Engine; `imageReference` points at future media — no pricing or storage in this package.
+* **Scope isolation:** Optional bound hospitality business may require an exact opaque hospitality reference match (cartas do not mix across businesses).
+* **Port surface:** `createMenu` / `resolveMenu` and `createMenuItem` / `resolveMenuItem` only. No publishMenu, calculatePrice, orderItem, sendKitchen, printMenu, generateQR, syncTPV, or calculateCost.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Deferred:** digital-carta UX, QR, TPV sync, inventory, pricing engine, and order consumption of menu items.
+
+**Rejected:** Creating a horizontal menu engine; implementing order, kitchen, payment, inventory, pricing-engine, or QR logic inside Menu; turning Menu into a transactional Smart Table product in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

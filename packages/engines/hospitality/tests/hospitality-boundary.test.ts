@@ -22,7 +22,6 @@ const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const srcRoot = join(packageRoot, "src");
 
 const futureModules = [
-  "menu",
   "orders",
   "reservations",
   "staff",
@@ -187,7 +186,7 @@ describe("Hospitality Domain Boundary", () => {
       "utf8",
     );
     assert.equal(publicSource.includes("createTable"), true);
-    assert.equal(publicSource.includes("createMenu"), false);
+    assert.equal(publicSource.includes("createMenu"), true);
     assert.equal(publicSource.includes("createOrder"), false);
     assert.equal(publicSource.includes("createReservation"), false);
     assert.equal(publicSource.includes("assignStaff"), false);
