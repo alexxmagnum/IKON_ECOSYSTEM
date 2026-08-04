@@ -21,12 +21,7 @@ import {
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const srcRoot = join(packageRoot, "src");
 
-const futureModules = [
-  "reservations",
-  "staff",
-  "kitchen",
-  "cost-control",
-] as const;
+const futureModules = ["staff", "kitchen", "cost-control"] as const;
 
 const scopeValue = "context-a";
 const otherScopeValue = "context-b";
@@ -187,7 +182,7 @@ describe("Hospitality Domain Boundary", () => {
     assert.equal(publicSource.includes("createTable"), true);
     assert.equal(publicSource.includes("createMenu"), true);
     assert.equal(publicSource.includes("createOrder"), true);
-    assert.equal(publicSource.includes("createReservation"), false);
+    assert.equal(publicSource.includes("createReservation"), true);
     assert.equal(publicSource.includes("assignStaff"), false);
     assert.equal(publicSource.includes("calculateCost"), false);
     assert.equal(publicSource.includes("processPayment"), false);

@@ -2221,6 +2221,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-RESERVATION-CONTEXT-001 — Hospitality Reservation Management Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 126 introduces Reservation Management as the fourth operative Smart Table OS capacity inside `@motanos/hospitality`, extending the flow Cliente → Reserva → Mesa → Pedido. A reservation is a scheduled visit intent within a hospitality business — not a horizontal Core booking/calendar engine, and not availability automation, intelligent table assignment, customer CRM, reminders, or payments. MotanOS needs an opaque reservation record so future table assignment, notifications, and customer identity can reference it without absorbing those concerns in this foundation.
+
+**Decision:**
+
+* **Ownership:** `HospitalityReservation`, factory, and `ReservationPort` live in `@motanos/hospitality` under `src/reservations`. Reservation belongs to Hospitality — no `@motanos/reservation`, `@motanos/booking`, or `@motanos/calendar-reservation` packages for this concern.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Reservation Management → Smart Table Operating System. Conceptual flow: Customer → Reservation → Table → Order (opaque refs only).
+* **Separations:** Reservation ≠ Core Booking. Reservation ≠ Calendar / Availability Engine / Scheduling Engine / Notification / Customer Engine / Payment. Table assignment (`Reserva → disponibilidad → asignación`) is deferred. No transactional calendar logic in this foundation.
+* **Kinds (foundation):** `reservation.dining`, `reservation.bar`, `reservation.private`, `reservation.event`, `reservation.club`, `reservation.internal`.
+* **Statuses (foundation):** `draft`, `pending`, `confirmed`, `arrived`, `completed`, `cancelled`, `no_show`.
+* **Contract shape:** Opaque `reservationReference`, required `reservationKind` / `reservationStatus`; optional opaque `hospitalityReference`, `contextReference`, `tableReference`, `customerReference`, `guestReference`, `dateReference`, `timeReference`, `partySizeReference`, `parentReservationReference`, controlled `metadata`.
+* **Opaque planning refs:** `partySizeReference` (not a numeric `partySize`), `dateReference`, `timeReference` — capacity rules and calendar engines remain separate. `tableReference` is optional and never auto-assigned here.
+* **Scope isolation:** Optional bound hospitality business may require an exact opaque hospitality reference match (reservations do not mix across businesses).
+* **Port surface:** `createReservation` / `resolveReservation` only. No confirmReservation, assignTable, checkAvailability, sendReminder, notifyCustomer, cancelBooking, optimizeCapacity, or syncCalendar.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Deferred:** availability engine, intelligent table assignment, calendar sync, reminders/notifications, customer engine, and payment holds.
+
+**Rejected:** Creating a horizontal reservation/booking engine; implementing calendar, availability, auto table assignment, notifications, customer management, or payment inside Reservation; turning Reservation into a full booking product in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
