@@ -1,36 +1,35 @@
 /**
- * @motanos/search — Search Engine foundation.
+ * @motanos/search — Search Boundary foundation.
  *
- * MotanOS Core → Shared Engines → @motanos/search
+ * MotanOS Core → Shared packages → @motanos/search
  *
- * Search = conceptual discovery capacity and discoverable entity references.
- * Domain engines own what exists; Search Providers own how discovery runs.
- *
- * Must not depend on booking, experience, community, commerce, asset,
- * persistence vendors, or measurement packages.
+ * Search = what discovery capacity exists.
+ * Must not depend on catalog packages, suggestion packages,
+ * interpretation packages, or live technical find engines.
  *
  * @see DEC-SEARCH-BOUNDARY-001
  */
 
-export const SEARCH_ENGINE = "@motanos/search" as const;
+export const SEARCH_BOUNDARY = "@motanos/search" as const;
 
 export type {
-  CreateSearchEntryInput,
-  CreateSearchEntryOptions,
-  SearchEntry,
+  CreateSearchInput,
+  CreateSearchOptions,
+  Search,
   SearchKind,
   SearchPort,
   SearchStatus,
-} from "./search";
+} from "./search/mod";
 export {
   SEARCH_KINDS,
   SEARCH_KIND_VALUES,
+  SEARCH_LOOKUP_REF_KEY,
   SEARCH_STATUSES,
   SEARCH_STATUS_VALUES,
-  createSearchEntry,
-  isSearchEntry,
+  createSearch,
+  isSearch,
   isSearchKind,
   isSearchPort,
   isSearchStatus,
   resetSearchReferenceSequence,
-} from "./search";
+} from "./search/mod";

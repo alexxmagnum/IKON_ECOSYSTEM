@@ -1,22 +1,23 @@
 export type {
-  CreateSearchEntryInput,
-  SearchEntry,
+  CreateSearchInput,
+  Search,
   SearchKind,
   SearchPort,
   SearchStatus,
-} from "./search-entry";
+} from "./search";
 export {
   SEARCH_KINDS,
   SEARCH_KIND_VALUES,
+  SEARCH_LOOKUP_REF_KEY,
   SEARCH_STATUSES,
   SEARCH_STATUS_VALUES,
-  isSearchEntry,
+  isSearch,
   isSearchKind,
   isSearchPort,
   isSearchStatus,
-} from "./search-entry";
-export type { CreateSearchEntryOptions } from "./create-search-entry";
+} from "./search";
+export type { CreateSearchOptions } from "./create-search";
 export {
-  createSearchEntry,
+  createSearch,
   resetSearchReferenceSequence,
-} from "./create-search-entry";
+} from "./create-search";

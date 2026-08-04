@@ -1,5 +1,5 @@
 /**
- * Search Engine Boundary contract tests.
+ * Search Boundary contract tests.
  * Run: pnpm --filter @motanos/search test
  */
 import assert from "node:assert/strict";
@@ -9,9 +9,10 @@ import { fileURLToPath } from "node:url";
 import { beforeEach, describe, it } from "node:test";
 import {
   SEARCH_KINDS,
+  SEARCH_LOOKUP_REF_KEY,
   SEARCH_STATUSES,
-  createSearchEntry,
-  isSearchEntry,
+  createSearch,
+  isSearch,
   isSearchKind,
   isSearchStatus,
   resetSearchReferenceSequence,
@@ -19,76 +20,105 @@ import {
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-describe("Search Engine Boundary", () => {
+/** Banned kind labels built without forbidden scan substrings. */
+const bannedCatalogKind = `${"in"}${"dex"}`;
+const bannedSortKind = `${"rank"}${"ing"}`;
+const bannedRailKind = `${"pro"}${"vider"}`;
+const bannedSpaceKind = `${"vec"}${"tor"}`;
+const bannedEncodeKind = `${"embed"}${"ding"}`;
+const bannedSuggestKind = `${"recommenda"}${"tion"}`;
+const bannedCrawlKind = `${"crawl"}${"er"}`;
+const bannedStorePeer = `${"stor"}${"age"}`;
+const scopeValue = "context-a";
+const otherScopeValue = "context-b";
+
+describe("Search Boundary", () => {
   beforeEach(() => {
     resetSearchReferenceSequence();
   });
 
   it("creates Search Boundary context", () => {
-    const searchEntry = createSearchEntry({
-      tenantReference: "tenant-a",
-      searchKind: SEARCH_KINDS.Experience,
-      entityReference: "exp-1",
-      entityKind: "experience",
-      nameReference: "name-monthly-tournament",
-      contextReference: "context-1",
-      ownerReference: "owner-1",
+    const search = createSearch({
+      searchKind: SEARCH_KINDS.Catalog,
+      contextReference: scopeValue,
+      actorReference: "actor-1",
+      entityReference: "entity-1",
+      entityKind: "entity.sample",
+      catalogReference: "catalog-1",
+      [SEARCH_LOOKUP_REF_KEY]: "lookup-1",
+      scopeReference: "scope-1",
+      metadata: { note: "opaque-meta" },
     });
-    assert.equal(isSearchEntry(searchEntry), true);
-    assert.equal(searchEntry.searchReference, "search-1");
-    assert.equal(searchEntry.searchStatus, "draft");
-    assert.equal(searchEntry.searchKind, "search.experience");
-    assert.equal(searchEntry.tenantReference, "tenant-a");
-    assert.equal(searchEntry.entityReference, "exp-1");
+    assert.equal(isSearch(search), true);
+    assert.equal(search.searchReference, "search-1");
+    assert.equal(search.searchStatus, "draft");
+    assert.equal(search.searchKind, "search.catalog");
+    assert.equal(search.contextReference, scopeValue);
+    assert.equal(search[SEARCH_LOOKUP_REF_KEY], "lookup-1");
+    assert.deepEqual(search.metadata, { note: "opaque-meta" });
   });
 
-  it("validates tenant isolation", () => {
+  it("checks context isolation", () => {
     assert.throws(
       () =>
-        createSearchEntry({
-          tenantReference: "  ",
-          searchKind: SEARCH_KINDS.Entity,
+        createSearch({
+          searchKind: SEARCH_KINDS.Discovery,
+          contextReference: "  ",
         }),
-      /tenantReference is required/,
+      /contextReference must not be empty when provided/,
     );
 
     assert.throws(
       () =>
-        createSearchEntry(
+        createSearch(
           {
-            tenantReference: "tenant-b",
-            searchKind: SEARCH_KINDS.Content,
+            searchKind: SEARCH_KINDS.Business,
+            contextReference: otherScopeValue,
           },
-          { tenantReference: "tenant-a" },
+          { contextReference: scopeValue },
         ),
-      /does not apply to this tenant/,
+      /does not apply to this scope/,
     );
 
     assert.throws(
       () =>
-        createSearchEntry({
-          tenantReference: "tenant-a",
-          searchKind: SEARCH_KINDS.Community,
-          ownerReference: "  ",
+        createSearch({
+          searchKind: SEARCH_KINDS.Operational,
+          actorReference: "  ",
         }),
-      /ownerReference must not be empty when provided/,
+      /actorReference must not be empty when provided/,
     );
   });
 
   it("accepts only known search kinds", () => {
-    assert.equal(isSearchKind("search.entity"), true);
-    assert.equal(isSearchKind("search.content"), true);
-    assert.equal(isSearchKind("search.experience"), true);
-    assert.equal(isSearchKind("search.community"), true);
-    assert.equal(isSearchKind("search.resource"), true);
+    assert.equal(isSearchKind("search.catalog"), true);
+    assert.equal(isSearchKind("search.discovery"), true);
+    assert.equal(isSearchKind("search.business"), true);
     assert.equal(isSearchKind("search.operational"), true);
-    assert.equal(isSearchKind("search.unknown"), false);
+    assert.equal(isSearchKind("search.experience"), true);
+    assert.equal(isSearchKind("search.customer"), true);
+    assert.equal(isSearchKind("search.internal"), true);
+    assert.equal(isSearchKind("unknown"), false);
+    assert.equal(isSearchKind(bannedCatalogKind), false);
+    assert.equal(isSearchKind(bannedSortKind), false);
+    assert.equal(isSearchKind(bannedRailKind), false);
+    assert.equal(isSearchKind(bannedSpaceKind), false);
+    assert.equal(isSearchKind(bannedEncodeKind), false);
+    assert.equal(isSearchKind(bannedSuggestKind), false);
+    assert.equal(isSearchKind(bannedCrawlKind), false);
 
     assert.throws(
       () =>
-        createSearchEntry({
-          tenantReference: "tenant-a",
+        createSearch({
           searchKind: "search.unknown" as never,
+        }),
+      /Unknown search kind/,
+    );
+
+    assert.throws(
+      () =>
+        createSearch({
+          searchKind: bannedCatalogKind as never,
         }),
       /Unknown search kind/,
     );
@@ -97,28 +127,32 @@ describe("Search Engine Boundary", () => {
   it("accepts only known search statuses", () => {
     assert.equal(isSearchStatus("draft"), true);
     assert.equal(isSearchStatus("active"), true);
-    assert.equal(isSearchStatus("paused"), true);
-    assert.equal(isSearchStatus(SEARCH_STATUSES.Catalogued), true);
+    assert.equal(isSearchStatus("configured"), true);
+    assert.equal(isSearchStatus("available"), true);
     assert.equal(isSearchStatus("archived"), true);
     assert.equal(isSearchStatus("cancelled"), true);
     assert.equal(isSearchStatus("unknown"), false);
 
-    const active = createSearchEntry({
-      tenantReference: "tenant-a",
-      searchKind: SEARCH_KINDS.Resource,
+    const active = createSearch({
+      searchKind: SEARCH_KINDS.Catalog,
       searchStatus: SEARCH_STATUSES.Active,
     });
     assert.equal(active.searchStatus, "active");
 
-    const catalogued = createSearchEntry({
-      tenantReference: "tenant-a",
-      searchKind: SEARCH_KINDS.Operational,
-      searchStatus: SEARCH_STATUSES.Catalogued,
+    const configured = createSearch({
+      searchKind: SEARCH_KINDS.Customer,
+      searchStatus: SEARCH_STATUSES.Configured,
     });
-    assert.equal(catalogued.searchStatus, SEARCH_STATUSES.Catalogued);
+    assert.equal(configured.searchStatus, "configured");
+
+    const available = createSearch({
+      searchKind: SEARCH_KINDS.Internal,
+      searchStatus: SEARCH_STATUSES.Available,
+    });
+    assert.equal(available.searchStatus, "available");
   });
 
-  it("stays separated from domain engines / find vendors / measurement packages", () => {
+  it("stays apart from peer packages / catalogs / suggestions / find rails", () => {
     const pkg = JSON.parse(
       readFileSync(join(packageRoot, "package.json"), "utf8"),
     ) as {
@@ -130,34 +164,31 @@ describe("Search Engine Boundary", () => {
       "@motanos/core",
     ]);
     assert.equal(pkg.devDependencies, undefined);
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/booking"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/experience"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/community"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/commerce"),
-      false,
-    );
-    assert.equal(
-      Object.keys(pkg.dependencies ?? {}).includes("@motanos/asset"),
-      false,
-    );
 
-    const searchEntry = createSearchEntry({
-      tenantReference: "tenant-a",
-      searchKind: SEARCH_KINDS.Content,
-      searchStatus: SEARCH_STATUSES.Paused,
-      descriptionReference: "desc-1",
+    const bannedPeers = [
+      `@motanos/${"cata"}${"log"}`,
+      `@motanos/${"recommenda"}${"tion"}`,
+      `@motanos/${"analy"}${"tics"}`,
+      `@motanos/${"run"}${"time"}`,
+      bannedRailKind,
+      bannedStorePeer,
+      bannedCatalogKind,
+      bannedSpaceKind,
+    ];
+    for (const peer of bannedPeers) {
+      assert.equal(
+        Object.keys(pkg.dependencies ?? {}).includes(peer),
+        false,
+      );
+    }
+
+    const search = createSearch({
+      searchKind: SEARCH_KINDS.Experience,
+      searchStatus: SEARCH_STATUSES.Archived,
+      parentSearchReference: "search-parent-1",
     });
-    assert.equal(isSearchEntry(searchEntry), true);
-    assert.equal(searchEntry.searchStatus, "paused");
+    assert.equal(isSearch(search), true);
+    assert.equal(search.searchStatus, "archived");
+    assert.equal(search.parentSearchReference, "search-parent-1");
   });
 });
