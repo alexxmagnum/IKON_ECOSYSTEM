@@ -4,14 +4,15 @@
  * MotanOS Platform → Identity / Actor / Membership → Hospitality Domain
  * → Channel / Table / Menu / Order / Reservation / Staff / Operations
  * / Cost Control / Customer Experience / Community / Activities
- * / Participation / Scheduling / Capacity → Smart Table OS
+ * / Participation / Scheduling / Capacity / Availability → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
  *
  * Implemented: hospitality business, channels, tables, menu, orders,
  * reservations, staff, service operations, cost control, customer experience,
- * community, activities, participation, activity scheduling, activity capacity.
+ * community, activities, participation, activity scheduling, activity capacity,
+ * activity availability.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -29,6 +30,7 @@
  * @see DEC-HOSPITALITY-PARTICIPATION-CONTEXT-001
  * @see DEC-HOSPITALITY-ACTIVITY-SCHEDULING-CONTEXT-001
  * @see DEC-HOSPITALITY-ACTIVITY-CAPACITY-CONTEXT-001
+ * @see DEC-HOSPITALITY-ACTIVITY-AVAILABILITY-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -377,3 +379,24 @@ export {
   isHospitalityActivityCapacity,
   resetActivityCapacityReferenceSequence,
 } from "./capacity/mod";
+
+export type {
+  ActivityAvailabilityPort,
+  AvailabilityKind,
+  AvailabilityStatus,
+  CreateActivityAvailabilityInput,
+  CreateActivityAvailabilityOptions,
+  HospitalityActivityAvailability,
+} from "./availability/mod";
+export {
+  AVAILABILITY_KINDS,
+  AVAILABILITY_KIND_VALUES,
+  AVAILABILITY_STATUSES,
+  AVAILABILITY_STATUS_VALUES,
+  createActivityAvailability,
+  isActivityAvailabilityPort,
+  isAvailabilityKind,
+  isAvailabilityStatus,
+  isHospitalityActivityAvailability,
+  resetActivityAvailabilityReferenceSequence,
+} from "./availability/mod";

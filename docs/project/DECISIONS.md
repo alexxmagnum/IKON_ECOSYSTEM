@@ -2501,6 +2501,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ACTIVITY-AVAILABILITY-CONTEXT-001 — Hospitality Activity Availability Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 137 introduces Activity Availability as the openness boundary for hospitality experiences. Availability is an opaque state of whether participation is currently possible for a concrete experience — not a horizontal availability/calendar/booking engine, and not reservations, payments, waitlists, seat assignment, door scans, alerts, or scores. MotanOS separates Activity (what), Schedule (when), Capacity (how many), Availability (whether possible now), and Participation (who).
+
+**Decision:**
+
+* **Ownership:** `HospitalityActivityAvailability`, factory, and `ActivityAvailabilityPort` live in `@motanos/hospitality` under `src/availability`. Availability belongs to Hospitality — do not route this capacity through horizontal `@motanos/availability`, `@motanos/calendar`, or `@motanos/booking` packages. It is not a global availability engine.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community → Activities → Scheduling → Capacity → Availability → future Booking / Reservation → Smart Table Operating System. Conceptual flow: Activity → Schedule → Capacity → Availability draft → available (booking/consume not implemented).
+* **Separations:** Availability ≠ Activity body. Availability ≠ Schedule timing. Availability ≠ Capacity limits. Availability ≠ Participation. Availability ≠ reservation / seat hold / waitlist. Availability ≠ payment. Magnitudes use opaque `stateReference` / `windowReference` — never `availableSlots:number`, `remaining:number`, or `count:number`.
+* **Isolation:** Each hospitality business owns its availability (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `availability.activity`, `availability.session`, `availability.event`, `availability.internal`.
+* **Statuses (foundation):** `draft`, `available`, `limited`, `unavailable`, `closed`, `inactive`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `availabilityReference`, required `availabilityKind` / `availabilityStatus`; optional opaque `hospitalityReference`, `activityReference`, `scheduleReference`, `capacityReference`, `contextReference`, `stateReference`, `windowReference`, `parentAvailabilityReference`, controlled `metadata`.
+* **Port surface:** `createActivityAvailability` / `resolveActivityAvailability` only. No checkAvailability, reserveAvailability, consumeAvailability, releaseAvailability, or joinWaitlist.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** clear Activity / Schedule / Capacity / Availability / Participation split; prepares future booking; avoids a generic agenda; evolves Smart Table Experience. **(−):** Availability depends on Activity, Schedule, and Capacity.
+* **Deferred:** reservations, payments, real seat consume, waitlists, door scan, attendees, scores (base for Fase 138 Booking Bridge).
+
+**Rejected:** Creating horizontal availability/calendar/booking packages; modeling bare numeric remaining/slot counts; implementing check/reserve/consume/release/waitlist runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
