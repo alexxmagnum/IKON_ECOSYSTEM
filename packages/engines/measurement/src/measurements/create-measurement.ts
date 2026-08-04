@@ -14,32 +14,31 @@ let measurementSequence = 0;
 
 export interface CreateMeasurementOptions {
   /**
-   * When set, measurement may only be created for this tenant
-   * (cross-tenant isolation).
+   * When set, measurement may only be created for this ambit
+   * (cross-context isolation).
    */
-  tenantReference?: string;
+  contextReference?: string;
 }
 
 /**
- * Build a checked Measurement (in-memory — measurable value / context only).
- * Does not open vendor sessions or run rollups / forecasts.
+ * Build a checked Measurement (in-memory — measurable value existence only).
+ * Does not interpret, present, roll up, or observe systems technically.
  */
 export function createMeasurement(
   input: CreateMeasurementInput,
   options: CreateMeasurementOptions = {},
 ): Measurement {
-  const tenantReference = input.tenantReference?.trim() ?? "";
+  const contextReference = input.contextReference?.trim();
+  const actorReference = input.actorReference?.trim();
   const entityReference = input.entityReference?.trim();
   const entityKind = input.entityKind?.trim();
-  const contextReference = input.contextReference?.trim();
+  const eventReference = input.eventReference?.trim();
   const valueReference = input.valueReference?.trim();
   const unitReference = input.unitReference?.trim();
-  const sourceReference = input.sourceReference?.trim();
-  const boundTenant = options.tenantReference?.trim() || undefined;
+  const parentMeasurementReference =
+    input.parentMeasurementReference?.trim();
+  const boundContext = options.contextReference?.trim() || undefined;
 
-  if (!tenantReference) {
-    throw new Error("tenantReference is required");
-  }
   if (!isMeasurementKind(input.measurementKind)) {
     throw new Error(
       `Unknown measurement kind: ${String(input.measurementKind)}`,
@@ -54,14 +53,20 @@ export function createMeasurement(
     );
   }
 
+  if (input.contextReference !== undefined && !contextReference) {
+    throw new Error("contextReference must not be empty when provided");
+  }
+  if (input.actorReference !== undefined && !actorReference) {
+    throw new Error("actorReference must not be empty when provided");
+  }
   if (input.entityReference !== undefined && !entityReference) {
     throw new Error("entityReference must not be empty when provided");
   }
   if (input.entityKind !== undefined && !entityKind) {
     throw new Error("entityKind must not be empty when provided");
   }
-  if (input.contextReference !== undefined && !contextReference) {
-    throw new Error("contextReference must not be empty when provided");
+  if (input.eventReference !== undefined && !eventReference) {
+    throw new Error("eventReference must not be empty when provided");
   }
   if (input.valueReference !== undefined && !valueReference) {
     throw new Error("valueReference must not be empty when provided");
@@ -69,12 +74,20 @@ export function createMeasurement(
   if (input.unitReference !== undefined && !unitReference) {
     throw new Error("unitReference must not be empty when provided");
   }
-  if (input.sourceReference !== undefined && !sourceReference) {
-    throw new Error("sourceReference must not be empty when provided");
+  if (
+    input.parentMeasurementReference !== undefined &&
+    !parentMeasurementReference
+  ) {
+    throw new Error(
+      "parentMeasurementReference must not be empty when provided",
+    );
   }
 
-  if (boundTenant !== undefined && tenantReference !== boundTenant) {
-    throw new Error("measurement does not apply to this tenant");
+  if (
+    boundContext !== undefined &&
+    (contextReference === undefined || contextReference !== boundContext)
+  ) {
+    throw new Error("measurement does not apply to this scope");
   }
 
   const providedReference = input.measurementReference?.trim() ?? "";
@@ -90,17 +103,22 @@ export function createMeasurement(
 
   return {
     measurementReference,
-    tenantReference,
     measurementKind,
     measurementStatus,
+    ...(contextReference !== undefined && contextReference.length > 0
+      ? { contextReference }
+      : {}),
+    ...(actorReference !== undefined && actorReference.length > 0
+      ? { actorReference }
+      : {}),
     ...(entityReference !== undefined && entityReference.length > 0
       ? { entityReference }
       : {}),
     ...(entityKind !== undefined && entityKind.length > 0
       ? { entityKind }
       : {}),
-    ...(contextReference !== undefined && contextReference.length > 0
-      ? { contextReference }
+    ...(eventReference !== undefined && eventReference.length > 0
+      ? { eventReference }
       : {}),
     ...(valueReference !== undefined && valueReference.length > 0
       ? { valueReference }
@@ -108,8 +126,9 @@ export function createMeasurement(
     ...(unitReference !== undefined && unitReference.length > 0
       ? { unitReference }
       : {}),
-    ...(sourceReference !== undefined && sourceReference.length > 0
-      ? { sourceReference }
+    ...(parentMeasurementReference !== undefined &&
+    parentMeasurementReference.length > 0
+      ? { parentMeasurementReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };

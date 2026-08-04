@@ -2075,25 +2075,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-04
 
-**Context:** Fase 86 introduces the Measurement Engine so MotanOS can express conceptual measurable values and measurement context for operational tools (Smart Tables, escandallos, club operations, capacity, performance, resource usage) independently of analytics, reporting, BI providers, dashboards, databases, AI/ML, and external metrics providers. Measurement answers “what measurable value exists?” — not how it is analyzed, visualized, or exploited.
+**Context:** Fase 114 (evolving Fase 86) consolidates Measurement as a pure measurable-value boundary — “what measurable value exists?” — independently of Analytics interpretation, Reporting presentation, Audit recording, dashboards, monitoring/observability, event processing, aggregation engines, and technical metric storage. MotanOS needs an opaque measurement record so future Analytics / Reporting Runtimes can plug in without absorbing Audit or Event Processing. No measurement-lifecycle split was required: `@motanos/measurement` was already a slim boundary.
 
 **Decision:**
 
-* **Ownership:** `Measurement`, factories, and `MeasurementPort` live in `@motanos/measurement` (`packages/engines/measurement`). Measurement is an independent bounded context — not Analytics, Reporting, BI, AI, or Database.
-* **Pipeline relation:** Domain Activity / Operational Data → Measurement Boundary → Future Analytics / Reporting / BI. Measurement owns what is measured; Analytics owns what signals occur; Reporting owns how it is presented; BI owns how it is exploited.
-* **Separations:** Measurement ≠ Analytics. Measurement ≠ Reporting. Measurement ≠ BI. Measurement ≠ AI. No dashboards, charts, reports, BI queries, AI models, predictions, calculation engines, or database storage in this foundation.
-* **Kinds (foundation):** `measurement.operational`, `measurement.performance`, `measurement.capacity`, `measurement.financial`, `measurement.usage`, `measurement.quality`.
-* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled` (e.g. draft → active → inactive → archived).
-* **Contract shape:** Opaque `measurementReference`, required `tenantReference`, `measurementKind`, `measurementStatus`; optional opaque `entityReference`, `entityKind`, `contextReference`, `valueReference`, `unitReference`, `sourceReference`, controlled `metadata`. No passwords, tokens, credentials, or secrets. Future opaque links to tenant/resource/experience/commerce/analytics — never engine imports.
-* **Tenant isolation:** Measurement may be bound to a tenant; cross-tenant creation is denied.
-* **Port surface:** `createMeasurement` / `resolveMeasurement` only. No measure, calculate, aggregate, analyze, report, track, or queryMetric methods in this foundation.
-* **Runtime:** Composition root for future `Measurement Port → Adapter`. No database, AI clients, or BI SDKs in this foundation.
+* **Ownership:** `Measurement`, factories, and `MeasurementPort` live in `@motanos/measurement` (`packages/engines/measurement`). Measurement is an independent bounded context — not Analytics, Reporting, Audit, Monitoring, or Event Processing.
+* **Pipeline relation:** Event Boundary → Measurement Boundary → Future Analytics / Reporting Runtime. Measurement answers “what measurable value exists?”
+* **Separations:** Measurement ≠ Analytics. Measurement ≠ Reporting. Measurement ≠ Audit. Measurement represents an observable value, not interpretation or presentation. Opaque refs only — prepared for future analytical systems.
+* **Kinds (foundation):** `measurement.value`, `measurement.performance`, `measurement.business`, `measurement.operational`, `measurement.experience`, `measurement.system`, `measurement.domain`.
+* **Statuses (foundation):** `draft`, `active`, `recorded`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `measurementReference`, required `measurementKind`, `measurementStatus`; optional opaque `contextReference`, `actorReference`, `entityReference`, `entityKind`, `eventReference`, `valueReference`, `unitReference`, `parentMeasurementReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound context may require an exact opaque context reference match.
+* **Port surface:** `createMeasurement` / `resolveMeasurement` only. No calculateMeasurement, aggregateMeasurement, analyzeMeasurement, generateReport, createDashboard, monitorMetric, trackMetric, publishMetric, or processEvent.
 * **Dependencies:** `@motanos/measurement` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** aggregation adapters, analytics handoff, reporting bridges, unit catalogs.
+* **Deferred:** Analytics / Reporting Runtime adapters. No `@motanos/measurement-lifecycle` in this phase.
 
-**Rejected:** Turning Measurement into Analytics/Reporting/BI; absorbing AI or recommendations; Measurement → dashboard/database/AI imports; Application → Metrics Provider; implementing calculations, aggregations, or visualizations in this phase.
+**Rejected:** Absorbing Analytics/Reporting/Audit/Monitoring into Measurement; Measurement → analytics/report/dashboard/monitoring/tracking/storage/runtime imports; implementing calculations, aggregations, visualizations, or technical observation in this phase.
 
 ---
 

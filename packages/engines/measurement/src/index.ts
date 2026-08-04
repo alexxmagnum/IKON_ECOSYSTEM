@@ -1,19 +1,16 @@
 /**
- * @motanos/measurement — Measurement Engine foundation.
+ * @motanos/measurement — Measurement Boundary foundation.
  *
- * MotanOS Core → Shared Engines → @motanos/measurement
+ * MotanOS Core → Shared packages → @motanos/measurement
  *
- * Measurement = conceptual measurable values and measure context.
- * Signal packages own what signals occur; presentation layers own how
- * values get shown; exploit vendors own how values get used.
- *
- * Must not depend on signal packages, presentation packages,
- * experience, commerce, resource, or persistence vendors.
+ * Measurement = what measurable value exists.
+ * Must not depend on interpretation packages, presentation packages,
+ * recorded-fact packages, or technical observation engines.
  *
  * @see DEC-MEASUREMENT-BOUNDARY-001
  */
 
-export const MEASUREMENT_ENGINE = "@motanos/measurement" as const;
+export const MEASUREMENT_BOUNDARY = "@motanos/measurement" as const;
 
 export type {
   CreateMeasurementInput,
