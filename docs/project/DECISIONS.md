@@ -2247,6 +2247,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-STAFF-CONTEXT-001 — Hospitality Staff Management Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 127 introduces Staff Management as the fifth operative Smart Table OS capacity inside `@motanos/hospitality`, bridging Core Identity → Actor → Membership → Permissions into hospitality-floor operations. A staff member is an operative person/actor linked to a hospitality business — not a horizontal workforce/employee engine, and not a system user, auth account, employment contract, payroll, shift schedule, clock-in, or vacation product. MotanOS needs an opaque staff record so floor roles can reference Core actors without duplicating identity.
+
+**Decision:**
+
+* **Ownership:** `HospitalityStaffMember`, factory, and `StaffPort` live in `@motanos/hospitality` under `src/staff`. Staff belongs to Hospitality — no `@motanos/staff`, `@motanos/employee`, or `@motanos/workforce` packages.
+* **Pipeline relation:** MotanOS Platform → Identity / Actor / Membership / Permissions → Hospitality Domain → Staff Management → Smart Table Operating System. Conceptual flow: Identity → Actor → Membership → HospitalityStaffMember → Operational Role (opaque refs only).
+* **Separations:** Staff ≠ Core Identity / Authentication. Staff ≠ Payroll / Scheduling / Attendance / HR Contracts. Staff does not create users or calculate permissions. `roleReference` points at Permissions / Membership — no Role Engine inside Hospitality. No labor-resource management in this foundation.
+* **Kinds (foundation):** `staff.management`, `staff.service`, `staff.kitchen`, `staff.bar`, `staff.host`, `staff.internal`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `staffReference`, required `staffKind` / `staffStatus`; optional opaque `hospitalityReference`, `contextReference`, `actorReference`, `membershipReference`, `roleReference`, `areaReference`, `parentStaffReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound hospitality business may require an exact opaque hospitality reference match (staff do not mix across businesses).
+* **Port surface:** `createStaffMember` / `resolveStaffMember` only. No assignRole, scheduleShift, clockIn, clockOut, calculatePayroll, manageVacation, createEmployeeContract, or assignStation.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only (Core engines referenced only via opaque refs — never imported).
+* **Deferred:** shift planning, attendance, payroll, contracts, station/floor management, and permission calculation.
+
+**Rejected:** Creating a horizontal staff/employee engine; duplicating identity or authentication inside Hospitality; implementing payroll, scheduling, attendance, or a Role Engine in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
