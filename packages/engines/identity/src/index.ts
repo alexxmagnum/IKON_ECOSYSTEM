@@ -1,18 +1,16 @@
 /**
- * @motanos/identity — Identity Engine foundation.
+ * @motanos/identity — Identity Boundary foundation.
  *
- * MotanOS Core → Shared Engines → @motanos/identity
+ * MotanOS Core → Shared packages → @motanos/identity
  *
- * Identity = who the entity is (opaque reference).
- * Authentication / Profile / Membership / Community / Booking live elsewhere.
- *
- * Must not depend on auth packages, community, membership, booking,
- * experience, resource, commerce, or persistence vendors.
+ * Identity = actor existence (“who exists”).
+ * Must not depend on sign-in packages, belonging packages, capacity packages,
+ * scope packages, or external rails.
  *
  * @see DEC-IDENTITY-BOUNDARY-001
  */
 
-export const IDENTITY_ENGINE = "@motanos/identity" as const;
+export const IDENTITY_BOUNDARY = "@motanos/identity" as const;
 
 export type {
   CreateIdentityInput,
@@ -25,6 +23,7 @@ export type {
 export {
   IDENTITY_KINDS,
   IDENTITY_KIND_VALUES,
+  IDENTITY_SCOPE_REF_KEY,
   IDENTITY_STATUSES,
   IDENTITY_STATUS_VALUES,
   createIdentity,

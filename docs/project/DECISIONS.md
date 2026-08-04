@@ -1441,26 +1441,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-04
 
-**Context:** Fase 68 introduces the Identity Engine so MotanOS can represent a conceptual identity reference independently of authentication, profiles, membership, community, booking, and permissions. Identity = who the entity is; Authentication = how they prove it; Authorization = what they may do; Profile = additional descriptive data. Do not create an Auth Engine or a User model in this phase.
+**Context:** Fase 108 (evolving Fase 68) consolidates Identity as a pure actor-existence boundary — “who exists?” — independently of authentication, sessions, passwords, tokens, OAuth providers, credentials, permissions, roles, memberships, tenant creation, and policy execution. MotanOS needs an opaque identity record so future Authentication Runtimes can plug in without absorbing Membership or Permissions. No identity-lifecycle split was required: `@motanos/identity` was already a slim boundary.
 
 **Decision:**
 
-* **Ownership:** `Identity`, factories, and `IdentityPort` live in `@motanos/identity` (`packages/engines/identity`). Identity is an independent bounded context — not Auth, Community, Membership, Booking, Experience, Resource, Commerce, or Runtime adapters.
-* **Pipeline relation:** Identity Definition → Authentication Provider (future) → Profile (future) → Community / Membership / Booking. Identity answers “does an entity exist in the ecosystem?”
-* **Separations:** Identity ≠ Authentication (no secrets or credential material). Identity ≠ User model (User mixes too many concerns). Identity ≠ Profile. Identity ≠ Membership. Identity ≠ Community. Identity ≠ Booking. Identity ≠ Authorization/permissions.
-* **Kinds (foundation):** `identity.person`, `identity.organization`, `identity.service`, `identity.system`, `identity.operational`.
-* **Statuses (foundation):** `draft`, `active`, `suspended`, `archived`, `cancelled` (e.g. draft → active ↔ suspended → archived).
-* **Contract shape:** Opaque `identityReference`, required `tenantReference`, `identityKind`, `identityStatus`; optional opaque `externalReference`, `ownerReference`, controlled `metadata`. No secret material, credential fields, or PII payloads.
-* **Tenant isolation:** Identity may be bound to a tenant; cross-tenant creation is denied.
-* **Future refs:** Other engines consume opaque `identityReference` / `actorReference` — never a full Identity object graph with auth or profile data.
-* **Port surface:** `createIdentity` / `resolveIdentity` only. No sign-in, registration, contact verification, or role assignment methods in this foundation.
-* **Runtime:** Composition root for future `Identity Port → Adapter`. No external identity providers, session material, or persistence vendors in this foundation.
+* **Ownership:** `Identity`, factories, and `IdentityPort` live in `@motanos/identity` (`packages/engines/identity`). Identity is an independent bounded context — not Authentication, Membership, Permissions, Tenant, or Policy.
+* **Pipeline relation:** Tenant Context → Identity Boundary → Future Authentication Runtime. Identity answers “who exists?”
+* **Separations:** Identity ≠ Authentication. Identity ≠ Membership. Identity ≠ Permissions. Identity ≠ Tenant. Opaque refs only — never live sessions, tokens, passwords, or credential material.
+* **Kinds (foundation):** `identity.person`, `identity.organization`, `identity.service`, `identity.system`, `identity.external`, `identity.operational`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `identityReference`, required `identityKind`, `identityStatus`; optional opaque `tenantReference`, `actorReference`, `organizationReference`, `profileReference`, `externalReference`, `contextReference`, `parentIdentityReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound scope may require an exact opaque scope reference match.
+* **Port surface:** `createIdentity` / `resolveIdentity` only. No authenticate, login, createSession, validatePassword, issueToken, refreshToken, connectOAuthProvider, assignRole, createMembership, or createTenant.
 * **Dependencies:** `@motanos/identity` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** Auth Engine, Profile Engine, provider wiring, Membership/Community Runtime linkage.
+* **Deferred:** Authentication Runtime adapters, provider wiring. No `@motanos/identity-lifecycle` in this phase.
 
-**Rejected:** Creating Auth Engine or User model inside Identity; embedding secrets/credentials; Identity → Auth/Community/Membership/Booking imports; Application → Identity Provider; implementing sign-in, registration, or external provider adapters in this phase.
+**Rejected:** Absorbing Authentication/Membership/Permissions into Identity; Identity → Auth/session/token/provider/membership/tenant imports; implementing sign-in, sessions, or credential validation in this phase.
 
 ---
 

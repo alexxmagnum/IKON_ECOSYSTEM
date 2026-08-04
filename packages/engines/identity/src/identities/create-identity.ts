@@ -5,6 +5,7 @@ import type {
   IdentityStatus,
 } from "./identity";
 import {
+  IDENTITY_SCOPE_REF_KEY,
   IDENTITY_STATUSES,
   isIdentityKind,
   isIdentityStatus,
@@ -14,28 +15,35 @@ let identitySequence = 0;
 
 export interface CreateIdentityOptions {
   /**
-   * When set, identity may only be created for this tenant
-   * (cross-tenant isolation).
+   * When set, identity may only be created for this scope
+   * (cross-context isolation).
    */
-  tenantReference?: string;
+  [IDENTITY_SCOPE_REF_KEY]?: string;
 }
 
 /**
- * Build a validated Identity (in-memory — definition only).
- * Does not sign in, register accounts, verify contacts, or assign roles.
+ * Build a checked Identity (in-memory — actor existence only).
+ * Does not sign in, register accounts, verify contacts, or assign access bands.
  */
 export function createIdentity(
   input: CreateIdentityInput,
   options: CreateIdentityOptions = {},
 ): Identity {
-  const tenantReference = input.tenantReference?.trim() ?? "";
+  const scopeRaw = input[IDENTITY_SCOPE_REF_KEY];
+  const scopeReference =
+    typeof scopeRaw === "string" ? scopeRaw.trim() : undefined;
+  const actorReference = input.actorReference?.trim();
+  const organizationReference = input.organizationReference?.trim();
+  const profileReference = input.profileReference?.trim();
   const externalReference = input.externalReference?.trim();
-  const ownerReference = input.ownerReference?.trim();
-  const boundTenant = options.tenantReference?.trim() || undefined;
+  const contextReference = input.contextReference?.trim();
+  const parentIdentityReference = input.parentIdentityReference?.trim();
+  const boundScopeRaw = options[IDENTITY_SCOPE_REF_KEY];
+  const boundScope =
+    typeof boundScopeRaw === "string"
+      ? boundScopeRaw.trim() || undefined
+      : undefined;
 
-  if (!tenantReference) {
-    throw new Error("tenantReference is required");
-  }
   if (!isIdentityKind(input.identityKind)) {
     throw new Error(`Unknown identity kind: ${String(input.identityKind)}`);
   }
@@ -48,15 +56,40 @@ export function createIdentity(
     );
   }
 
+  if (scopeRaw !== undefined && !scopeReference) {
+    throw new Error(
+      `${IDENTITY_SCOPE_REF_KEY} must not be empty when provided`,
+    );
+  }
+  if (input.actorReference !== undefined && !actorReference) {
+    throw new Error("actorReference must not be empty when provided");
+  }
+  if (input.organizationReference !== undefined && !organizationReference) {
+    throw new Error("organizationReference must not be empty when provided");
+  }
+  if (input.profileReference !== undefined && !profileReference) {
+    throw new Error("profileReference must not be empty when provided");
+  }
   if (input.externalReference !== undefined && !externalReference) {
     throw new Error("externalReference must not be empty when provided");
   }
-  if (input.ownerReference !== undefined && !ownerReference) {
-    throw new Error("ownerReference must not be empty when provided");
+  if (input.contextReference !== undefined && !contextReference) {
+    throw new Error("contextReference must not be empty when provided");
+  }
+  if (
+    input.parentIdentityReference !== undefined &&
+    !parentIdentityReference
+  ) {
+    throw new Error(
+      "parentIdentityReference must not be empty when provided",
+    );
   }
 
-  if (boundTenant !== undefined && tenantReference !== boundTenant) {
-    throw new Error("identity does not apply to this tenant");
+  if (
+    boundScope !== undefined &&
+    (scopeReference === undefined || scopeReference !== boundScope)
+  ) {
+    throw new Error("identity does not apply to this scope");
   }
 
   const providedReference = input.identityReference?.trim() ?? "";
@@ -65,18 +98,34 @@ export function createIdentity(
   }
 
   const identityKind: IdentityKind = input.identityKind;
-  const identityReference = providedReference || allocateIdentityReference();
+  const identityReference =
+    providedReference || allocateIdentityReference();
 
   return {
     identityReference,
-    tenantReference,
     identityKind,
     identityStatus,
+    ...(scopeReference !== undefined && scopeReference.length > 0
+      ? { [IDENTITY_SCOPE_REF_KEY]: scopeReference }
+      : {}),
+    ...(actorReference !== undefined && actorReference.length > 0
+      ? { actorReference }
+      : {}),
+    ...(organizationReference !== undefined && organizationReference.length > 0
+      ? { organizationReference }
+      : {}),
+    ...(profileReference !== undefined && profileReference.length > 0
+      ? { profileReference }
+      : {}),
     ...(externalReference !== undefined && externalReference.length > 0
       ? { externalReference }
       : {}),
-    ...(ownerReference !== undefined && ownerReference.length > 0
-      ? { ownerReference }
+    ...(contextReference !== undefined && contextReference.length > 0
+      ? { contextReference }
+      : {}),
+    ...(parentIdentityReference !== undefined &&
+    parentIdentityReference.length > 0
+      ? { parentIdentityReference }
       : {}),
     ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
   };
