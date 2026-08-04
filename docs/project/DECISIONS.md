@@ -2272,6 +2272,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-SERVICE-OPERATIONS-CONTEXT-001 — Hospitality Service Operations Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 128 introduces Service Operations as the sixth operative Smart Table OS capacity inside `@motanos/hospitality`, bridging Order → Preparation → Service. A hospitality operation is an opaque preparation or service activity within a hospitality business — not a horizontal kitchen/bar/service/production/operations engine, and not recipes, stock, escandallo, ticket emission, till/POS, real-time timers, or labor planning. MotanOS needs an opaque operation record so Smart Table OS can represent prep and floor activity existence without absorbing specialized kitchen or bar engines yet.
+
+**Decision:**
+
+* **Ownership:** `HospitalityOperation`, factory, and `OperationPort` live in `@motanos/hospitality` under `src/operations`. Service Operations belongs to Hospitality — no `@motanos/kitchen`, `@motanos/bar`, `@motanos/service`, `@motanos/production`, or `@motanos/operations` packages. It is not a horizontal Core capability.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Service Operations → Smart Table Operating System. Conceptual flow: Order → Operation → Staff → Service Area (opaque refs only). Groups preparation and service as one operative layer.
+* **Separations:** Operation ≠ stock / bill-of-materials / escandallo. Operation ≠ tariff / commerce pricing. Operation ≠ ticket emission / till / POS. Operation ≠ labor roster / wage calculation. Consumes existing orders via opaque `orderReference` / `orderLineReference`. Kitchen and bar remain future internal specializations (`src/kitchen`, `src/bar`) — empty in this foundation.
+* **Kinds (foundation):** `operation.kitchen`, `operation.bar`, `operation.service`, `operation.takeaway`, `operation.delivery`, `operation.internal`.
+* **Statuses (foundation):** `draft`, `queued`, `active`, `completed`, `cancelled`, `archived`.
+* **Contract shape:** Opaque `operationReference`, required `operationKind` / `operationStatus`; optional opaque `hospitalityReference`, `contextReference`, `orderReference`, `orderLineReference`, `staffReference`, `areaReference`, `parentOperationReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound hospitality business may require an exact opaque hospitality reference match (operations do not mix across businesses).
+* **Port surface:** `createOperation` / `resolveOperation` only. No startPreparation, completePreparation, assignStaff, printTicket, sendToKitchen, updateInventory, calculateDuration, or prioritizeOrder.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Deferred:** workflow engine, kitchen workflow, staff assignment execution, production queue, area/floor-plan engines, and kitchen/bar specialization modules.
+
+**Rejected:** Creating horizontal kitchen/bar/service/operations engines; implementing stock, recipes, till, ticket emission, or labor planning in this phase; putting Service Operations outside Hospitality.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

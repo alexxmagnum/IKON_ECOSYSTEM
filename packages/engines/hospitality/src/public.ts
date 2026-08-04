@@ -2,13 +2,14 @@
  * @motanos/hospitality — Hospitality Domain foundation.
  *
  * MotanOS Platform → Identity / Actor / Membership → Hospitality Domain
- * → Table / Menu / Order / Reservation / Staff → Smart Table OS
+ * → Table / Menu / Order / Reservation / Staff / Operations → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
  *
- * Implemented: hospitality business, tables, menu, orders, reservations, staff.
- * Prepared (not implemented): kitchen, cost-control.
+ * Implemented: hospitality business, tables, menu, orders, reservations,
+ * staff, service operations.
+ * Prepared (not implemented): kitchen, bar, cost-control.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
  * @see DEC-HOSPITALITY-TABLE-CONTEXT-001
@@ -16,6 +17,7 @@
  * @see DEC-HOSPITALITY-ORDER-CONTEXT-001
  * @see DEC-HOSPITALITY-RESERVATION-CONTEXT-001
  * @see DEC-HOSPITALITY-STAFF-CONTEXT-001
+ * @see DEC-HOSPITALITY-SERVICE-OPERATIONS-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -175,3 +177,24 @@ export {
   isStaffStatus,
   resetStaffReferenceSequence,
 } from "./staff/mod";
+
+export type {
+  CreateOperationInput,
+  CreateOperationOptions,
+  HospitalityOperation,
+  OperationKind,
+  OperationPort,
+  OperationStatus,
+} from "./operations/mod";
+export {
+  OPERATION_KINDS,
+  OPERATION_KIND_VALUES,
+  OPERATION_STATUSES,
+  OPERATION_STATUS_VALUES,
+  createOperation,
+  isHospitalityOperation,
+  isOperationKind,
+  isOperationPort,
+  isOperationStatus,
+  resetOperationReferenceSequence,
+} from "./operations/mod";
