@@ -2475,6 +2475,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ACTIVITY-CAPACITY-CONTEXT-001 — Hospitality Activity Capacity Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 136 introduces Activity Capacity as the admission-limit boundary for hospitality activities. A capacity is an opaque configuration of how many people a scheduled activity can admit — not a horizontal capacity/inventory/availability engine, and not reservations, payments, waitlists, door scans, alerts, or scores. MotanOS separates Activity (what), Schedule (when), Capacity (how many), and Participation (who).
+
+**Decision:**
+
+* **Ownership:** `HospitalityActivityCapacity`, factory, and `ActivityCapacityPort` live in `@motanos/hospitality` under `src/capacity`. Capacity belongs to Hospitality — no `@motanos/capacity`, `@motanos/inventory`, or `@motanos/availability` packages for this capacity. It is not a horizontal availability engine.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community → Activities → Scheduling → Capacity Foundation → future Booking / Availability / Engagement → Smart Table Operating System. Conceptual flow: Activity → Schedule → Capacity draft → available (availability checks and holds not implemented).
+* **Separations:** Capacity ≠ Activity body. Capacity ≠ Schedule timing. Capacity ≠ Participation. Capacity ≠ reservation / seat hold / waitlist. Capacity ≠ payment. Bounds use opaque `limitReference` / `minimumReference` — never `maxParticipants:number` / `minParticipants:number`.
+* **Isolation:** Each hospitality business owns its capacities (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `capacity.activity`, `capacity.event`, `capacity.session`, `capacity.internal`.
+* **Statuses (foundation):** `draft`, `configured`, `available`, `full`, `inactive`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `capacityReference`, required `capacityKind` / `capacityStatus`; optional opaque `hospitalityReference`, `activityReference`, `scheduleReference`, `contextReference`, `limitReference`, `minimumReference`, `parentCapacityReference`, controlled `metadata`.
+* **Port surface:** `createActivityCapacity` / `resolveActivityCapacity` only. No checkAvailability, reserveCapacity, releaseCapacity, joinWaitlist, or assignPlace.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** clear Activity / Schedule / Capacity / Participation split; prepares future reservations; avoids mixing global slots with experiences; evolves toward Smart Table Experience. **(−):** Capacity depends on Activity and Schedule.
+* **Deferred:** remaining seats, waitlists, payments, door scan, real attendees, scores (base for Fase 137 Availability).
+
+**Rejected:** Creating horizontal capacity/inventory/availability packages; modeling bare numeric participant counts in this domain; implementing availability, reserve, release, waitlist, or place-assignment runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

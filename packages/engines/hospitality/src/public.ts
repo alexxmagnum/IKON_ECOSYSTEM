@@ -4,14 +4,14 @@
  * MotanOS Platform → Identity / Actor / Membership → Hospitality Domain
  * → Channel / Table / Menu / Order / Reservation / Staff / Operations
  * / Cost Control / Customer Experience / Community / Activities
- * / Participation / Scheduling → Smart Table OS
+ * / Participation / Scheduling / Capacity → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
  *
  * Implemented: hospitality business, channels, tables, menu, orders,
  * reservations, staff, service operations, cost control, customer experience,
- * community, activities, participation, activity scheduling.
+ * community, activities, participation, activity scheduling, activity capacity.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -28,6 +28,7 @@
  * @see DEC-HOSPITALITY-ACTIVITY-CONTEXT-001
  * @see DEC-HOSPITALITY-PARTICIPATION-CONTEXT-001
  * @see DEC-HOSPITALITY-ACTIVITY-SCHEDULING-CONTEXT-001
+ * @see DEC-HOSPITALITY-ACTIVITY-CAPACITY-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -355,3 +356,24 @@ export {
   isScheduleStatus,
   resetActivityScheduleReferenceSequence,
 } from "./scheduling/mod";
+
+export type {
+  ActivityCapacityPort,
+  CapacityKind,
+  CapacityStatus,
+  CreateActivityCapacityInput,
+  CreateActivityCapacityOptions,
+  HospitalityActivityCapacity,
+} from "./capacity/mod";
+export {
+  CAPACITY_KINDS,
+  CAPACITY_KIND_VALUES,
+  CAPACITY_STATUSES,
+  CAPACITY_STATUS_VALUES,
+  createActivityCapacity,
+  isActivityCapacityPort,
+  isCapacityKind,
+  isCapacityStatus,
+  isHospitalityActivityCapacity,
+  resetActivityCapacityReferenceSequence,
+} from "./capacity/mod";
