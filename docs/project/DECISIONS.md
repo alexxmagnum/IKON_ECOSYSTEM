@@ -1437,6 +1437,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-EVENT-BOUNDARY-001 — Event Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 113 consolidates Event as a pure domain-occurrence boundary — “what occurrence exists?” — independently of Audit recording, Workflow execution, Notification delivery, queue/handler infrastructure, analytics tracking, and technical event persistence. MotanOS needs an opaque event record so future Event Processing Runtimes can plug in without absorbing Audit or Workflow. No prior `@motanos/event` motor existed to split; legacy `@motanos/domain-events` remains domain scaffolding (not renamed to event-lifecycle in this phase).
+
+**Decision:**
+
+* **Ownership:** `Event`, factories, and `EventPort` live in `@motanos/event` (`packages/engines/event`). Event is an independent bounded context — not Audit, Workflow, Notification, Analytics, or Runtime.
+* **Pipeline relation:** Context Boundary → Event Boundary → Future Event Processing Runtime. Event answers “what occurrence exists?”
+* **Separations:** Event ≠ Audit. Event ≠ Workflow. Event ≠ Notification. Event represents occurrence, not execution. Opaque refs only — prepared for future processing runtimes.
+* **Kinds (foundation):** `event.business`, `event.operational`, `event.domain`, `event.system`, `event.customer`, `event.experience`, `event.internal`.
+* **Statuses (foundation):** `draft`, `active`, `processed`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `eventReference`, required `eventKind`, `eventStatus`; optional opaque `actorReference`, `contextReference`, `entityReference`, `entityKind`, `sourceReference`, `parentEventReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound context may require an exact opaque context reference match.
+* **Port surface:** `createEvent` / `resolveEvent` only. No publishEvent, dispatchEvent, processEvent, executeWorkflow, sendNotification, createAudit, storeEvent, subscribeHandler, enqueueEvent, or analyzeEvent.
+* **Dependencies:** `@motanos/event` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Event Processing Runtime adapters. Legacy `@motanos/domain-events` unchanged. No `@motanos/event-lifecycle` in this phase.
+
+**Rejected:** Absorbing Audit/Workflow/Notification into Event; Event → audit/workflow/notification/analytics/runtime/queue/handler imports; implementing publish, dispatch, technical store, or listener wiring in this phase.
+
+---
+
 ## DEC-CONTEXT-BOUNDARY-001 — Context Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
