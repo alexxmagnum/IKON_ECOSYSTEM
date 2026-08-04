@@ -2449,6 +2449,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ACTIVITY-SCHEDULING-CONTEXT-001 — Hospitality Activity Scheduling Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 135 introduces Activity Scheduling as the temporal boundary for hospitality activities. A schedule is an opaque temporal plan for when an activity occurs within a hospitality business — not a generic Core calendar/scheduler/booking engine, and not seat holds, payments, door scans, alerts, external agenda providers, or scores. MotanOS separates Activity (what), Schedule (when), and Participation (who).
+
+**Decision:**
+
+* **Ownership:** `HospitalityActivitySchedule`, factory, and `ActivitySchedulePort` live in `@motanos/hospitality` under `src/scheduling`. Scheduling belongs to Hospitality — no `@motanos/calendar`, `@motanos/scheduler`, or `@motanos/booking` packages for this capacity. It is not a generic Core calendar.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community → Activities → Activity Scheduling → future Capacity / Booking / Engagement → Smart Table Operating System. Conceptual flow: Activity → Schedule draft → planned → published (publish/capacity not implemented).
+* **Separations:** Schedule ≠ Activity body. Schedule ≠ Participation. Schedule ≠ reservation / seat hold / capacity. Schedule ≠ payment. Temporal moments use opaque `startReference` / `endReference` / `timezoneReference` — never domain `Date`, clock primitives, or bare numeric magnitudes.
+* **Isolation:** Each hospitality business owns its schedules (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `schedule.activity`, `schedule.event`, `schedule.recurring`, `schedule.internal`.
+* **Statuses (foundation):** `draft`, `planned`, `published`, `active`, `completed`, `cancelled`, `archived`.
+* **Contract shape:** Opaque `scheduleReference`, required `scheduleKind` / `scheduleStatus`; optional opaque `hospitalityReference`, `activityReference`, `contextReference`, `locationReference`, `startReference`, `endReference`, `timezoneReference`, `parentScheduleReference`, controlled `metadata`.
+* **Port surface:** `createActivitySchedule` / `resolveActivitySchedule` only. No publishSchedule, cancelSchedule, reserveSchedule, checkAvailability, or assignCapacity.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** clear Activity / Schedule / Participation split; prepares future experiences; avoids a generic agenda; enables later capacity and reservations. **(−):** Scheduling depends on Activity.
+* **Deferred:** seats, capacity, waitlists, payments, door scan, reminders, scores (base for Fase 136 Activity Capacity).
+
+**Rejected:** Creating horizontal calendar/scheduler/booking packages; modeling clock primitives in the hospitality schedule domain; implementing publish, cancel, reserve, availability, or capacity runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

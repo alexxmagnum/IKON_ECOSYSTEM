@@ -4,14 +4,14 @@
  * MotanOS Platform → Identity / Actor / Membership → Hospitality Domain
  * → Channel / Table / Menu / Order / Reservation / Staff / Operations
  * / Cost Control / Customer Experience / Community / Activities
- * / Participation → Smart Table OS
+ * / Participation / Scheduling → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
  *
  * Implemented: hospitality business, channels, tables, menu, orders,
  * reservations, staff, service operations, cost control, customer experience,
- * community, activities, participation.
+ * community, activities, participation, activity scheduling.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -27,6 +27,7 @@
  * @see DEC-HOSPITALITY-COMMUNITY-CONTEXT-001
  * @see DEC-HOSPITALITY-ACTIVITY-CONTEXT-001
  * @see DEC-HOSPITALITY-PARTICIPATION-CONTEXT-001
+ * @see DEC-HOSPITALITY-ACTIVITY-SCHEDULING-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -333,3 +334,24 @@ export {
   isParticipationStatus,
   resetParticipationReferenceSequence,
 } from "./participation/mod";
+
+export type {
+  ActivitySchedulePort,
+  CreateActivityScheduleInput,
+  CreateActivityScheduleOptions,
+  HospitalityActivitySchedule,
+  ScheduleKind,
+  ScheduleStatus,
+} from "./scheduling/mod";
+export {
+  SCHEDULE_KINDS,
+  SCHEDULE_KIND_VALUES,
+  SCHEDULE_STATUSES,
+  SCHEDULE_STATUS_VALUES,
+  createActivitySchedule,
+  isActivitySchedulePort,
+  isHospitalityActivitySchedule,
+  isScheduleKind,
+  isScheduleStatus,
+  resetActivityScheduleReferenceSequence,
+} from "./scheduling/mod";
