@@ -3,13 +3,14 @@
  *
  * MotanOS Platform → Identity / Actor / Membership → Hospitality Domain
  * → Channel / Table / Menu / Order / Reservation / Staff / Operations
- * / Cost Control / Customer Experience → Smart Table OS
+ * / Cost Control / Customer Experience / Community → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
  *
  * Implemented: hospitality business, channels, tables, menu, orders,
- * reservations, staff, service operations, cost control, customer experience.
+ * reservations, staff, service operations, cost control, customer experience,
+ * community.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -22,6 +23,7 @@
  * @see DEC-HOSPITALITY-COST-CONTROL-CONTEXT-001
  * @see DEC-HOSPITALITY-CUSTOMER-EXPERIENCE-CONTEXT-001
  * @see DEC-HOSPITALITY-CHANNEL-CONTEXT-001
+ * @see DEC-HOSPITALITY-COMMUNITY-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -265,3 +267,24 @@ export {
   isHospitalityChannel,
   resetChannelReferenceSequence,
 } from "./channels/mod";
+
+export type {
+  CommunityKind,
+  CommunityPort,
+  CommunityStatus,
+  CreateCommunityInput,
+  CreateCommunityOptions,
+  HospitalityCommunity,
+} from "./community/mod";
+export {
+  COMMUNITY_KINDS,
+  COMMUNITY_KIND_VALUES,
+  COMMUNITY_STATUSES,
+  COMMUNITY_STATUS_VALUES,
+  createCommunity,
+  isCommunityKind,
+  isCommunityPort,
+  isCommunityStatus,
+  isHospitalityCommunity,
+  resetCommunityReferenceSequence,
+} from "./community/mod";

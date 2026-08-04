@@ -2373,6 +2373,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-COMMUNITY-CONTEXT-001 — Hospitality Community Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 132 introduces Community as the community boundary inside `@motanos/hospitality`: the hospitality-scoped group that will later relate people, experiences, and gatherings. A community is an opaque group belonging to one hospitality business — not a horizontal community/social/membership product, and not profiles, followers, chat, scores, ladders, badges, gatherings, or proposals. MotanOS needs Person → Hospitality relation → Community before Activities / Events / Engagement.
+
+**Decision:**
+
+* **Ownership:** `HospitalityCommunity`, factory, and `CommunityPort` live in `@motanos/hospitality` under `src/community`. Community belongs to Hospitality — do not route Hospitality community through horizontal `@motanos/community`, `@motanos/social`, or `@motanos/membership` packages for this capacity. It is not a Core horizontal capability for restaurant/club communities.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community Foundation → future Activities / Events / Engagement → Smart Table Operating System. Conceptual flow: Hospitality → Community → future Members → future Activities → future Events → Smart Table Experience.
+* **Isolation:** Each hospitality business has its own community (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `community.member`, `community.club`, `community.restaurant`, `community.social`, `community.internal`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `communityReference`, required `communityKind` / `communityStatus`; optional opaque `hospitalityReference`, `contextReference`, `organizationReference`, `membershipReference`, `parentCommunityReference`, controlled `metadata`.
+* **Port surface:** `createCommunity` / `resolveCommunity` only. No createMember, createActivity, createEvent, assignPoints, or createReward.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only (no import of peer community/social/membership engines).
+* **Consequences (+):** prepares future gatherings and social experiences; multi-business isolation; no cross-business community mix. **(−):** Community depends on Hospitality context.
+* **Deferred:** social profiles, followers, chat, scores/ladders/badges, gatherings, proposals (base for Fase 133 Activities).
+
+**Rejected:** Treating Hospitality Community as a horizontal Core community/social engine; implementing engagement, gatherings, or score systems in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
