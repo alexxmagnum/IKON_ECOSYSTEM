@@ -2631,6 +2631,33 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-TABLE-CONTEXT-EXPERIENCE-001 — Hospitality Table Context Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 142 introduces Table Context as the experience-space layer for tables inside `@motanos/hospitality`. A table context is an opaque record of which table space participates in a hospitality visit — not a horizontal table/furniture/seating engine, and not tickets, till, prep rails, auto-bind, QR ops, tariff, alerts, or scores. MotanOS separates Visit Experience / Visit Context / Table Context. Distinct from `HospitalityTable` (physical floor position under `src/tables`, DEC-HOSPITALITY-TABLE-CONTEXT-001).
+
+**Decision:**
+
+* **Ownership:** `HospitalityTableContext`, factory (`createTableContext`), and `TableContextPort` live in `@motanos/hospitality` under `src/table-context`. Table Context belongs to Hospitality — no `@motanos/table`, `@motanos/seating`, or `@motanos/furniture` packages for this capacity. It is not a generic furniture system.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community → Activities → Scheduling → Capacity → Availability → Participation → Booking Bridge → Reservation Runtime → Visit Experience → Visit Context → Table Context → future Order / Consumption → Smart Table Operating System. Conceptual flow: Visit Experience → Visit Context → Table Context (ticket/till/QR not implemented).
+* **Separations:** Table Context ≠ HospitalityTable (physical position). Table Context ≠ Visit Context (ambient setting). Table Context ≠ ticket / till / prep. Optional opaque `tableReference` may point at a future physical resource — not full ops. No `capacity:number`, `occupied:boolean`, `position`, `coordinates`, or `orderReference` in this foundation.
+* **Isolation:** Each hospitality business owns its table contexts (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `table-context.table`, `table-context.area`, `table-context.zone`, `table-context.experience`, `table-context.internal`.
+* **Statuses (foundation):** `draft`, `available`, `active`, `occupied`, `inactive`, `archived`, `cancelled`. Status `occupied` is a label only — not real occupancy management.
+* **Contract shape:** Opaque `tableContextReference`, required `tableContextKind` / `tableContextStatus`; optional opaque `hospitalityReference`, `visitContextReference`, `visitReference`, `locationReference`, `areaReference`, `zoneReference`, `tableReference`, `experienceReference`, `parentTableContextReference`, controlled `metadata`.
+* **Port surface:** `createTableContext` / `resolveTableContext` only. No assignTable, occupyTable, releaseTable, createOrder, or processPayment.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Table OS; separates experience from operation; enables contextual QR later; prepares future tickets. **(−):** depends on Visit Context.
+* **Deferred:** table QR, operational menu, cart, tickets, till, prep, table holds, auto-bind (base for Fase 143 Table Channel).
+* **Note:** DEC id uses `…-EXPERIENCE-001` because `DEC-HOSPITALITY-TABLE-CONTEXT-001` already names the physical Table Management foundation.
+
+**Rejected:** Creating horizontal table/seating/furniture packages; implementing room bind, occupy/release, ticket, or till runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
