@@ -196,6 +196,7 @@ describe("Hospitality Domain Boundary", () => {
     assert.equal(publicSource.includes("createActivityAvailability"), true);
     assert.equal(publicSource.includes("createBookingRequest"), true);
     assert.equal(publicSource.includes("createReservationRuntime"), true);
+    assert.equal(publicSource.includes("createVisitExperience"), true);
     assert.equal(publicSource.includes("assignStaff"), false);
     assert.equal(publicSource.includes("startPreparation"), false);
     assert.equal(publicSource.includes("calculateCost"), false);
@@ -211,6 +212,8 @@ describe("Hospitality Domain Boundary", () => {
     assert.equal(publicSource.includes("confirmBooking"), false);
     assert.equal(publicSource.includes("confirmReservation"), false);
     assert.equal(publicSource.includes("processPayment"), false);
+    assert.equal(publicSource.includes("startVisit"), false);
+    assert.equal(publicSource.includes("assignTable"), false);
 
     const hospitality = createHospitality({
       hospitalityKind: HOSPITALITY_KINDS.Internal,

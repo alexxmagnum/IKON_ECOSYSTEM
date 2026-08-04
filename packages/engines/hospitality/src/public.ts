@@ -5,7 +5,7 @@
  * → Channel / Table / Menu / Order / Reservation / Staff / Operations
  * / Cost Control / Customer Experience / Community / Activities
  * / Participation / Scheduling / Capacity / Availability / Booking Bridge
- * / Reservation Runtime → Smart Table OS
+ * / Reservation Runtime / Visit Experience → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -13,7 +13,7 @@
  * Implemented: hospitality business, channels, tables, menu, orders,
  * reservations, staff, service operations, cost control, customer experience,
  * community, activities, participation, activity scheduling, activity capacity,
- * activity availability, booking bridge, reservation runtime.
+ * activity availability, booking bridge, reservation runtime, visit experience.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -34,6 +34,7 @@
  * @see DEC-HOSPITALITY-ACTIVITY-AVAILABILITY-CONTEXT-001
  * @see DEC-HOSPITALITY-BOOKING-BRIDGE-CONTEXT-001
  * @see DEC-HOSPITALITY-RESERVATION-RUNTIME-CONTEXT-001
+ * @see DEC-HOSPITALITY-VISIT-EXPERIENCE-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -445,3 +446,24 @@ export {
   isReservationRuntimeStatus,
   resetReservationRuntimeReferenceSequence,
 } from "./reservation-runtime/mod";
+
+export type {
+  CreateVisitExperienceInput,
+  CreateVisitExperienceOptions,
+  HospitalityVisitExperience,
+  VisitExperiencePort,
+  VisitKind,
+  VisitStatus,
+} from "./visit-experience/mod";
+export {
+  VISIT_KINDS,
+  VISIT_KIND_VALUES,
+  VISIT_STATUSES,
+  VISIT_STATUS_VALUES,
+  createVisitExperience,
+  isHospitalityVisitExperience,
+  isVisitExperiencePort,
+  isVisitKind,
+  isVisitStatus,
+  resetVisitReferenceSequence,
+} from "./visit-experience/mod";

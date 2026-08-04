@@ -2579,6 +2579,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-VISIT-EXPERIENCE-CONTEXT-001 — Hospitality Visit Experience Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 140 introduces Visit Experience as the on-site presence layer inside `@motanos/hospitality`. A visit experience is an opaque record of an actor living a concrete hospitality experience — not a horizontal visit/session/experience engine, and not room bind, tickets, till, prep rails, CRM memory, alerts, or scores. MotanOS separates Activity / Schedule / Capacity / Availability / Participation / Booking Bridge / Reservation Runtime / Visit Experience. Distinct from `HospitalityCustomerExperience` (CX capacity under `src/customer-experience`).
+
+**Decision:**
+
+* **Ownership:** `HospitalityVisitExperience`, factory (`createVisitExperience`), and `VisitExperiencePort` live in `@motanos/hospitality` under `src/visit-experience`. Visit Experience belongs to Hospitality — no `@motanos/visit`, `@motanos/experience`, or `@motanos/customer-session` packages for this capacity. It is not a generic user session.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community → Activities → Scheduling → Capacity → Availability → Participation → Booking Bridge → Reservation Runtime → Visit Experience → future Table / Order / Consumption → Smart Table Operating System. Conceptual flow: Reservation → Visit expected → arrived → active → completed (room/ticket/till not implemented).
+* **Separations:** Visit Experience ≠ Reservation Runtime (commitment). Visit Experience ≠ HospitalityCustomerExperience (CX). Visit Experience ≠ room bind / ticket / till / prep. No `tableReference`, `orderReference`, or `paymentReference` in this foundation.
+* **Isolation:** Each hospitality business owns its visits (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `visit.activity`, `visit.event`, `visit.session`, `visit.general`, `visit.internal`.
+* **Statuses (foundation):** `draft`, `expected`, `arrived`, `active`, `completed`, `cancelled`, `expired`, `archived`.
+* **Contract shape:** Opaque `visitReference`, required `visitKind` / `visitStatus`; optional opaque `hospitalityReference`, `reservationReference`, `bookingReference`, `activityReference`, `scheduleReference`, `participationReference`, `actorReference`, `locationReference`, `contextReference`, `parentVisitReference`, controlled `metadata`.
+* **Port surface:** `createVisitExperience` / `resolveVisitExperience` only. No startVisit, endVisit, assignTable, createOrder, processPayment, or generateReward.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** separates hold from real presence; prepares Smart Table OS; enables future customer memory; prepares business copiloto. **(−):** depends on Reservation Runtime.
+* **Deferred:** rooms, tickets, till, prep, consumption, advanced CRM, IA copiloto, scores (base for Fase 141 Visit Context).
+
+**Rejected:** Creating horizontal visit/experience/customer-session packages; implementing start/end, room bind, ticket, till, or reward runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
