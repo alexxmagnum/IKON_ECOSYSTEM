@@ -2322,6 +2322,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-CUSTOMER-EXPERIENCE-CONTEXT-001 — Hospitality Customer Experience Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 130 introduces Customer Experience as the eighth capacity inside `@motanos/hospitality`, adding the conceptual layer Guest → Hospitality → Experience → Operation. A hospitality customer experience is an opaque guest-facing touchpoint available within a hospitality business — not a horizontal customer/CRM/portal engine, and not registered-user identity, marketing automation, campaigns, loyalty programs, payment rails, or frontend runtimes. MotanOS needs an opaque experience record so Smart Table OS can represent guest touchpoints without absorbing CRM or UI products yet.
+
+**Decision:**
+
+* **Ownership:** `HospitalityCustomerExperience`, factory, and `CustomerExperiencePort` live in `@motanos/hospitality` under `src/customer-experience`. Customer Experience belongs to Hospitality — no `@motanos/customer`, `@motanos/customer-experience`, `@motanos/crm`, or `@motanos/customer-portal` packages. It is not a horizontal Core capability.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Customer Experience → Smart Table Operating System. Conceptual flow: Actor → Customer Experience → Hospitality → Operations (opaque refs). Future guest journey: Experience → Reservation → Table → Order → Service.
+* **Separations:** Customer Experience ≠ guest identity / authentication. Customer Experience ≠ CRM / marketing automation / campaigns / loyalty. Customer Experience ≠ payment rails. Customer Experience ≠ Notification engine. Customer Experience ≠ frontend / QR / PWA / POS runtimes. Consumes Hospitality capacities via opaque `reservationReference`, `orderReference`, `menuReference`, `tableReference`, and channel via `channelReference`. Base for future Smart Table Experience.
+* **Kinds (foundation):** `experience.discovery`, `experience.menu`, `experience.reservation`, `experience.order`, `experience.visit`, `experience.member`, `experience.internal`.
+* **Statuses (foundation):** `draft`, `active`, `available`, `inactive`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `experienceReference`, required `experienceKind` / `experienceStatus`; optional opaque `hospitalityReference`, `contextReference`, `actorReference`, `reservationReference`, `orderReference`, `menuReference`, `tableReference`, `channelReference`, `parentExperienceReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound hospitality business may require an exact opaque hospitality reference match (experiences do not mix across businesses).
+* **Port surface:** `createExperience` / `resolveExperience` only. No personalizeExperience, recommendProduct, sendNotification, createCustomer, createLoyalty, trackJourney, or manageCampaign.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only (Core Identity/Actor/Membership referenced only via opaque refs — never imported).
+* **Deferred:** QR/Web/PWA/POS channel adapters, personalization, recommendations, loyalty, and journey tracking.
+
+**Rejected:** Creating horizontal customer/CRM/portal engines; implementing CRM, marketing automation, authentication, payments, notifications, or frontend logic in this phase; putting Customer Experience outside Hospitality.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

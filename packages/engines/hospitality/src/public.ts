@@ -3,13 +3,13 @@
  *
  * MotanOS Platform → Identity / Actor / Membership → Hospitality Domain
  * → Table / Menu / Order / Reservation / Staff / Operations / Cost Control
- * → Smart Table OS
+ * / Customer Experience → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
  *
  * Implemented: hospitality business, tables, menu, orders, reservations,
- * staff, service operations, cost control.
+ * staff, service operations, cost control, customer experience.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -20,6 +20,7 @@
  * @see DEC-HOSPITALITY-STAFF-CONTEXT-001
  * @see DEC-HOSPITALITY-SERVICE-OPERATIONS-CONTEXT-001
  * @see DEC-HOSPITALITY-COST-CONTROL-CONTEXT-001
+ * @see DEC-HOSPITALITY-CUSTOMER-EXPERIENCE-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -221,3 +222,24 @@ export {
   isHospitalityCostRecord,
   resetCostReferenceSequence,
 } from "./cost-control/mod";
+
+export type {
+  CreateExperienceInput,
+  CreateExperienceOptions,
+  CustomerExperiencePort,
+  ExperienceKind,
+  ExperienceStatus,
+  HospitalityCustomerExperience,
+} from "./customer-experience/mod";
+export {
+  EXPERIENCE_KINDS,
+  EXPERIENCE_KIND_VALUES,
+  EXPERIENCE_STATUSES,
+  EXPERIENCE_STATUS_VALUES,
+  createExperience,
+  isCustomerExperiencePort,
+  isExperienceKind,
+  isExperienceStatus,
+  isHospitalityCustomerExperience,
+  resetExperienceReferenceSequence,
+} from "./customer-experience/mod";
