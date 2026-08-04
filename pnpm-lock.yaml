@@ -396,6 +396,15 @@ importers:
         specifier: workspace:*
         version: link:../../core
 
+  packages/engines/context:
+    dependencies:
+      '@motanos/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@motanos/core':
+        specifier: workspace:*
+        version: link:../../core
+
   packages/engines/currency:
     dependencies:
       '@motanos/contracts':

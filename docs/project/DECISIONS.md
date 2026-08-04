@@ -1437,6 +1437,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-CONTEXT-BOUNDARY-001 — Context Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 112 consolidates Context as a pure ambit-representation boundary — “under which scope does something exist?” — independently of Tenant existence, Identity, Actor participation, Authentication, Session, Permissions, Membership, Policy evaluation, Workflow runs, Configuration application, and domain execution. MotanOS needs an opaque context record so domain engines can bind entities / actions / experiences to an ambit without absorbing Tenant or Actor behavior. No prior `@motanos/context` motor existed to split.
+
+**Decision:**
+
+* **Ownership:** `Context`, factories, and `ContextPort` live in `@motanos/context` (`packages/engines/context`). Context is an independent bounded context — not Tenant, Actor, Identity, Permissions, Policy, Workflow, or Configuration.
+* **Pipeline relation:** Actor Boundary → Context Boundary → Domain Engines / Future Execution Context. Context answers “under which ambit does something occur?”
+* **Separations:** Context ≠ Tenant. Context ≠ Actor. Context ≠ Domain Execution. Context represents ambit, not behavior. Opaque refs only — prepared for future business contexts.
+* **Kinds (foundation):** `context.tenant`, `context.business`, `context.operational`, `context.experience`, `context.event`, `context.system`, `context.internal`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `contextReference`, required `contextKind`, `contextStatus`; optional opaque `tenantReference`, `actorReference`, `organizationReference`, `entityReference`, `entityKind`, `parentContextReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound scope may require an exact opaque scope reference match.
+* **Port surface:** `createContext` / `resolveContext` only. No createTenant, createIdentity, createActor, authenticate, createSession, assignPermission, evaluatePolicy, executeWorkflow, applyConfiguration, or runProcess.
+* **Dependencies:** `@motanos/context` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Domain engine wiring and future business-context adapters. No `@motanos/context-lifecycle` in this phase.
+
+**Rejected:** Absorbing Tenant/Actor/Execution into Context; Context → tenant/identity/actor/permission/membership/workflow/policy/configuration/runtime imports; implementing behavior, rule evaluation, or process runs in this phase.
+
+---
+
 ## DEC-ACTOR-BOUNDARY-001 — Actor Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
