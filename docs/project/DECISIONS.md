@@ -2423,6 +2423,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-PARTICIPATION-CONTEXT-001 — Hospitality Participation Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 134 introduces Participation as the person ↔ activity relation boundary inside `@motanos/hospitality`. A participation is an opaque link between a person/context and an activity within a hospitality community — not a horizontal participation/booking/ticketing engine, and not seat holds, payments, door scans, alerts, badges, or scores. MotanOS needs Community Member → Participation → Activity before Scheduling / Engagement.
+
+**Decision:**
+
+* **Ownership:** `HospitalityParticipation`, factory, and `ParticipationPort` live in `@motanos/hospitality` under `src/participation`. Participation belongs to Hospitality — no `@motanos/participation`, `@motanos/booking`, or `@motanos/ticketing` packages for this capacity. It is not a horizontal Core capability.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Community → Activities → Participation Foundation → future Scheduling / Engagement / Gamification → Smart Table Operating System. Conceptual flow: User → Activity → Participation → Confirmed (join/approval/availability not implemented — existence only).
+* **Separations:** Participation ≠ reservation / seat hold. Participation ≠ payment / ticket. Participation ≠ door scan / physical presence. Participation ≠ engagement scores. Connects people, community, and activities within one hospitality business.
+* **Isolation:** Each hospitality business owns its participations (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `participation.member`, `participation.guest`, `participation.community`, `participation.business`, `participation.internal`.
+* **Statuses (foundation):** `draft`, `interested`, `requested`, `confirmed`, `cancelled`, `completed`, `archived`.
+* **Contract shape:** Opaque `participationReference`, required `participationKind` / `participationStatus`; optional opaque `hospitalityReference`, `communityReference`, `activityReference`, `actorReference`, `memberReference`, `reservationReference`, `parentParticipationReference`, controlled `metadata`.
+* **Port surface:** `createParticipation` / `resolveParticipation` only. No joinActivity, leaveActivity, confirmParticipation, reservePlace, checkIn, or cancelBooking.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only (no community/activity/reservation/identity runtime imports).
+* **Consequences (+):** active community; prepares future occasions; measures interest; links experiences to people; prepares future engagement. **(−):** Participation depends on Activity and Community.
+* **Deferred:** seats, payments, door scan, physical presence, scores/badges, scheduling (base for Fase 135 Activity Scheduling).
+
+**Rejected:** Creating horizontal participation/booking/ticketing packages; implementing join, leave, confirm, reserve, door scan, or cancel-booking runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
