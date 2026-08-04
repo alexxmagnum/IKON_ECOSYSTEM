@@ -2041,6 +2041,31 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-FEATURE-BOUNDARY-001 — Feature Engine Boundary Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-04
+
+**Context:** Fase 119 introduces Feature as a pure functional-capacity boundary — “what functional capacity exists?” — independently of Configuration existence, Feature Runtime activation, Experimentation trials, Rollout distribution, Deployment publication, feature-flag/toggle execution, targeting, evaluation rules, and external providers. MotanOS needs an opaque feature record so future Feature Runtimes can plug in without absorbing Configuration or Experimentation. No feature-lifecycle split was required: `@motanos/feature` is a new slim boundary.
+
+**Decision:**
+
+* **Ownership:** `Feature`, factories, and `FeaturePort` live in `@motanos/feature` (`packages/engines/feature`). Feature is an independent bounded context — not Configuration, Runtime, Experimentation, Rollout, or Deployment.
+* **Pipeline relation:** Configuration Boundary → Feature Boundary → Future Feature Runtime. Feature answers “what functional capacity exists?”
+* **Separations:** Feature ≠ Configuration. Feature ≠ Runtime. Feature ≠ Experimentation. Feature represents an existing functional capacity, not technical activation. Opaque refs only — prepared for future feature runtimes.
+* **Kinds (foundation):** `feature.product`, `feature.business`, `feature.operational`, `feature.experience`, `feature.customer`, `feature.system`, `feature.internal`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `available`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `featureReference`, required `featureKind`, `featureStatus`; optional opaque `contextReference`, `actorReference`, `entityReference`, `entityKind`, `configurationReference`, `capabilityReference`, `parentFeatureReference`, controlled `metadata`.
+* **Scope isolation:** Optional bound context may require an exact opaque context reference match.
+* **Port surface:** `createFeature` / `resolveFeature` only. No enableFeature, disableFeature, evaluateFeature, executeToggle, assignVariant, rolloutFeature, targetUsers, runExperiment, deployFeature, or connectProvider.
+* **Dependencies:** `@motanos/feature` limited to `@motanos/contracts` + `@motanos/core`.
+* **Deferred:** Feature Runtime adapters. No `@motanos/feature-lifecycle` in this phase.
+
+**Rejected:** Absorbing Configuration/Runtime/Experimentation/Rollout/Deployment into Feature; Feature → flag/toggle/rollout/experiment/variant/target/evaluation/deployment/provider/runtime/configuration/workflow/policy imports; implementing real activation, toggle, or trial execution in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
