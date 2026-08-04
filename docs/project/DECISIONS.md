@@ -1722,25 +1722,24 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 **Status:** ACCEPTED (foundation)
 
-**Date:** 2026-08-02
+**Date:** 2026-08-03
 
-**Context:** Fase 77 introduces the Workflow Engine so MotanOS can define business processes, step sequences, and coordination across bounded contexts without absorbing domain logic or becoming an automation / job / cron platform. Workflow answers “which steps form a business process?” — not how those steps are run technically.
+**Context:** Fase 105 (evolving Fase 77) consolidates Workflow as a pure declarative-process boundary — “what process or flow exists?” — independently of step execution, automation, notification delivery, policy evaluation, permissions, task storage, jobs, queues, and external integrations. MotanOS needs an opaque workflow record so future Workflow Runtimes can plug in as adapters. No workflow-lifecycle split was required: `@motanos/workflow` was already a slim boundary.
 
 **Decision:**
 
-* **Ownership:** `Workflow`, factories, and `WorkflowPort` live in `@motanos/workflow` (`packages/engines/workflow`). Workflow is an independent bounded context — not Booking, Payment, Notification, Audit, Analytics, Identity, or Database.
-* **Pipeline relation:** Business Trigger → Workflow Boundary → Domain Actions (Booking / Payment / Notification / Membership / Commerce / …) → future Workflow Runtime. Domain engines own “what they do”; Workflow owns process shape; Automation Provider (future) owns how steps run automatically.
-* **Separations:** Workflow ≠ Automation. Workflow ≠ Job Queue. Workflow ≠ Domain Logic. Workflow ≠ Scheduler. No booking/payment/notification delivery logic, cron, queue workers, external automation tools (e.g. n8n), database workflow state, or user permissions in this foundation.
-* **Kinds (foundation):** `workflow.business`, `workflow.lifecycle`, `workflow.onboarding`, `workflow.operation`, `workflow.approval`, `workflow.operational`.
-* **Statuses (foundation):** `draft`, `active`, `paused`, `completed`, `cancelled`, `archived`, `failed` (e.g. draft → active → completed).
-* **Contract shape:** Opaque `workflowReference`, required `tenantReference`, `workflowKind`, `workflowStatus`; optional opaque `nameReference`, `descriptionReference`, `triggerReference`, `ownerReference`, `parentWorkflowReference`, controlled `metadata`. No passwords, tokens, credentials, or secrets. Future opaque links to booking/payment/notification/audit/analytics/experience — never engine imports.
+* **Ownership:** `Workflow`, factories, and `WorkflowPort` live in `@motanos/workflow` (`packages/engines/workflow`). Workflow is an independent bounded context — not Policy, Permissions, Notification, Audit, or Workflow Runtime.
+* **Pipeline relation:** Context / Process Definition → Workflow Boundary → Future Workflow Runtime. Workflow answers “what process exists?”
+* **Separations:** Workflow ≠ Runtime. Workflow ≠ Policy. Workflow ≠ Permissions. Workflow ≠ Notification. Opaque refs only — never live runner sessions, job payloads, or queue handles.
+* **Kinds (foundation):** `workflow.business`, `workflow.operational`, `workflow.customer`, `workflow.internal`, `workflow.system`, `workflow.event`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `paused`, `completed`, `cancelled`, `archived`.
+* **Contract shape:** Opaque `workflowReference`, required `tenantReference`, `workflowKind`, `workflowStatus`; optional opaque `actorReference`, `contextReference`, `entityReference`, `entityKind`, `triggerReference`, `stepReference`, `parentWorkflowReference`, controlled `metadata`.
 * **Tenant isolation:** Workflow may be bound to a tenant; cross-tenant creation is denied.
-* **Port surface:** `createWorkflow` / `resolveWorkflow` only. No executeWorkflow, runWorkflow, scheduleWorkflow, triggerWorkflow, or processStep methods in this foundation.
-* **Runtime:** Composition root for future `Workflow Port → Adapter`. No database, queues, cron, or external automation SDKs in this foundation.
+* **Port surface:** `createWorkflow` / `resolveWorkflow` only. No executeWorkflow, runWorkflow, startWorkflow, completeTask, scheduleWorkflow, triggerAutomation, enqueueJob, or processStep.
 * **Dependencies:** `@motanos/workflow` limited to `@motanos/contracts` + `@motanos/core`.
-* **Deferred:** step definitions, runtime execution, scheduling, workers, cross-engine orchestration adapters.
+* **Deferred:** step graphs, runtime adapters, scheduling. No `@motanos/workflow-lifecycle` in this phase.
 
-**Rejected:** Absorbing domain logic into Workflow; Workflow → n8n/cron/queue imports; Application → Workflow Runtime; implementing real step execution or scheduling in this phase.
+**Rejected:** Absorbing Runtime/Policy/Permissions/Notification into Workflow; Workflow → queue/job/automation/notification/policy imports; implementing step execution or scheduling in this phase.
 
 ---
 

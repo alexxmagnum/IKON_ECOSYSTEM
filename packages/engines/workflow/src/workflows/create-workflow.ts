@@ -15,13 +15,13 @@ let workflowSequence = 0;
 export interface CreateWorkflowOptions {
   /**
    * When set, workflow may only be created for this tenant
-   * (cross-tenant isolation).
+   * (cross-tenant scope lock).
    */
   tenantReference?: string;
 }
 
 /**
- * Build a validated Workflow (in-memory — process definition only).
+ * Build a checked Workflow (in-memory — process / flow existence only).
  * Does not run steps, open vendor sessions, or persist runner state.
  */
 export function createWorkflow(
@@ -29,10 +29,12 @@ export function createWorkflow(
   options: CreateWorkflowOptions = {},
 ): Workflow {
   const tenantReference = input.tenantReference?.trim() ?? "";
-  const nameReference = input.nameReference?.trim();
-  const descriptionReference = input.descriptionReference?.trim();
+  const actorReference = input.actorReference?.trim();
+  const contextReference = input.contextReference?.trim();
+  const entityReference = input.entityReference?.trim();
+  const entityKind = input.entityKind?.trim();
   const triggerReference = input.triggerReference?.trim();
-  const ownerReference = input.ownerReference?.trim();
+  const stepReference = input.stepReference?.trim();
   const parentWorkflowReference = input.parentWorkflowReference?.trim();
   const boundTenant = options.tenantReference?.trim() || undefined;
 
@@ -51,17 +53,23 @@ export function createWorkflow(
     );
   }
 
-  if (input.nameReference !== undefined && !nameReference) {
-    throw new Error("nameReference must not be empty when provided");
+  if (input.actorReference !== undefined && !actorReference) {
+    throw new Error("actorReference must not be empty when provided");
   }
-  if (input.descriptionReference !== undefined && !descriptionReference) {
-    throw new Error("descriptionReference must not be empty when provided");
+  if (input.contextReference !== undefined && !contextReference) {
+    throw new Error("contextReference must not be empty when provided");
+  }
+  if (input.entityReference !== undefined && !entityReference) {
+    throw new Error("entityReference must not be empty when provided");
+  }
+  if (input.entityKind !== undefined && !entityKind) {
+    throw new Error("entityKind must not be empty when provided");
   }
   if (input.triggerReference !== undefined && !triggerReference) {
     throw new Error("triggerReference must not be empty when provided");
   }
-  if (input.ownerReference !== undefined && !ownerReference) {
-    throw new Error("ownerReference must not be empty when provided");
+  if (input.stepReference !== undefined && !stepReference) {
+    throw new Error("stepReference must not be empty when provided");
   }
   if (
     input.parentWorkflowReference !== undefined &&
@@ -90,17 +98,23 @@ export function createWorkflow(
     tenantReference,
     workflowKind,
     workflowStatus,
-    ...(nameReference !== undefined && nameReference.length > 0
-      ? { nameReference }
+    ...(actorReference !== undefined && actorReference.length > 0
+      ? { actorReference }
       : {}),
-    ...(descriptionReference !== undefined && descriptionReference.length > 0
-      ? { descriptionReference }
+    ...(contextReference !== undefined && contextReference.length > 0
+      ? { contextReference }
+      : {}),
+    ...(entityReference !== undefined && entityReference.length > 0
+      ? { entityReference }
+      : {}),
+    ...(entityKind !== undefined && entityKind.length > 0
+      ? { entityKind }
       : {}),
     ...(triggerReference !== undefined && triggerReference.length > 0
       ? { triggerReference }
       : {}),
-    ...(ownerReference !== undefined && ownerReference.length > 0
-      ? { ownerReference }
+    ...(stepReference !== undefined && stepReference.length > 0
+      ? { stepReference }
       : {}),
     ...(parentWorkflowReference !== undefined &&
     parentWorkflowReference.length > 0

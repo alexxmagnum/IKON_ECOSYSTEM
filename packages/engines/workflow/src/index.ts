@@ -1,18 +1,16 @@
 /**
- * @motanos/workflow — Workflow Engine foundation.
+ * @motanos/workflow — Workflow Boundary foundation.
  *
- * MotanOS Core → Shared Engines → @motanos/workflow
+ * MotanOS Core → Shared packages → @motanos/workflow
  *
- * Workflow = business process definition, step order, and coordination context.
- * Domain engines own their actions; future runtime owns step running.
- *
- * Must not depend on booking, payment, notification, audit, analytics,
- * identity, or persistence vendors.
+ * Workflow = declarative process / flow existence for a business context.
+ * Must not depend on batch runners, timed runners, messaging packages,
+ * constraint packages, capacity packages, or persistence vendors.
  *
  * @see DEC-WORKFLOW-BOUNDARY-001
  */
 
-export const WORKFLOW_ENGINE = "@motanos/workflow" as const;
+export const WORKFLOW_BOUNDARY = "@motanos/workflow" as const;
 
 export type {
   CreateWorkflowInput,
