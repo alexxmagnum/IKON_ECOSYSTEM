@@ -2789,6 +2789,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-RULE-CONTEXT-001 — Hospitality Engagement Rules Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 148 introduces Engagement Rules as the contextual-criterion boundary inside `@motanos/hospitality` so future layers can reason about when something may be relevant — without implementing AI, automations, Smart Copilot, or executable actions. A rule is an opaque definition of a condition related to engagement; it does not create activities, send messages, apply discounts, mutate members, or run workflows. MotanOS separates Suggestion (someone proposes) / Rule (a criterion indicates relevance) / Action (something occurs).
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementRule`, factory (`createEngagementRule`), and `EngagementRulePort` live in `@motanos/hospitality` under `src/engagement-rules`. Engagement Rules belong to Hospitality — no `@motanos/rules`, `@motanos/automation`, `@motanos/copilot`, or `@motanos/ai` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Community → Activities → Customer Engagement → Suggestions → Engagement Rules → future Smart Copilot → future Automated Actions.
+* **Separations:** Rule ≠ Suggestion. Rule ≠ Action. Rule ≠ Copilot / Automation Engine / Loyalty Engine. No updateRule, executeRule, triggerAction, generateSuggestion, or runAutomation in this foundation. No `aiPrompt`, `model`, `execution`, `workflow`, `automationAction`, `reward`, `score`, `points`, or `level` on the contract.
+* **Isolation:** Each hospitality business owns its rules (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `rule.engagement`, `rule.activity`, `rule.community`, `rule.member`, `rule.business`, `rule.internal`.
+* **Statuses (foundation):** `draft`, `configured`, `active`, `paused`, `disabled`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `ruleReference`, required `ruleKind` / `ruleStatus`; optional opaque `hospitalityReference`, `engagementReference`, `suggestionReference`, `activityReference`, `contextReference`, `memberReference`, `triggerReference`, `policyReference`, controlled `metadata`.
+* **Port surface:** `createEngagementRule` / `resolveEngagementRule` only.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Copilot; prepares future automation; keeps clear boundaries; allows per-tenant rules. **(−):** requires later execution layers.
+* **Deferred:** AI, automations, workflows, notifications, loyalty, Engagement Signal (base for Fase 149).
+
+**Rejected:** Creating horizontal rules/automation/copilot/ai packages; implementing rule execution, side effects, or incentive payloads in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

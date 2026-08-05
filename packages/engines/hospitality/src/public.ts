@@ -7,7 +7,7 @@
  * / Participation / Scheduling / Capacity / Availability / Booking Bridge
  * / Reservation Runtime / Visit Experience / Visit Context / Table Context
  * / Table Channel / Table Interaction / Customer Engagement
- * / Member Profile / Engagement Suggestion → Smart Table OS
+ * / Member Profile / Engagement Suggestion / Engagement Rules → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -17,7 +17,7 @@
  * community, activities, participation, activity scheduling, activity capacity,
  * activity availability, booking bridge, reservation runtime, visit experience,
  * visit context, table context, table channel, table interaction,
- * customer engagement, member profile, engagement suggestion.
+ * customer engagement, member profile, engagement suggestion, engagement rules.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -46,6 +46,7 @@
  * @see DEC-HOSPITALITY-CUSTOMER-ENGAGEMENT-CONTEXT-001
  * @see DEC-HOSPITALITY-MEMBER-PROFILE-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-SUGGESTION-CONTEXT-001
+ * @see DEC-HOSPITALITY-ENGAGEMENT-RULE-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -625,3 +626,24 @@ export {
   isHospitalityEngagementSuggestion,
   resetEngagementSuggestionReferenceSequence,
 } from "./suggestions/mod";
+
+export type {
+  CreateEngagementRuleInput,
+  CreateEngagementRuleOptions,
+  EngagementRuleKind,
+  EngagementRulePort,
+  EngagementRuleStatus,
+  HospitalityEngagementRule,
+} from "./engagement-rules/mod";
+export {
+  ENGAGEMENT_RULE_KINDS,
+  ENGAGEMENT_RULE_KIND_VALUES,
+  ENGAGEMENT_RULE_STATUSES,
+  ENGAGEMENT_RULE_STATUS_VALUES,
+  createEngagementRule,
+  isEngagementRuleKind,
+  isEngagementRulePort,
+  isEngagementRuleStatus,
+  isHospitalityEngagementRule,
+  resetEngagementRuleReferenceSequence,
+} from "./engagement-rules/mod";
