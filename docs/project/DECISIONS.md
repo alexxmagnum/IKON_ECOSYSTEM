@@ -2711,6 +2711,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-CUSTOMER-ENGAGEMENT-CONTEXT-001 — Hospitality Customer Engagement Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 145 introduces Customer Engagement as the active-relationship layer between a hospitality business and the people in its ecosystem inside `@motanos/hospitality`. Engagement is an opaque record of how a person participates, connects, and returns — not a horizontal engagement/social/marketing engine, and not points, levels, rewards, rankings, discounts, campaigns, or full gamification. MotanOS separates Customer Experience (what they live) / Interaction (what action they take) / Engagement (what relationship they keep) / future Loyalty / future Gamification. Engagement is continuous relationship, not a marketing campaign.
+
+**Decision:**
+
+* **Ownership:** `HospitalityCustomerEngagement`, factory (`createCustomerEngagement`), and `CustomerEngagementPort` live in `@motanos/hospitality` under `src/customer-engagement`. Customer Engagement belongs to Hospitality — no `@motanos/engagement`, `@motanos/social`, or `@motanos/marketing` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Community → Activities → Participation → Visit Experience → future Loyalty / Smart Assistant. Person → experience → interaction → community → activity → participation → future relationship (not client → purchase → end).
+* **Separations:** Engagement ≠ Experience. Engagement ≠ Interaction. Engagement ≠ Loyalty. Engagement ≠ Gamification. Engagement ≠ marketing campaign. No calculatePoints, assignReward, upgradeLevel, sendCampaign, or createDiscount in this foundation. No `points`, `score`, `level`, or `rank` on the contract.
+* **Isolation:** Each hospitality business owns its engagements (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `engagement.discovery`, `engagement.interaction`, `engagement.community`, `engagement.activity`, `engagement.relationship`, `engagement.internal`.
+* **Statuses (foundation):** `draft`, `available`, `active`, `paused`, `completed`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `engagementReference`, required `engagementKind` / `engagementStatus`; optional opaque `hospitalityReference`, `communityReference`, `actorReference`, `memberReference`, `interactionReference`, `activityReference`, `participationReference`, `parentEngagementReference`, controlled `metadata`.
+* **Port surface:** `createEngagement` / `resolveEngagement` only (factory helper `createCustomerEngagement`).
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares living community; prepares user-created activities; prepares future loyalty; prepares smart assistant. **(−):** depends on Community, Activities, and Participation.
+* **Deferred:** points, Bronze/Silver/Gold/Platinum levels, discounts, rewards, rankings, full gamification, AI copilot (base for Fase 146 Member Profile).
+
+**Rejected:** Creating horizontal engagement/social/marketing packages; implementing points, rewards, discounts, ranking, or gamification runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

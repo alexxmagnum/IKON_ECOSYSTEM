@@ -6,7 +6,7 @@
  * / Cost Control / Customer Experience / Community / Activities
  * / Participation / Scheduling / Capacity / Availability / Booking Bridge
  * / Reservation Runtime / Visit Experience / Visit Context / Table Context
- * / Table Channel / Table Interaction → Smart Table OS
+ * / Table Channel / Table Interaction / Customer Engagement → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -15,7 +15,8 @@
  * reservations, staff, service operations, cost control, customer experience,
  * community, activities, participation, activity scheduling, activity capacity,
  * activity availability, booking bridge, reservation runtime, visit experience,
- * visit context, table context, table channel, table interaction.
+ * visit context, table context, table channel, table interaction,
+ * customer engagement.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -41,6 +42,7 @@
  * @see DEC-HOSPITALITY-TABLE-CONTEXT-EXPERIENCE-001
  * @see DEC-HOSPITALITY-TABLE-CHANNEL-CONTEXT-001
  * @see DEC-HOSPITALITY-TABLE-INTERACTION-CONTEXT-001
+ * @see DEC-HOSPITALITY-CUSTOMER-ENGAGEMENT-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -557,3 +559,24 @@ export {
   isTableInteractionStatus,
   resetTableInteractionReferenceSequence,
 } from "./table-interaction/mod";
+
+export type {
+  CreateCustomerEngagementInput,
+  CreateCustomerEngagementOptions,
+  CustomerEngagementKind,
+  CustomerEngagementPort,
+  CustomerEngagementStatus,
+  HospitalityCustomerEngagement,
+} from "./customer-engagement/mod";
+export {
+  CUSTOMER_ENGAGEMENT_KINDS,
+  CUSTOMER_ENGAGEMENT_KIND_VALUES,
+  CUSTOMER_ENGAGEMENT_STATUSES,
+  CUSTOMER_ENGAGEMENT_STATUS_VALUES,
+  createCustomerEngagement,
+  isCustomerEngagementKind,
+  isCustomerEngagementPort,
+  isCustomerEngagementStatus,
+  isHospitalityCustomerEngagement,
+  resetCustomerEngagementReferenceSequence,
+} from "./customer-engagement/mod";
