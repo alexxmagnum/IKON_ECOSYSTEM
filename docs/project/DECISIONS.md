@@ -2893,6 +2893,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-APPROVAL-CONTEXT-001 — Hospitality Engagement Approval Context Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 152 introduces Engagement Approval Context as the human-review boundary over contextual proposals inside `@motanos/hospitality`. An approval context is an opaque review frame associated with a proposal — not a final decision, action, automation, workflow, permission system, or AI. MotanOS separates Proposal (something is stated) / Approval Context (review frame) / Approval Decision (review outcome) / Action (future side effect). Approval Context does not create an Activity.
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementApprovalContext`, factory (`createEngagementApprovalContext`), and `EngagementApprovalContextPort` live in `@motanos/hospitality` under `src/approval-context`. Approval Context belongs to Hospitality — no `@motanos/approval`, `@motanos/workflow`, `@motanos/automation`, `@motanos/copilot`, or `@motanos/ai` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Engagement Signals → Engagement Rules → Decision Context → Decision Proposal → Approval Context → future Smart Copilot → future Action Layer.
+* **Separations:** Approval Context ≠ Proposal. Approval Context ≠ Approval Decision. Approval Context ≠ Action / Workflow / Automation / Permission system. No approveProposal, rejectProposal, executeApproval, triggerAction, or createActivity in this foundation. No `approvedAction`, `execution`, `workflow`, `automation`, `permission`, `role`, `aiModel`, or `decisionResult` on the contract.
+* **Isolation:** Each hospitality business owns its approval contexts (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `approval.proposal`, `approval.activity`, `approval.community`, `approval.business`, `approval.experience`, `approval.internal`.
+* **Statuses (foundation):** `draft`, `pending`, `reviewing`, `approved`, `rejected`, `expired`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `approvalReference`, required `approvalKind` / `approvalStatus`; optional opaque `hospitalityReference`, `proposalReference`, `decisionContextReference`, `reviewerReference`, `memberReference`, `activityReference`, `contextReference`, `parentApprovalReference`, controlled `metadata`.
+* **Port surface:** `createApprovalContext` / `resolveApprovalContext` only (factory helper `createEngagementApprovalContext`).
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Copilot; enables human review; keeps traceability; avoids premature automation. **(−):** requires later upper layers.
+* **Deferred:** AI, agents, models, workflows, automations, side effects, enterprise approval systems, dashboards, analytics, loyalty (base for Fase 153 Engagement Action Intent).
+
+**Rejected:** Creating horizontal approval/workflow/automation/copilot/ai packages; implementing settle, side-effect, or access-control payloads in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

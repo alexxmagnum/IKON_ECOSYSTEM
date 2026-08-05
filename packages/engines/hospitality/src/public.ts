@@ -8,7 +8,8 @@
  * / Reservation Runtime / Visit Experience / Visit Context / Table Context
  * / Table Channel / Table Interaction / Customer Engagement
  * / Member Profile / Engagement Suggestion / Engagement Rules
- * / Engagement Signals / Decision Context / Decision Proposal → Smart Table OS
+ * / Engagement Signals / Decision Context / Decision Proposal
+ * / Approval Context → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -19,7 +20,8 @@
  * activity availability, booking bridge, reservation runtime, visit experience,
  * visit context, table context, table channel, table interaction,
  * customer engagement, member profile, engagement suggestion, engagement rules,
- * engagement signals, engagement decision context, engagement decision proposal.
+ * engagement signals, engagement decision context, engagement decision proposal,
+ * engagement approval context.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -52,6 +54,7 @@
  * @see DEC-HOSPITALITY-ENGAGEMENT-SIGNAL-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-DECISION-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-DECISION-PROPOSAL-CONTEXT-001
+ * @see DEC-HOSPITALITY-ENGAGEMENT-APPROVAL-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -715,3 +718,24 @@ export {
   isHospitalityEngagementDecisionProposal,
   resetEngagementDecisionProposalReferenceSequence,
 } from "./decision-proposal/mod";
+
+export type {
+  CreateEngagementApprovalContextInput,
+  CreateEngagementApprovalContextOptions,
+  EngagementApprovalContextKind,
+  EngagementApprovalContextPort,
+  EngagementApprovalContextStatus,
+  HospitalityEngagementApprovalContext,
+} from "./approval-context/mod";
+export {
+  ENGAGEMENT_APPROVAL_CONTEXT_KINDS,
+  ENGAGEMENT_APPROVAL_CONTEXT_KIND_VALUES,
+  ENGAGEMENT_APPROVAL_CONTEXT_STATUSES,
+  ENGAGEMENT_APPROVAL_CONTEXT_STATUS_VALUES,
+  createEngagementApprovalContext,
+  isEngagementApprovalContextKind,
+  isEngagementApprovalContextPort,
+  isEngagementApprovalContextStatus,
+  isHospitalityEngagementApprovalContext,
+  resetEngagementApprovalContextReferenceSequence,
+} from "./approval-context/mod";
