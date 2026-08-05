@@ -10,7 +10,7 @@
  * / Member Profile / Engagement Suggestion / Engagement Rules
  * / Engagement Signals / Decision Context / Decision Proposal
  * / Approval Context / Action Intent / Execution Boundary
- * / Execution Intent → Smart Table OS
+ * / Execution Intent / Execution Context → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -23,7 +23,8 @@
  * customer engagement, member profile, engagement suggestion, engagement rules,
  * engagement signals, engagement decision context, engagement decision proposal,
  * engagement approval context, engagement action intent,
- * engagement execution boundary, engagement execution intent.
+ * engagement execution boundary, engagement execution intent,
+ * engagement execution context.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -60,6 +61,7 @@
  * @see DEC-HOSPITALITY-ENGAGEMENT-ACTION-INTENT-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-BOUNDARY-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-INTENT-001
+ * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -807,3 +809,24 @@ export {
   isHospitalityEngagementExecutionIntent,
   resetEngagementExecutionIntentReferenceSequence,
 } from "./execution-intent/mod";
+
+export type {
+  CreateEngagementExecutionContextInput,
+  CreateEngagementExecutionContextOptions,
+  EngagementExecutionContextKind,
+  EngagementExecutionContextPort,
+  EngagementExecutionContextStatus,
+  HospitalityEngagementExecutionContext,
+} from "./execution-context/mod";
+export {
+  ENGAGEMENT_EXECUTION_CONTEXT_KINDS,
+  ENGAGEMENT_EXECUTION_CONTEXT_KIND_VALUES,
+  ENGAGEMENT_EXECUTION_CONTEXT_STATUSES,
+  ENGAGEMENT_EXECUTION_CONTEXT_STATUS_VALUES,
+  createEngagementExecutionContext,
+  isEngagementExecutionContextKind,
+  isEngagementExecutionContextPort,
+  isEngagementExecutionContextStatus,
+  isHospitalityEngagementExecutionContext,
+  resetEngagementExecutionContextReferenceSequence,
+} from "./execution-context/mod";
