@@ -11,7 +11,7 @@
  * / Engagement Signals / Decision Context / Decision Proposal
  * / Approval Context / Action Intent / Execution Boundary
  * / Execution Intent / Execution Context / Execution Constraint
- * / Execution Capability → Smart Table OS
+ * / Execution Capability / Execution Resource → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -26,7 +26,7 @@
  * engagement approval context, engagement action intent,
  * engagement execution boundary, engagement execution intent,
  * engagement execution context, engagement execution constraint,
- * engagement execution capability.
+ * engagement execution capability, engagement execution resource.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -66,6 +66,7 @@
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CONSTRAINT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CAPABILITY-001
+ * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-RESOURCE-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -876,3 +877,24 @@ export {
   isHospitalityEngagementExecutionCapability,
   resetEngagementExecutionCapabilityReferenceSequence,
 } from "./execution-capability/mod";
+
+export type {
+  CreateEngagementExecutionResourceInput,
+  CreateEngagementExecutionResourceOptions,
+  EngagementExecutionResourceKind,
+  EngagementExecutionResourcePort,
+  EngagementExecutionResourceStatus,
+  HospitalityEngagementExecutionResource,
+} from "./execution-resource/mod";
+export {
+  ENGAGEMENT_EXECUTION_RESOURCE_KINDS,
+  ENGAGEMENT_EXECUTION_RESOURCE_KIND_VALUES,
+  ENGAGEMENT_EXECUTION_RESOURCE_STATUSES,
+  ENGAGEMENT_EXECUTION_RESOURCE_STATUS_VALUES,
+  createEngagementExecutionResource,
+  isEngagementExecutionResourceKind,
+  isEngagementExecutionResourcePort,
+  isEngagementExecutionResourceStatus,
+  isHospitalityEngagementExecutionResource,
+  resetEngagementExecutionResourceReferenceSequence,
+} from "./execution-resource/mod";

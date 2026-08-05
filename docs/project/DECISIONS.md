@@ -3075,6 +3075,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-RESOURCE-001 — Hospitality Engagement Execution Resource Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 159 introduces Engagement Execution Resource as the association descriptor linking a resource to a future perform step inside `@motanos/hospitality`. An execution resource records that a resource is associated — not spend, hold, stock mutation, inventory, integrations, connectors, workflows, automations, or AI. MotanOS separates Execution Capability (what capacity exists) / Execution Resource (what resource participates) / Execution (something actually occurs). Execution Resource associates; it does not spend or hold.
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementExecutionResource`, factory (`createEngagementExecutionResource`), and `EngagementExecutionResourcePort` live in `@motanos/hospitality` under `src/execution-resource`. Execution Resource belongs to Hospitality — no `@motanos/resource-manager`, `@motanos/inventory`, `@motanos/integration`, `@motanos/connectors`, `@motanos/workflow`, `@motanos/automation`, `@motanos/copilot`, or `@motanos/ai` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Engagement Signals → Engagement Rules → Decision Context → Decision Proposal → Approval Context → Action Intent → Execution Boundary → Execution Intent → Execution Context → Execution Constraint → Execution Capability → Execution Resource → future Action Layer → future Smart Copilot.
+* **Separations:** Execution Resource ≠ Execution Capability. Execution Resource ≠ Spend / Hold / Stock mutation / Inventory. No allocate, consume, reserve, release, or execute in this foundation. No `resourceConsumption`, `allocation`, `reservation`, `availabilityChange`, `inventoryMutation`, `workflow`, `automation`, `apiCall`, `externalService`, `aiModel`, or `prompt` on the contract.
+* **Isolation:** Each hospitality business owns its execution resources (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `execution-resource.activity`, `execution-resource.community`, `execution-resource.business`, `execution-resource.experience`, `execution-resource.member`, `execution-resource.engagement`, `execution-resource.internal`.
+* **Statuses (foundation):** `draft`, `registered`, `available`, `active`, `inactive`, `expired`, `cancelled`, `archived`.
+* **Contract shape:** Opaque `executionResourceReference`, required `executionResourceKind` / `executionResourceStatus`; optional opaque `hospitalityReference`, `executionCapabilityReference`, `executionContextReference`, `executionIntentReference`, `constraintReference`, `boundaryReference`, `providerReference`, `locationReference`, `memberReference`, `communityReference`, `experienceReference`, `parentResourceReference`, controlled `metadata`.
+* **Port surface:** `createExecutionResource` / `resolveExecutionResource` only (factory helper `createEngagementExecutionResource`).
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Copilot; keeps traceability; avoids premature side effects; keeps clear boundaries. **(−):** requires later upper layers.
+* **Deferred:** AI, agents, models, workflows, automations, integrations, connectors, real spend/hold, inventory, dashboards, analytics, loyalty (base for Fase 160 Engagement Execution Plan).
+
+**Rejected:** Creating horizontal resource-manager/inventory/integration/connectors/workflow/automation/copilot/ai packages; implementing spend or hold payloads in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
