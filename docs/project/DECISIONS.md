@@ -2841,6 +2841,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-DECISION-CONTEXT-001 — Hospitality Engagement Decision Context Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 150 introduces Engagement Decision Context as the assembled-evaluation-frame boundary inside `@motanos/hospitality`. A decision context is an opaque record that a situation has been formed from signals, rules, and domain references — not a decision, recommendation, automation, prediction, or AI response. MotanOS separates Signal (what is happening) / Rule (what criterion exists) / Decision Context (what situation formed) / Decision (what to do) / Action (run something). Decision Context prepares for future evaluation; it does not choose or run anything.
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementDecisionContext`, factory (`createEngagementDecisionContext`), and `EngagementDecisionContextPort` live in `@motanos/hospitality` under `src/decision-context`. Decision Context belongs to Hospitality — no `@motanos/decision-engine`, `@motanos/copilot`, `@motanos/ai`, or `@motanos/intelligence` packages for this capacity. Future intelligent layers consume existing contexts; they do not own the domain.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Engagement Signals → Engagement Rules → Decision Context → future Smart Copilot → future Decision / Action Layer.
+* **Separations:** Decision Context ≠ Decision. Decision Context ≠ Recommendation. Decision Context ≠ Automation / Workflow / Action. No evaluateDecisionContext, generateDecision, executeDecision, triggerAction, or recommendAction in this foundation. No `decision`, `decisionResult`, `recommendation`, `confidence`, `score`, `aiModel`, `prompt`, `execution`, or `action` on the contract.
+* **Isolation:** Each hospitality business owns its decision contexts (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `decision-context.engagement`, `decision-context.activity`, `decision-context.community`, `decision-context.member`, `decision-context.business`, `decision-context.experience`, `decision-context.internal`.
+* **Statuses (foundation):** `draft`, `assembled`, `available`, `evaluated`, `inactive`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `decisionContextReference`, required `decisionContextKind` / `decisionContextStatus`; optional opaque `hospitalityReference`, `engagementReference`, `signalReference`, `ruleReference`, `suggestionReference`, `activityReference`, `memberReference`, `communityReference`, `contextReference`, `parentDecisionContextReference`, controlled `metadata`.
+* **Port surface:** `createDecisionContext` / `resolveDecisionContext` only (factory helper `createEngagementDecisionContext`).
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Copilot; keeps human control; enables future automations; avoids mixing intelligence into the domain. **(−):** requires later upper layers.
+* **Deferred:** AI, agents, models, embeddings, decision engines, automations, workflows, dashboards, analytics, loyalty (base for Fase 151 Engagement Decision Proposal).
+
+**Rejected:** Creating horizontal decision-engine/copilot/ai/intelligence packages; implementing evaluation, outcomes, or side-effect payloads in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

@@ -8,7 +8,7 @@
  * / Reservation Runtime / Visit Experience / Visit Context / Table Context
  * / Table Channel / Table Interaction / Customer Engagement
  * / Member Profile / Engagement Suggestion / Engagement Rules
- * / Engagement Signals → Smart Table OS
+ * / Engagement Signals / Decision Context → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -19,7 +19,7 @@
  * activity availability, booking bridge, reservation runtime, visit experience,
  * visit context, table context, table channel, table interaction,
  * customer engagement, member profile, engagement suggestion, engagement rules,
- * engagement signals.
+ * engagement signals, engagement decision context.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -50,6 +50,7 @@
  * @see DEC-HOSPITALITY-ENGAGEMENT-SUGGESTION-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-RULE-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-SIGNAL-CONTEXT-001
+ * @see DEC-HOSPITALITY-ENGAGEMENT-DECISION-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -671,3 +672,24 @@ export {
   isHospitalityEngagementSignal,
   resetEngagementSignalReferenceSequence,
 } from "./engagement-signals/mod";
+
+export type {
+  CreateEngagementDecisionContextInput,
+  CreateEngagementDecisionContextOptions,
+  EngagementDecisionContextKind,
+  EngagementDecisionContextPort,
+  EngagementDecisionContextStatus,
+  HospitalityEngagementDecisionContext,
+} from "./decision-context/mod";
+export {
+  ENGAGEMENT_DECISION_CONTEXT_KINDS,
+  ENGAGEMENT_DECISION_CONTEXT_KIND_VALUES,
+  ENGAGEMENT_DECISION_CONTEXT_STATUSES,
+  ENGAGEMENT_DECISION_CONTEXT_STATUS_VALUES,
+  createEngagementDecisionContext,
+  isEngagementDecisionContextKind,
+  isEngagementDecisionContextPort,
+  isEngagementDecisionContextStatus,
+  isHospitalityEngagementDecisionContext,
+  resetEngagementDecisionContextReferenceSequence,
+} from "./decision-context/mod";
