@@ -10,7 +10,8 @@
  * / Member Profile / Engagement Suggestion / Engagement Rules
  * / Engagement Signals / Decision Context / Decision Proposal
  * / Approval Context / Action Intent / Execution Boundary
- * / Execution Intent / Execution Context / Execution Constraint → Smart Table OS
+ * / Execution Intent / Execution Context / Execution Constraint
+ * / Execution Capability → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -24,7 +25,8 @@
  * engagement signals, engagement decision context, engagement decision proposal,
  * engagement approval context, engagement action intent,
  * engagement execution boundary, engagement execution intent,
- * engagement execution context, engagement execution constraint.
+ * engagement execution context, engagement execution constraint,
+ * engagement execution capability.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -63,6 +65,7 @@
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-INTENT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CONSTRAINT-001
+ * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CAPABILITY-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -852,3 +855,24 @@ export {
   isHospitalityEngagementExecutionConstraint,
   resetEngagementExecutionConstraintReferenceSequence,
 } from "./execution-constraint/mod";
+
+export type {
+  CreateEngagementExecutionCapabilityInput,
+  CreateEngagementExecutionCapabilityOptions,
+  EngagementExecutionCapabilityKind,
+  EngagementExecutionCapabilityPort,
+  EngagementExecutionCapabilityStatus,
+  HospitalityEngagementExecutionCapability,
+} from "./execution-capability/mod";
+export {
+  ENGAGEMENT_EXECUTION_CAPABILITY_KINDS,
+  ENGAGEMENT_EXECUTION_CAPABILITY_KIND_VALUES,
+  ENGAGEMENT_EXECUTION_CAPABILITY_STATUSES,
+  ENGAGEMENT_EXECUTION_CAPABILITY_STATUS_VALUES,
+  createEngagementExecutionCapability,
+  isEngagementExecutionCapabilityKind,
+  isEngagementExecutionCapabilityPort,
+  isEngagementExecutionCapabilityStatus,
+  isHospitalityEngagementExecutionCapability,
+  resetEngagementExecutionCapabilityReferenceSequence,
+} from "./execution-capability/mod";

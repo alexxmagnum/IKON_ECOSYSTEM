@@ -3049,6 +3049,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CAPABILITY-001 — Hospitality Engagement Execution Capability Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 158 introduces Engagement Execution Capability as the availability descriptor associated with a future perform step inside `@motanos/hospitality`. An execution capability records that a capacity exists a later perform layer may consult — not auto-discovery, selection, integrations, connectors, workflows, automations, or AI. MotanOS separates Execution Intent (what to perform) / Execution Context (frame) / Execution Constraint (limits) / Execution Capability (available capacity) / Execution (something actually occurs). Execution Capability describes availability; it does not perform.
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementExecutionCapability`, factory (`createEngagementExecutionCapability`), and `EngagementExecutionCapabilityPort` live in `@motanos/hospitality` under `src/execution-capability`. Execution Capability belongs to Hospitality — no `@motanos/execution-engine`, `@motanos/workflow`, `@motanos/automation`, `@motanos/integration`, `@motanos/connectors`, `@motanos/copilot`, or `@motanos/ai` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Engagement Signals → Engagement Rules → Decision Context → Decision Proposal → Approval Context → Action Intent → Execution Boundary → Execution Intent → Execution Context → Execution Constraint → Execution Capability → future Action Layer → future Smart Copilot.
+* **Separations:** Execution Capability ≠ Execution Intent / Context / Constraint. Execution Capability ≠ Integration / Workflow / Automation / Connector. No execute, invoke, dispatch, connect, or run in this foundation. No `executionResult`, `executionHandler`, `workflow`, `automation`, `integrationCall`, `apiEndpoint`, `serviceCall`, `aiModel`, or `prompt` on the contract.
+* **Isolation:** Each hospitality business owns its execution capabilities (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `execution-capability.activity`, `execution-capability.community`, `execution-capability.business`, `execution-capability.experience`, `execution-capability.member`, `execution-capability.engagement`, `execution-capability.internal`.
+* **Statuses (foundation):** `draft`, `registered`, `available`, `active`, `inactive`, `expired`, `cancelled`, `archived`.
+* **Contract shape:** Opaque `executionCapabilityReference`, required `executionCapabilityKind` / `executionCapabilityStatus`; optional opaque `hospitalityReference`, `executionContextReference`, `executionIntentReference`, `constraintReference`, `boundaryReference`, `actionIntentReference`, `memberReference`, `communityReference`, `experienceReference`, `providerReference`, `parentCapabilityReference`, controlled `metadata`.
+* **Port surface:** `createExecutionCapability` / `resolveExecutionCapability` only (factory helper `createEngagementExecutionCapability`).
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Copilot; keeps traceability; avoids premature side effects; keeps clear boundaries. **(−):** requires later upper layers.
+* **Deferred:** AI, agents, models, workflows, automations, integrations, connectors, real side effects, dashboards, analytics, loyalty (base for Fase 159 Engagement Execution Resource).
+
+**Rejected:** Creating horizontal execution-engine/workflow/automation/integration/connectors/copilot/ai packages; implementing perform or side-effect payloads in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
