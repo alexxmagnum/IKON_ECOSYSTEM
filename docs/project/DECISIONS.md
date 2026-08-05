@@ -2971,6 +2971,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-INTENT-001 — Hospitality Engagement Execution Intent Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 155 introduces Engagement Execution Intent as the concrete future-perform intent after an Execution Boundary handoff inside `@motanos/hospitality`. An execution intent is a contextualized intent a later perform layer may consume — not an executed action, workflow, automation, job, external call, or AI. MotanOS separates Action Intent (what we want) / Execution Boundary (handoff frame) / Execution Intent (concrete future-perform intent) / Execution (something actually occurs). Execution Intent does not perform side effects.
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementExecutionIntent`, factory (`createEngagementExecutionIntent`), and `EngagementExecutionIntentPort` live in `@motanos/hospitality` under `src/execution-intent`. Execution Intent belongs to Hospitality — no `@motanos/execution-engine`, `@motanos/workflow`, `@motanos/automation`, `@motanos/jobs`, `@motanos/copilot`, or `@motanos/ai` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Engagement Signals → Engagement Rules → Decision Context → Decision Proposal → Approval Context → Action Intent → Execution Boundary → Execution Intent → future Action Layer → future Smart Copilot.
+* **Separations:** Execution Intent ≠ Action Intent. Execution Intent ≠ Execution Boundary. Execution Intent ≠ Execution / Workflow / Automation / Job. No execute, startExecution, dispatch, runWorkflow, or trigger in this foundation. No `executionResult`, `jobReference`, `workflowReference`, `automationReference`, `apiCall`, `externalService`, `taskReference`, `aiModel`, or `prompt` on the contract.
+* **Isolation:** Each hospitality business owns its execution intents (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `execution-intent.activity`, `execution-intent.community`, `execution-intent.business`, `execution-intent.experience`, `execution-intent.member`, `execution-intent.engagement`, `execution-intent.internal`.
+* **Statuses (foundation):** `draft`, `prepared`, `ready`, `pending`, `started`, `completed`, `cancelled`, `expired`, `archived`.
+* **Contract shape:** Opaque `executionIntentReference`, required `executionIntentKind` / `executionIntentStatus`; optional opaque `hospitalityReference`, `boundaryReference`, `actionIntentReference`, `approvalReference`, `proposalReference`, `contextReference`, `executorReference`, `parentExecutionIntentReference`, controlled `metadata`.
+* **Port surface:** `createExecutionIntent` / `resolveExecutionIntent` only (factory helper `createEngagementExecutionIntent`).
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Copilot; keeps traceability; avoids premature side effects; keeps clear boundaries. **(−):** requires later upper layers.
+* **Deferred:** AI, agents, models, workflows, automations, tasks, real side effects, integrations, dashboards, analytics, loyalty (base for Fase 156 Engagement Execution Context).
+
+**Rejected:** Creating horizontal execution-engine/workflow/automation/jobs/copilot/ai packages; implementing perform or side-effect payloads in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
