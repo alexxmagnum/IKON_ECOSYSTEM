@@ -2763,6 +2763,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-SUGGESTION-CONTEXT-001 — Hospitality Engagement Suggestion Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 147 introduces Engagement Suggestion as the proposal layer so people in a hospitality ecosystem can submit ideas and opportunities for the business inside `@motanos/hospitality`. A suggestion is an opaque record of a proposed activity, event, experience, community, or business idea — not a published Activity, and not a horizontal ideas/social-feed/marketing engine. MotanOS separates Activity (published) / Suggestion (pending idea) / Engagement (relationship) / Participation (real action) / future Automation. Community can generate life for the business without mixing ideas with executed activities.
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementSuggestion`, factory (`createSuggestion`), and `EngagementSuggestionPort` live in `@motanos/hospitality` under `src/suggestions`. Suggestion belongs to Hospitality — no `@motanos/suggestions`, `@motanos/ideas`, `@motanos/community-posts`, `@motanos/social-feed`, or `@motanos/marketing` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Suggestion → Activity → Scheduling → Participation → Visit Experience → Smart Assistant. Member → Suggestion → Owner Review → Accepted → Activity (conversion runtime deferred).
+* **Separations:** Suggestion ≠ Activity. Suggestion ≠ Engagement. Suggestion ≠ Participation. Suggestion ≠ Automation / AI. No approveSuggestion, convertToActivity, notifyOwner, or generateSuggestion in this foundation. No `approvedActivityReference` on the contract yet.
+* **Isolation:** Each hospitality business owns its suggestions (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `suggestion.activity`, `suggestion.event`, `suggestion.experience`, `suggestion.community`, `suggestion.business`, `suggestion.internal`.
+* **Statuses (foundation):** `draft`, `submitted`, `review`, `accepted`, `rejected`, `converted`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `suggestionReference`, required `suggestionKind` / `suggestionStatus`; optional opaque `hospitalityReference`, `communityReference`, `actorReference`, `memberReference`, `engagementReference`, `activityReference`, `parentSuggestionReference`, controlled `metadata`.
+* **Port surface:** `createSuggestion` / `resolveSuggestion` only.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares active community; prepares collaborative creation; prepares owner assistant; prepares future recommendations. **(−):** requires a later approval/conversion flow.
+* **Deferred:** AI proposal generation, smart automations, automatic recommendations, points, rewards, gamification, loyalty tiers (base for Fase 148 Engagement Rules).
+
+**Rejected:** Creating horizontal suggestions/ideas/community-posts/social-feed/marketing packages; implementing approval, conversion, notification, or AI generation runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
