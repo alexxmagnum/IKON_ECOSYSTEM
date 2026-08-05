@@ -3023,6 +3023,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CONSTRAINT-001 — Hospitality Engagement Execution Constraint Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 157 introduces Engagement Execution Constraint as the contextual limit descriptor associated with a future perform step inside `@motanos/hospitality`. An execution constraint records a bound a later perform layer may consult — not runtime enforcement, blocking, workflows, automations, external calls, or AI. MotanOS separates Execution Intent (what to perform) / Execution Context (frame) / Execution Constraint (limits) / Execution (something actually occurs). Execution Constraint describes; it does not impose.
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementExecutionConstraint`, factory (`createEngagementExecutionConstraint`), and `EngagementExecutionConstraintPort` live in `@motanos/hospitality` under `src/execution-constraint`. Execution Constraint belongs to Hospitality — no `@motanos/execution-engine`, `@motanos/workflow`, `@motanos/automation`, `@motanos/policy`, `@motanos/rules-engine`, `@motanos/copilot`, or `@motanos/ai` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Engagement Signals → Engagement Rules → Decision Context → Decision Proposal → Approval Context → Action Intent → Execution Boundary → Execution Intent → Execution Context → Execution Constraint → future Action Layer → future Smart Copilot.
+* **Separations:** Execution Constraint ≠ Execution Intent / Context. Execution Constraint ≠ Enforcement / Workflow / Automation / Policy engine. No validate, enforce, apply, block, or execute in this foundation. No `validationResult`, `enforcement`, `blocking`, `ruleEngine`, `workflow`, `automation`, `jobReference`, `apiCall`, `externalService`, `aiModel`, or `prompt` on the contract.
+* **Isolation:** Each hospitality business owns its execution constraints (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `execution-constraint.activity`, `execution-constraint.community`, `execution-constraint.business`, `execution-constraint.experience`, `execution-constraint.member`, `execution-constraint.engagement`, `execution-constraint.internal`.
+* **Statuses (foundation):** `draft`, `defined`, `available`, `active`, `inactive`, `expired`, `cancelled`, `archived`.
+* **Contract shape:** Opaque `executionConstraintReference`, required `executionConstraintKind` / `executionConstraintStatus`; optional opaque `hospitalityReference`, `executionContextReference`, `executionIntentReference`, `boundaryReference`, `actionIntentReference`, `memberReference`, `communityReference`, `experienceReference`, `parentConstraintReference`, controlled `metadata`.
+* **Port surface:** `createExecutionConstraint` / `resolveExecutionConstraint` only (factory helper `createEngagementExecutionConstraint`).
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Copilot; keeps traceability; avoids premature side effects; keeps clear boundaries. **(−):** requires later upper layers.
+* **Deferred:** AI, agents, models, workflows, automations, runtime rule engines, validators, real side effects, integrations, dashboards, analytics, loyalty (base for Fase 158 Engagement Execution Capability).
+
+**Rejected:** Creating horizontal execution-engine/workflow/automation/policy/rules-engine/copilot/ai packages; implementing impose or side-effect payloads in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

@@ -10,7 +10,7 @@
  * / Member Profile / Engagement Suggestion / Engagement Rules
  * / Engagement Signals / Decision Context / Decision Proposal
  * / Approval Context / Action Intent / Execution Boundary
- * / Execution Intent / Execution Context → Smart Table OS
+ * / Execution Intent / Execution Context / Execution Constraint → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -24,7 +24,7 @@
  * engagement signals, engagement decision context, engagement decision proposal,
  * engagement approval context, engagement action intent,
  * engagement execution boundary, engagement execution intent,
- * engagement execution context.
+ * engagement execution context, engagement execution constraint.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -62,6 +62,7 @@
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-BOUNDARY-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-INTENT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CONTEXT-001
+ * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-CONSTRAINT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -830,3 +831,24 @@ export {
   isHospitalityEngagementExecutionContext,
   resetEngagementExecutionContextReferenceSequence,
 } from "./execution-context/mod";
+
+export type {
+  CreateEngagementExecutionConstraintInput,
+  CreateEngagementExecutionConstraintOptions,
+  EngagementExecutionConstraintKind,
+  EngagementExecutionConstraintPort,
+  EngagementExecutionConstraintStatus,
+  HospitalityEngagementExecutionConstraint,
+} from "./execution-constraint/mod";
+export {
+  ENGAGEMENT_EXECUTION_CONSTRAINT_KINDS,
+  ENGAGEMENT_EXECUTION_CONSTRAINT_KIND_VALUES,
+  ENGAGEMENT_EXECUTION_CONSTRAINT_STATUSES,
+  ENGAGEMENT_EXECUTION_CONSTRAINT_STATUS_VALUES,
+  createEngagementExecutionConstraint,
+  isEngagementExecutionConstraintKind,
+  isEngagementExecutionConstraintPort,
+  isEngagementExecutionConstraintStatus,
+  isHospitalityEngagementExecutionConstraint,
+  resetEngagementExecutionConstraintReferenceSequence,
+} from "./execution-constraint/mod";
