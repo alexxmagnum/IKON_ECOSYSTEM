@@ -9,7 +9,7 @@
  * / Table Channel / Table Interaction / Customer Engagement
  * / Member Profile / Engagement Suggestion / Engagement Rules
  * / Engagement Signals / Decision Context / Decision Proposal
- * / Approval Context / Action Intent → Smart Table OS
+ * / Approval Context / Action Intent / Execution Boundary → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -21,7 +21,8 @@
  * visit context, table context, table channel, table interaction,
  * customer engagement, member profile, engagement suggestion, engagement rules,
  * engagement signals, engagement decision context, engagement decision proposal,
- * engagement approval context, engagement action intent.
+ * engagement approval context, engagement action intent,
+ * engagement execution boundary.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -56,6 +57,7 @@
  * @see DEC-HOSPITALITY-ENGAGEMENT-DECISION-PROPOSAL-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-APPROVAL-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-ACTION-INTENT-CONTEXT-001
+ * @see DEC-HOSPITALITY-ENGAGEMENT-EXECUTION-BOUNDARY-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -761,3 +763,24 @@ export {
   isHospitalityEngagementActionIntent,
   resetEngagementActionIntentReferenceSequence,
 } from "./action-intent/mod";
+
+export type {
+  CreateEngagementExecutionBoundaryInput,
+  CreateEngagementExecutionBoundaryOptions,
+  EngagementExecutionBoundaryKind,
+  EngagementExecutionBoundaryPort,
+  EngagementExecutionBoundaryStatus,
+  HospitalityEngagementExecutionBoundary,
+} from "./execution-boundary/mod";
+export {
+  ENGAGEMENT_EXECUTION_BOUNDARY_KINDS,
+  ENGAGEMENT_EXECUTION_BOUNDARY_KIND_VALUES,
+  ENGAGEMENT_EXECUTION_BOUNDARY_STATUSES,
+  ENGAGEMENT_EXECUTION_BOUNDARY_STATUS_VALUES,
+  createEngagementExecutionBoundary,
+  isEngagementExecutionBoundaryKind,
+  isEngagementExecutionBoundaryPort,
+  isEngagementExecutionBoundaryStatus,
+  isHospitalityEngagementExecutionBoundary,
+  resetEngagementExecutionBoundaryReferenceSequence,
+} from "./execution-boundary/mod";
