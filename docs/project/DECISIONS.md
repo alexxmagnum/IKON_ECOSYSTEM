@@ -2815,6 +2815,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-SIGNAL-CONTEXT-001 — Hospitality Engagement Signal Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 149 introduces Engagement Signal as the observable-fact boundary inside `@motanos/hospitality`. A signal is an opaque record that something was observed in a hospitality context — not a rule, recommendation, action, automation, or decision. MotanOS separates Signal (something occurred) / Rule (how to interpret a condition) / Suggestion (what could be proposed) / Action (what runs). Signals do not interpret, decide, execute, or recommend.
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementSignal`, factory (`createEngagementSignal`), and `EngagementSignalPort` live in `@motanos/hospitality` under `src/engagement-signals`. Engagement Signals belong to Hospitality — no `@motanos/signals`, `@motanos/events`, `@motanos/analytics`, `@motanos/ai`, or `@motanos/intelligence` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Signals → Rules → Suggestions → Activities → Participation → Visit Experience → future Smart Copilot.
+* **Separations:** Signal ≠ Rule. Signal ≠ Suggestion. Signal ≠ Action. Signal ≠ Automation / Analytics Engine / AI. No processSignal, interpretSignal, triggerRule, generateSuggestion, or executeAction in this foundation. No `value`, `score`, `ranking`, `priority`, `recommendation`, `decision`, or `action` on the contract.
+* **Isolation:** Each hospitality business owns its signals (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `signal.engagement`, `signal.activity`, `signal.community`, `signal.member`, `signal.business`, `signal.experience`, `signal.internal`.
+* **Statuses (foundation):** `draft`, `observed`, `active`, `processed`, `inactive`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `signalReference`, required `signalKind` / `signalStatus`; optional opaque `hospitalityReference`, `engagementReference`, `memberReference`, `communityReference`, `activityReference`, `suggestionReference`, `ruleReference`, `contextReference`, `sourceReference`, controlled `metadata`.
+* **Port surface:** `createSignal` / `resolveSignal` only (factory helper `createEngagementSignal`).
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Copilot; prepares contextual analysis; prepares advanced rules; keeps clear boundaries. **(−):** requires later interpretation layers.
+* **Deferred:** AI, models, embeddings, automations, workflows, dashboards, analytics engine, loyalty, points, rewards, notifications (base for Fase 150 Engagement Decision Context).
+
+**Rejected:** Creating horizontal signals/events/analytics/ai/intelligence packages; implementing interpretation, decision, or side-effect payloads in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
