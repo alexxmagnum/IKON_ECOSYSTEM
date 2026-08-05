@@ -2867,6 +2867,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-DECISION-PROPOSAL-CONTEXT-001 — Hospitality Engagement Decision Proposal Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 151 introduces Engagement Decision Proposal as the pending-possibility boundary derived from a Decision Context inside `@motanos/hospitality`. A proposal is an opaque record of a contextual possibility awaiting review — not an approved decision, automatic recommendation, action, automation, workflow, or AI response. MotanOS separates Context (a situation exists) / Proposal (a possibility is stated) / Decision (someone decides) / Action (something occurs). The Proposal does not create an Activity.
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementDecisionProposal`, factory (`createEngagementDecisionProposal`), and `EngagementDecisionProposalPort` live in `@motanos/hospitality` under `src/decision-proposal`. Decision Proposal belongs to Hospitality — no `@motanos/proposals`, `@motanos/recommendations`, `@motanos/copilot`, `@motanos/ai`, or `@motanos/decision-engine` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Engagement Signals → Engagement Rules → Decision Context → Decision Proposal → future Smart Copilot → future Decision / Action Layer.
+* **Separations:** Proposal ≠ Decision Context. Proposal ≠ Decision. Proposal ≠ Action / Automation / Workflow. Proposal ≠ community Suggestion (different origin). No approveProposal, executeProposal, convertProposal, generateProposal, or recommendAction in this foundation. No `approvedDecision`, `execution`, `automationAction`, `workflow`, `aiModel`, `prompt`, `confidence`, `score`, `ranking`, or `reward` on the contract.
+* **Isolation:** Each hospitality business owns its proposals (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `proposal.engagement`, `proposal.activity`, `proposal.community`, `proposal.member`, `proposal.business`, `proposal.experience`, `proposal.internal`.
+* **Statuses (foundation):** `draft`, `generated`, `review`, `accepted`, `rejected`, `converted`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `proposalReference`, required `proposalKind` / `proposalStatus`; optional opaque `hospitalityReference`, `decisionContextReference`, `signalReference`, `ruleReference`, `suggestionReference`, `activityReference`, `communityReference`, `memberReference`, `contextReference`, `creatorReference`, `parentProposalReference`, controlled `metadata`.
+* **Port surface:** `createDecisionProposal` / `resolveDecisionProposal` only (factory helper `createEngagementDecisionProposal`).
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Copilot; enables human review; avoids premature automation; keeps clear boundaries. **(−):** requires later upper layers.
+* **Deferred:** AI, agents, models, automatic recommendations, workflows, automations, side effects, dashboards, analytics, loyalty (base for Fase 152 Engagement Approval Context).
+
+**Rejected:** Creating horizontal proposals/recommendations/copilot/ai/decision-engine packages; implementing approval, conversion, or side-effect payloads in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

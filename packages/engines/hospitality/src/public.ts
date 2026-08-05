@@ -8,7 +8,7 @@
  * / Reservation Runtime / Visit Experience / Visit Context / Table Context
  * / Table Channel / Table Interaction / Customer Engagement
  * / Member Profile / Engagement Suggestion / Engagement Rules
- * / Engagement Signals / Decision Context → Smart Table OS
+ * / Engagement Signals / Decision Context / Decision Proposal → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -19,7 +19,7 @@
  * activity availability, booking bridge, reservation runtime, visit experience,
  * visit context, table context, table channel, table interaction,
  * customer engagement, member profile, engagement suggestion, engagement rules,
- * engagement signals, engagement decision context.
+ * engagement signals, engagement decision context, engagement decision proposal.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -51,6 +51,7 @@
  * @see DEC-HOSPITALITY-ENGAGEMENT-RULE-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-SIGNAL-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-DECISION-CONTEXT-001
+ * @see DEC-HOSPITALITY-ENGAGEMENT-DECISION-PROPOSAL-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -693,3 +694,24 @@ export {
   isHospitalityEngagementDecisionContext,
   resetEngagementDecisionContextReferenceSequence,
 } from "./decision-context/mod";
+
+export type {
+  CreateEngagementDecisionProposalInput,
+  CreateEngagementDecisionProposalOptions,
+  EngagementDecisionProposalKind,
+  EngagementDecisionProposalPort,
+  EngagementDecisionProposalStatus,
+  HospitalityEngagementDecisionProposal,
+} from "./decision-proposal/mod";
+export {
+  ENGAGEMENT_DECISION_PROPOSAL_KINDS,
+  ENGAGEMENT_DECISION_PROPOSAL_KIND_VALUES,
+  ENGAGEMENT_DECISION_PROPOSAL_STATUSES,
+  ENGAGEMENT_DECISION_PROPOSAL_STATUS_VALUES,
+  createEngagementDecisionProposal,
+  isEngagementDecisionProposalKind,
+  isEngagementDecisionProposalPort,
+  isEngagementDecisionProposalStatus,
+  isHospitalityEngagementDecisionProposal,
+  resetEngagementDecisionProposalReferenceSequence,
+} from "./decision-proposal/mod";
