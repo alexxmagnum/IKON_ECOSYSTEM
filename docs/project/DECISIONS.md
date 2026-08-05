@@ -2685,6 +2685,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-TABLE-INTERACTION-CONTEXT-001 — Hospitality Table Interaction Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 144 introduces Table Interaction as the customer-action layer within a table experience inside `@motanos/hospitality`. A table interaction is an opaque record of what a guest can initiate from a table context (discovery, menu browse, service request, experience, community) — not a horizontal interaction/action engine, and not cart, order, payment, kitchen, pricing, promotions, or gamification. MotanOS separates Table Channel (how they enter) / Table Context (where) / Table Interaction (what they can do) / Customer Experience (what they live) / future Order. The table becomes an ecosystem entry point, not only a QR that opens a menu.
+
+**Decision:**
+
+* **Ownership:** `HospitalityTableInteraction`, factory (`createTableInteraction`), and `TableInteractionPort` live in `@motanos/hospitality` under `src/table-interaction`. Table Interaction belongs to Hospitality — no `@motanos/interaction`, `@motanos/action`, or `@motanos/customer-action` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality Domain → Menu → Table Channel → Table Context → Table Interaction → Customer Experience → future Order / Consumption → Smart Table OS. QR → table context → interaction → experience (not QR → menu → order only).
+* **Separations:** Table Interaction ≠ Table Channel (access). Table Interaction ≠ Table Context (space). Table Interaction ≠ Order / Cart / Payment / Kitchen. No createOrder, openCart, pay, sendToKitchen, or applyDiscount in this foundation. No `orderReference`, `paymentReference`, or `cartReference` on the contract.
+* **Isolation:** Each hospitality business owns its table interactions (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `interaction.discovery`, `interaction.menu`, `interaction.service`, `interaction.experience`, `interaction.community`, `interaction.internal`.
+* **Statuses (foundation):** `draft`, `available`, `started`, `active`, `completed`, `cancelled`, `archived`.
+* **Contract shape:** Opaque `interactionReference`, required `interactionKind` / `interactionStatus`; optional opaque `hospitalityReference`, `tableChannelReference`, `tableContextReference`, `visitContextReference`, `visitReference`, `actorReference`, `experienceReference`, `menuReference`, `parentInteractionReference`, controlled `metadata`.
+* **Port surface:** `createTableInteraction` / `resolveTableInteraction` only.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Table OS; enables contextual experiences; connects community with operation; prepares future automations. **(−):** depends on Table Channel and Table Context.
+* **Deferred:** cart, order lines, payment, kitchen, billing, automatic promotions, full gamification, AI copilot (base for Fase 145 Customer Engagement).
+
+**Rejected:** Creating horizontal interaction/action/customer-action packages; implementing cart, order, payment, kitchen, or pricing runtimes in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)

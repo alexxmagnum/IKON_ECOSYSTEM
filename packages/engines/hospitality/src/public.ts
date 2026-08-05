@@ -6,7 +6,7 @@
  * / Cost Control / Customer Experience / Community / Activities
  * / Participation / Scheduling / Capacity / Availability / Booking Bridge
  * / Reservation Runtime / Visit Experience / Visit Context / Table Context
- * / Table Channel → Smart Table OS
+ * / Table Channel / Table Interaction → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -15,7 +15,7 @@
  * reservations, staff, service operations, cost control, customer experience,
  * community, activities, participation, activity scheduling, activity capacity,
  * activity availability, booking bridge, reservation runtime, visit experience,
- * visit context, table context, table channel.
+ * visit context, table context, table channel, table interaction.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -40,6 +40,7 @@
  * @see DEC-HOSPITALITY-VISIT-CONTEXT-CONTEXT-001
  * @see DEC-HOSPITALITY-TABLE-CONTEXT-EXPERIENCE-001
  * @see DEC-HOSPITALITY-TABLE-CHANNEL-CONTEXT-001
+ * @see DEC-HOSPITALITY-TABLE-INTERACTION-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -535,3 +536,24 @@ export {
   isTableChannelStatus,
   resetTableChannelReferenceSequence,
 } from "./table-channel/mod";
+
+export type {
+  CreateTableInteractionInput,
+  CreateTableInteractionOptions,
+  HospitalityTableInteraction,
+  TableInteractionKind,
+  TableInteractionPort,
+  TableInteractionStatus,
+} from "./table-interaction/mod";
+export {
+  TABLE_INTERACTION_KINDS,
+  TABLE_INTERACTION_KIND_VALUES,
+  TABLE_INTERACTION_STATUSES,
+  TABLE_INTERACTION_STATUS_VALUES,
+  createTableInteraction,
+  isHospitalityTableInteraction,
+  isTableInteractionKind,
+  isTableInteractionPort,
+  isTableInteractionStatus,
+  resetTableInteractionReferenceSequence,
+} from "./table-interaction/mod";
