@@ -9,7 +9,7 @@
  * / Table Channel / Table Interaction / Customer Engagement
  * / Member Profile / Engagement Suggestion / Engagement Rules
  * / Engagement Signals / Decision Context / Decision Proposal
- * / Approval Context → Smart Table OS
+ * / Approval Context / Action Intent → Smart Table OS
  *
  * Hospitality = vertical business context for restaurants, clubs,
  * hotels, bars, and catering — not a horizontal Core capability.
@@ -21,7 +21,7 @@
  * visit context, table context, table channel, table interaction,
  * customer engagement, member profile, engagement suggestion, engagement rules,
  * engagement signals, engagement decision context, engagement decision proposal,
- * engagement approval context.
+ * engagement approval context, engagement action intent.
  * Prepared (not implemented): kitchen, bar.
  *
  * @see DEC-HOSPITALITY-CONTEXT-001
@@ -55,6 +55,7 @@
  * @see DEC-HOSPITALITY-ENGAGEMENT-DECISION-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-DECISION-PROPOSAL-CONTEXT-001
  * @see DEC-HOSPITALITY-ENGAGEMENT-APPROVAL-CONTEXT-001
+ * @see DEC-HOSPITALITY-ENGAGEMENT-ACTION-INTENT-CONTEXT-001
  */
 
 export const HOSPITALITY_DOMAIN = "@motanos/hospitality" as const;
@@ -739,3 +740,24 @@ export {
   isHospitalityEngagementApprovalContext,
   resetEngagementApprovalContextReferenceSequence,
 } from "./approval-context/mod";
+
+export type {
+  CreateEngagementActionIntentInput,
+  CreateEngagementActionIntentOptions,
+  EngagementActionIntentKind,
+  EngagementActionIntentPort,
+  EngagementActionIntentStatus,
+  HospitalityEngagementActionIntent,
+} from "./action-intent/mod";
+export {
+  ENGAGEMENT_ACTION_INTENT_KINDS,
+  ENGAGEMENT_ACTION_INTENT_KIND_VALUES,
+  ENGAGEMENT_ACTION_INTENT_STATUSES,
+  ENGAGEMENT_ACTION_INTENT_STATUS_VALUES,
+  createEngagementActionIntent,
+  isEngagementActionIntentKind,
+  isEngagementActionIntentPort,
+  isEngagementActionIntentStatus,
+  isHospitalityEngagementActionIntent,
+  resetEngagementActionIntentReferenceSequence,
+} from "./action-intent/mod";

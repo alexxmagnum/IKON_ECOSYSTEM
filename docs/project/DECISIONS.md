@@ -2919,6 +2919,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-ENGAGEMENT-ACTION-INTENT-CONTEXT-001 — Hospitality Engagement Action Intent Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 153 introduces Engagement Action Intent as the post-approval future-intent boundary inside `@motanos/hospitality`. An action intent is a persisted contextual intent to do something later — not an executed action, task, workflow, automation, order, integration, API call, or created activity. MotanOS separates Proposal (something is stated) / Approval (someone validates) / Action Intent (intent to do something) / Action (something actually occurs). Action Intent does not create an Activity.
+
+**Decision:**
+
+* **Ownership:** `HospitalityEngagementActionIntent`, factory (`createEngagementActionIntent`), and `EngagementActionIntentPort` live in `@motanos/hospitality` under `src/action-intent`. Action Intent belongs to Hospitality — no `@motanos/action`, `@motanos/workflow`, `@motanos/automation`, `@motanos/task`, `@motanos/copilot`, or `@motanos/ai` packages for this capacity.
+* **Pipeline relation:** MotanOS Platform → Hospitality → Customer Engagement → Engagement Signals → Engagement Rules → Decision Context → Decision Proposal → Approval Context → Action Intent → future Action Layer → future Smart Copilot.
+* **Separations:** Action Intent ≠ Proposal. Action Intent ≠ Approval. Action Intent ≠ Action / Workflow / Automation / Task. No executeAction, runWorkflow, triggerAutomation, createActivity, or sendNotification in this foundation. No `execution`, `workflow`, `automation`, `apiCall`, `task`, `completedAction`, `aiModel`, `prompt`, or `decision` on the contract.
+* **Isolation:** Each hospitality business owns its action intents (IKON ≠ Marina). Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `intent.activity`, `intent.community`, `intent.business`, `intent.experience`, `intent.member`, `intent.engagement`, `intent.internal`.
+* **Statuses (foundation):** `draft`, `created`, `approved`, `prepared`, `scheduled`, `completed`, `cancelled`, `expired`, `archived`.
+* **Contract shape:** Opaque `intentReference`, required `intentKind` / `intentStatus`; optional opaque `hospitalityReference`, `approvalReference`, `proposalReference`, `decisionContextReference`, `activityReference`, `experienceReference`, `communityReference`, `memberReference`, `contextReference`, `creatorReference`, `parentIntentReference`, controlled `metadata`.
+* **Port surface:** `createActionIntent` / `resolveActionIntent` only (factory helper `createEngagementActionIntent`).
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares Smart Copilot; keeps traceability; avoids premature side effects; enables later controlled upper layers. **(−):** requires later upper layers.
+* **Deferred:** AI, agents, models, workflows, automations, tasks, real side effects, integrations, dashboards, analytics, loyalty (base for Fase 154 Engagement Execution Boundary).
+
+**Rejected:** Creating horizontal action/workflow/automation/task/copilot/ai packages; implementing perform or side-effect payloads in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
