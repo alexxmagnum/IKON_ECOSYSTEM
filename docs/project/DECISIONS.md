@@ -2737,6 +2737,32 @@ They are **provisional** until real execution workflows exist. A later phase may
 
 ---
 
+## DEC-HOSPITALITY-MEMBER-PROFILE-CONTEXT-001 — Hospitality Member Profile Foundation
+
+**Status:** ACCEPTED (foundation)
+
+**Date:** 2026-08-05
+
+**Context:** Fase 146 introduces Member Profile as the persistent business-relationship layer between a person and one hospitality business inside `@motanos/hospitality`. A member profile is an opaque record of what a person represents within that Hospitality (guest, customer, club member) — not global identity, and not a horizontal customer/CRM/member engine. MotanOS separates Actor (who the person is) / Member Profile (what they are in this business) / Customer Engagement (how they interact) / Participation (what actions they take) / future Loyalty. The same Actor may hold different profiles in IKON vs Marina.
+
+**Decision:**
+
+* **Ownership:** `HospitalityMemberProfile`, factory (`createMemberProfile`), and `MemberProfilePort` live in `@motanos/hospitality` under `src/member-profile`. Member Profile belongs to Hospitality — no `@motanos/customer`, `@motanos/crm`, `@motanos/member`, or `@motanos/loyalty` packages for this capacity. Identity remains Core; Member Profile depends on the business.
+* **Pipeline relation:** MotanOS Platform → Identity / Actor → Hospitality → Member Profile → Customer Engagement → Community → Activities → Participation → Visit Experience → future Loyalty / Smart Assistant. Actor → Member Profile (correct); Member Profile must not store name/email/phone/address/avatar (incorrect identity duplication).
+* **Separations:** Member Profile ≠ Actor / Identity. Member Profile ≠ Engagement. Member Profile ≠ Participation. Member Profile ≠ Loyalty / CRM. No upgradeMembership, assignLevel, calculatePoints, grantReward, or applyDiscount in this foundation. No personal contact fields on the contract.
+* **Isolation:** Each hospitality business owns its member profiles (IKON ≠ Marina) even when both point at the same opaque `actorReference`. Optional bound hospitality may require exact opaque hospitality reference match.
+* **Kinds (foundation):** `member.profile`, `member.guest`, `member.customer`, `member.club`, `member.internal`.
+* **Statuses (foundation):** `draft`, `active`, `inactive`, `suspended`, `archived`, `cancelled`.
+* **Contract shape:** Opaque `memberReference`, required `memberKind` / `memberStatus`; optional opaque `hospitalityReference`, `actorReference`, `communityReference`, `engagementReference`, `participationReference`, `visitReference`, `parentMemberReference`, controlled `metadata`.
+* **Port surface:** `createMemberProfile` / `resolveMemberProfile` only.
+* **Dependencies:** remain `@motanos/contracts` + `@motanos/core` only.
+* **Consequences (+):** prepares partners/members; prepares community; prepares future loyalty; prepares assistant memory. **(−):** depends on Identity / Actor.
+* **Deferred:** Bronze/Silver/Gold/Platinum, points, discounts, rewards, rankings, AI, automatic promotions (base for Fase 147 Engagement Suggestion).
+
+**Rejected:** Creating horizontal customer/CRM/member/loyalty packages; duplicating identity fields on Member Profile; implementing loyalty tiers, points, or rewards in this phase.
+
+---
+
 ## DEC-LOCALIZATION-BOUNDARY-001 — Localization Engine Boundary Foundation
 
 **Status:** ACCEPTED (foundation)
